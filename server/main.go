@@ -10,5 +10,13 @@ import (
 )
 
 func main() {
-	
+
+	config.ConnectDB()
+
+	r := gin.Default()
+
+	routes.SetupRoutes(r)
+
+	r.Run(":8000")
+
 }

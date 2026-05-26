@@ -18,7 +18,7 @@ func ConnectDB() {
 	port 	 := "3306"
 	dbname 	 := "cw_db"
 
-	dsn := fmt.Sprintf("%s:%s@tcp:(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		username,
 		password,
 		host,
@@ -33,10 +33,11 @@ func ConnectDB() {
 
 	DB = database
 
-	err = DB.AutoMigrate()
+	err = DB.AutoMigrate(&models.User{})
 	if err != nil {
 		log.Fatal("Migration Failed")
 	}
+
 	fmt.Println("Database connected")
 
 }
