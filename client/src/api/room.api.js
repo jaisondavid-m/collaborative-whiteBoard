@@ -5,5 +5,5 @@ export const createRoom = (data) =>
 
 export const joinRoomSocket = (roomId) =>
     new WebSocket(
-        `ws://localhost:8000/api/room/join/${roomId}`
+        `ws://localhost:8000/api/room/join/${roomId}?token=${localStorage.getItem("token") || ""}`
     )

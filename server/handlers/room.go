@@ -1,7 +1,6 @@
 package handlers
 
 import (
-
 	"net/http"
 
 	"server/config"
@@ -12,7 +11,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	gws "github.com/gorilla/websocket"
-
 )
 
 var upgrader = gws.Upgrader{
@@ -22,41 +20,41 @@ var upgrader = gws.Upgrader{
 }
 
 type CreateRoomRequest struct {
-	RoomID		string 		`json:"roomId"`
-	Name		string		`json:"name"`
+	RoomID string `json:"roomId"`
+	Name   string `json:"name"`
 }
 
 func CreateRoom(c *gin.Context) {
 	var body CreateRoomRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest,gin.H{
-			"error":"Invalid Body",
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid Body",
 		})
 		return
 	}
 
 	var existingRoom models.Room
 
-	config.DB.Where("room_id = ?",body.RoomID).First(&existingRoom)
+	config.DB.Where("room_id = ?", body.RoomID).First(&existingRoom)
 
 	if existingRoom.ID != 0 {
-		c.JSON(http.StatusBadRequest,gin.H{
-			"error":"Room already exists",
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Room already exists",
 		})
 		return
 	}
 
 	room := models.Room{
-		RoomID: body.RoomID,
-		Name: body.Name,
+		RoomID:   body.RoomID,
+		Name:     body.Name,
 		IsActive: true,
 	}
 
 	config.DB.Create(&room)
 
-	c.JSON(http.StatusOK,gin.H{
-		"message":"Room Created Successfully",
-		"room": room,
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Room Created Successfully",
+		"room":    room,
 	})
 }
 
@@ -66,9 +64,9 @@ func JoinRoom(c *gin.Context) {
 
 	var roomModel models.Room
 
-	if err := config.DB.Where("room_id = ?",roomID).First(&roomModel).Error; err != nil {
+	if err := config.DB.Where("room_id = ?", roomID).First(&roomModel).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":"Room not found",
+			"error": "Room not found",
 		})
 		return
 	}
@@ -100,12 +98,12 @@ func JoinRoom(c *gin.Context) {
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		return 
+		return
 	}
 
 	client := &websocket.Client{
-		Conn: conn,
-		Room: runtimeRoom,
+		Conn:   conn,
+		Room:   runtimeRoom,
 		UserID: userID,
 	}
 
@@ -126,7 +124,7 @@ func JoinRoom(c *gin.Context) {
 // 	result := config.DB.Where("room_id = ?",roomID).First(&roomModel)
 
 // 	if result.Error != nil {
-		
+
 // 		c.JSON(http.StatusNotFound,gin.H{
 // 			"error":"Room Not Found",
 // 		})
@@ -152,7 +150,7 @@ func JoinRoom(c *gin.Context) {
 // 	)
 
 // 	if err != nil {
-// 		return 
+// 		return
 // 	}
 
 // 	client := &websocket.Client{

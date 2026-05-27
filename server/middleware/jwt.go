@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"server/utils"
 	"net/http"
 	"strings"
+	"server/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,26 +13,32 @@ func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		authHeader := c.GetHeader("Authorization")
+		tokenString := ""
 
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized,gin.H{
-				"error":"Authorization heading is required",
-			})
-			c.Abort()
-			return
+			tokenString = c.Query("token")
+			if tokenString == "" {
+				c.JSON(http.StatusUnauthorized,gin.H{
+					"error":"Authorization heading is required",
+				})
+				c.Abort()
+				return
+			}
+		} else {
+			parts := strings.Split(authHeader, " ")
+
+			if len(parts) != 2 {
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"error":"Invalid Authorization format",
+				})
+				c.Abort()
+				return
+			}
+
+			tokenString = parts[1]
 		}
 
-		tokenString := strings.Split(authHeader, " ")
-
-		if len(tokenString) != 2 {
-			c.JSON(http.StatusUnauthorized,gin.H{
-				"error":"Invalid Authorization format",
-			})
-			c.Abort()
-			return
-		}
-
-		token, err := utils.VerifyJWT(tokenString[1])
+		token, err := utils.VerifyJWT(tokenString)
 
 		if err != nil || !token.Valid {
 			c.JSON(http.StatusUnauthorized, gin.H{
