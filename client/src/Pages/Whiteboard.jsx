@@ -115,9 +115,9 @@ function Whiteboard() {
 
     function getPos(e, canvas) {
         const rect = canvas.getBoundingClientRect()
-        if (e.touched) return {
+        if (e.touched && e.touches.length > 0) return {
             x: e.touches[0].clientX - rect.left,
-            y: e.touched[0].clientY - rect.top,
+            y: e.touches[0].clientY - rect.top,
         }
         return { x: e.clientX - rect.left, y: e.clientY - rect.top }
     }
