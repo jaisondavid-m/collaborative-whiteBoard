@@ -40,3 +40,12 @@ func VerifyJWT(tokenString string) (*jwt.Token, error) {
 	return token, nil
 
 }
+
+func ExtractClaims(token *jwt.Token) (string, bool) {
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", false
+	}
+	uid, ok := claims["userid"].(string)
+	return uid, ok
+}
