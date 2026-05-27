@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import Login from "../Pages/Login.jsx"
 import Register from '../Pages/Register.jsx'
 import Home from "../Pages/Home.jsx"
+import Rooms from "../Pages/Rooms.jsx"
+import Whiteboard from '../Pages/Whiteboard.jsx'
 
 import ProtectedRoute from "../routes/ProtectedRoute.jsx"
 
@@ -21,6 +23,22 @@ function App() {
           element={
             <ProtectedRoute>
               <Home/>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/whiteboard/:roomId'
+          element={
+              <ProtectedRoute>
+                <Whiteboard/>
+              </ProtectedRoute>   
+          }
+        />
+        <Route
+          path='/room'
+          element={
+            <ProtectedRoute>
+              <Rooms/>
             </ProtectedRoute>
           }
         />

@@ -1,0 +1,73 @@
+import React , { useState } from "react"
+
+import Card from "../ui/Card.jsx"
+import Input from "../ui/Input.jsx"
+import Button from "../ui/Input.jsx"
+
+import { createRoom } from "../../api/room.api.js"
+
+function CreateRoomForm() {
+
+    const [formData, setFormData] = useState({
+        roomId: "",
+        name: "",
+    })
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
+        })
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        try {
+            const response = await createRoom(
+                formData
+            )
+            alert("Room Created")
+            console.log(response.data)
+        } catch (error) {
+            alert(error.response?.data?.error)
+        }
+    }
+
+    return (
+        <Card>
+            <div className="flex flex-col gap-6">
+                <div>
+                    <h1 className="text-3xl font-bold">Create Room</h1>
+                    <p className="text-gray-500 mt-1">
+                        Start Collaborative Session
+                    </p>
+                </div>
+                <form
+                    onSubmit={handleSubmit}
+                    className="flex flex-col gap-4"
+                >
+                    <Input
+                        label="Room ID"
+                        name="roomId"
+                        value={formData.roomId}
+                        onChange={handleChange}
+                        placeholder="Enter the Room ID"
+                    />
+                    <Input
+                        label="Room Name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Enter Room Name"
+                    />
+                    <Button type="submit">
+                        Create Room
+                    </Button>
+                </form>
+            </div>
+        </Card>
+    )
+
+}
+
+export default CreateRoomForm
