@@ -1,13 +1,11 @@
 package main
 
 import (
-
 	"server/config"
 	"server/routes"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-
 )
 
 func main() {

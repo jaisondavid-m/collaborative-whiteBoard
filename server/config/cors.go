@@ -12,7 +12,7 @@ import (
 func SetupCORS() gin.HandlerFunc {
 
 	origins := strings.Split(
-		os.Getenv("ALLOWED_ORIGINS"),",",
+		os.Getenv("ALLOWED_ORIGINS"), ",",
 	)
 
 	return cors.New(cors.Config{
@@ -37,7 +37,7 @@ func SetupCORS() gin.HandlerFunc {
 		},
 
 		AllowCredentials: true,
-		MaxAge: 12*time.Hour,
+		MaxAge:           12 * time.Hour,
 	})
 
 }

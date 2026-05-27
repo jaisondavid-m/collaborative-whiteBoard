@@ -1,12 +1,10 @@
 package routes
 
 import (
-
 	"server/handlers"
 	"server/middleware"
 
 	"github.com/gin-gonic/gin"
-
 )
 
 func SetupRoutes(r *gin.Engine) {
@@ -21,6 +19,12 @@ func SetupRoutes(r *gin.Engine) {
 	protected.Use(middleware.AuthMiddleware())
 	{
 		protected.GET("/profile",handlers.Profile)
+	}
+
+	room := protected.Group("/room")
+	{
+		room.POST("/create",handlers.CreateRoom)
+		room.GET("/join/:roomId",handlers.JoinRoom)
 	}
 
 }
