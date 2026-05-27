@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"net/http"
-	"strings"
 	"server/utils"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,8 +18,8 @@ func AuthMiddleware() gin.HandlerFunc {
 		if authHeader == "" {
 			tokenString = c.Query("token")
 			if tokenString == "" {
-				c.JSON(http.StatusUnauthorized,gin.H{
-					"error":"Authorization heading is required",
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"error": "Authorization heading is required",
 				})
 				c.Abort()
 				return
@@ -29,7 +29,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 			if len(parts) != 2 {
 				c.JSON(http.StatusUnauthorized, gin.H{
-					"error":"Invalid Authorization format",
+					"error": "Invalid Authorization format",
 				})
 				c.Abort()
 				return
@@ -42,7 +42,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		if err != nil || !token.Valid {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"error":"Invalid Token",
+				"error": "Invalid Token",
 			})
 			c.Abort()
 			return
