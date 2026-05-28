@@ -25,10 +25,11 @@ function Login() {
                 response.data.token
             )
             // alert("Login SuccessFull")
-            toast("Login Successful")
             // navigate("/home")
-            setTimeout(() => navigate("/home"), 500)
             // console.log(response.data)
+            toast("Login Successful")
+            setTimeout(() => navigate("/home"), 500)
+            
         } catch (error) {
             // console.error(error)
             // alert(error.response?.data?.error || "Login Failed")

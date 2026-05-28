@@ -165,10 +165,10 @@ function Whiteboard() {
     return (
         <div className="h-screen flex flex-col bg-[#0d0d14] text-[#e0e0e0] select-none font-mono">
             {/* <h1 className="text-4xl font-bold">WhiteBoard Room: {roomId}</h1> */}
-            <header className="flex items-center justify-between px-5 h-[25px] bg-[#13131f] border-b border-[#1f1f33] shrink-0">
+            <header className="flex items-center justify-between px-5 h-12 bg-[#13131f] border-b border-[#1f1f33] shrink-0">
                 <div className="flex items-center gap-3">
                     <button
-                        onClick={() => navigate("/room")}
+                        onClick={() => navigate("/home")}
                         className="bg-transparent border border-[#2a2a40] text-[#aaa] px-3 py-1 rounded-md cursor-pointer text-base hover:border-[#4ecdc4] transition-colors"
                     >
                         ←

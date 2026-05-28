@@ -4,6 +4,9 @@ import Card from "../ui/Card.jsx"
 import Input from "../ui/Input.jsx"
 import Button from "../ui/Button.jsx"
 
+import { useToast } from "../../hooks/useToast.js"
+import ToastContainer from "../ui/Toast.jsx"
+
 import { useNavigate } from "react-router-dom"
 
 function JoinRoomForm() {
@@ -11,6 +14,8 @@ function JoinRoomForm() {
     const navigate = useNavigate()
 
     const [roomId, setRoomId] = useState("")
+
+    const { toasts, toast } = useToast()
 
     const handleJoin = (e) => {
         e.preventDefault()
@@ -38,6 +43,7 @@ function JoinRoomForm() {
                         Join Room
                     </Button>
                 </form>
+                <ToastContainer toasts={toasts} />
             </div>
         </Card>
     )
@@ -45,3 +51,4 @@ function JoinRoomForm() {
 }
 
 export default JoinRoomForm
+

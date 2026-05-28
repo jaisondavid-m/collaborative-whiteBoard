@@ -1,8 +1,10 @@
 import React , { useState } from "react"
-
+import { useNavigate } from "react-router-dom"
 import Card from "../ui/Card.jsx"
 import Input from "../ui/Input.jsx"
-import Button from "../ui/Input.jsx"
+import Button from "../ui/Button.jsx"
+import { useToast } from "../../hooks/useToast.js"
+import ToastContainer from "../ui/Toast.jsx"
 
 import { createRoom } from "../../api/room.api.js"
 
@@ -12,6 +14,10 @@ function CreateRoomForm() {
         roomId: "",
         name: "",
     })
+
+    const { toasts , toast } = useToast()
+
+    const navigate = useNavigate()
 
     const handleChange = (e) => {
         setFormData({
@@ -26,10 +32,12 @@ function CreateRoomForm() {
             const response = await createRoom(
                 formData
             )
-            alert("Room Created")
-            console.log(response.data)
+            navigate(`/whiteboard/${formData.roomId}`)
+            // console.log(response.data)
+            toast("Room Created successfully")
         } catch (error) {
-            alert(error.response?.data?.error)
+            // alert(error.response?.data?.error)
+            toast(error.response?.data?.error)
         }
     }
 
@@ -64,6 +72,7 @@ function CreateRoomForm() {
                         Create Room
                     </Button>
                 </form>
+                <ToastContainer toasts={toasts} />
             </div>
         </Card>
     )

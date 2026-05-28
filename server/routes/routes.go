@@ -25,6 +25,7 @@ func SetupRoutes(r *gin.Engine) {
 	{
 		room.POST("/create",handlers.CreateRoom)
 		room.GET("/join/:roomId",handlers.JoinRoom)
+		room.GET("/list",handlers.ListRooms)
 	}
 
 }

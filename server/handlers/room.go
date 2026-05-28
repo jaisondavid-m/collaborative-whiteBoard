@@ -115,6 +115,48 @@ func JoinRoom(c *gin.Context) {
 
 }
 
+func ListRooms(c *gin.Context) {
+
+	userID := ""
+	tokenStr := c.Query("token")
+
+	if tokenStr == "" {
+		auth := c.GetHeader("Authorization")
+		parts := strings.Split(auth, " ")
+		if len(parts) == 2 {
+			tokenStr = parts[1]
+		}
+	}
+
+	if tokenStr != "" {
+		if token, err := utils.VerifyJWT(tokenStr); err == nil && token.Valid {
+			if claims, ok := utils.ExtractClaims(token); ok {
+				userID = claims
+			}
+		}
+	}
+
+	var rooms []models.Room
+	config.DB.Where("owner_id = ?",userID).Order("updated_at desc").Limit(10).Find(&rooms)
+
+	type RoomResponse struct {
+		models.Room
+		Live 	bool 	`json:"live"`
+		Users 	int 	`json:"users"`
+	}
+
+	result := make([]RoomResponse, len(rooms))
+	for i, r := range rooms {
+		rr := RoomResponse{Room: r}
+		if active, ok := websocket.ActiveRooms[r.RoomID]; ok {
+			rr.Live = true
+			rr.Users = len(active.Clients)
+		}
+		result[i] = rr
+	}
+	c.JSON(http.StatusOK,gin.H{"rooms":result})
+}
+
 // func JoinRoom(c *gin.Context) {
 
 // 	roomID := c.Param("roomid")

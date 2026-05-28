@@ -1,15 +1,40 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+
+import API from "../api/axios.js"
 
 function Home() {
 
     const navigate = useNavigate()
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+    const [recentRooms, setRecentRooms] = useState([])
+    const [stats, setStats] = useState({ active: 0, sessions: 0, collaborators: 0 })
 
-    const recentRooms = [
-        { id: "alpha-01", name: "Project X", users: 2, live: true },
-        { id: "sys-02", name: "System Design", users: 1, live: false, ago: "2h ago" },
-        { id: "ux-033", name: "UX Brainstorm", users: 0, live: false, ago: "Yesterday" }
-    ]
+    // const recentRooms = [
+    //     { id: "alpha-01", name: "Project X", users: 2, live: true },
+    //     { id: "sys-02", name: "System Design", users: 1, live: false, ago: "2h ago" },
+    //     { id: "ux-033", name: "UX Brainstorm", users: 0, live: false, ago: "Yesterday" }
+    // ]
+
+    function timeAgo(dateStr) {
+        const diff = Date.now() - new Date(dateStr)
+        const h = Math.floor(diff/36e5)
+        if (h < 1) return "Just Now"
+        if (h < 24) return `${h}h ago`
+        return `${Math.floor(h/24)}d ago`
+    }
+
+    useEffect(() => {
+        API.get("/api/room/list")
+            .then(res => {
+                setRecentRooms(res.data.rooms ?? [])
+            })
+            .catch(() => {
+                setError("Failed to load rooms")
+            })
+            .finally(() => setLoading(false))
+    }, [])
 
     return (
         <div className="min-h-screen bg-[#f5f5f2] font-mono">
@@ -33,9 +58,10 @@ function Home() {
             <main className="max-w-3xl mx-auto px-6 py-10">
                 <h1 className="text-2xl font-medium text-gray-900 mb-1">Welcome Back !!</h1>
                 <p className="text-sm text-gray-500 mb-8">Pick Up where you left off or start a new session.</p>
+
                 <div className="grid grid-cols-3 gap-3 mb-10">
                     {[
-                        { label: "Active rooms", value: recentRooms.length },
+                        { label: "Active rooms", value: recentRooms.filter(r => r.live).length },
                         { label: "Sessoins this week", value: 12 },
                         { lable: "Collaborators", value: 4 },
                     ].map(s => (
@@ -45,6 +71,7 @@ function Home() {
                         </div>
                     ))}
                 </div>
+
                 <div className="flex items-center justify-between mb-3">
                     <h2 className="text-sm font-medium text-gray-800">Quick Actions</h2>
                 </div>
@@ -75,11 +102,18 @@ function Home() {
                         Manage Rooms →
                     </button>
                 </div>
+                {loading && <p className="text-sm text-gray-400 text-center py-6">Loading rooms...</p>}
+                {error && <p className="text-sm text-gray-400 text-center py-6">{error}</p>}
+                {!loading && recentRooms.length === 0 && (
+                    <div className="text-center py-10 text-gray-400 text-center text-sm">
+                        No rooms yet. Create one to get started.
+                    </div>
+                )}
                 <div className="flex flex-col gap-2">
                     {recentRooms.map(room => (
                         <button
                             key={room.id}
-                            onClick={() => navigate(`/whiteboard/${room.id}`)}
+                            onClick={() => navigate(`/whiteboard/${room.roomId}`)}
                             className="bg-white border border-black/10 rounded-xl px-4 py-3 flex items-center justify-between hover:border-[#4ecdc4] transition-colors text-left w-full"
                         >
                             <div className="flex items-center gap-3">
@@ -88,16 +122,16 @@ function Home() {
                                 </span>
                                 <div>
                                     <p className="text-sm font-medium text-gray-800">{room.name}</p>
-                                    <p className="text-xs text-gray-400">{room.id}</p>
+                                    <p className="text-xs text-gray-400">{room.roomId}</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-1.5 text-xs">
                                 {room.live
                                     ? <>
-                                        <span className="w-1.5 h-1.5 rounded-full bg-[#4ecdc4] inline-block"/>
+                                        <span className="w-1.5 h-1.5 rounded-full bg-[#4ecdc4] inline-block" />
                                         <span className="text-[#0f6e56]">Live · {room.users}</span>
-                                      </>
-                                    : <span className="text-gray-400">{room.ago}</span>
+                                    </>
+                                    : <span className="text-gray-400">{timeAgo(room.UpdatedAt)}</span>
                                 }
                             </div>
                         </button>
