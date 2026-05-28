@@ -2,7 +2,7 @@ import React , { useEffect , useRef , useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { TbHexagon , TbArrowRight , TbBrandGithub , TbMail , TbUsers , TbPencil , TbBolt , TbShieldLock } from "react-icons/tb"
 import { RiReactjsLine } from "react-icons/ri"
-import { SiGo, SiWebsocket } from "react-icons/si"
+import { SiGo } from "react-icons/si"
 import { HiOutlineSparkles } from "react-icons/hi2"
 
 function useFadeIn() {
@@ -65,7 +65,7 @@ const FEATURES = [
 const STACK = [
     { Icon: RiReactjsLine, label: "React", color: "#61dafb" },
     { Icon: SiGo, label: "Go", color: "#00acd7" },
-    { Icon: SiWebsocket, label: "WebSockets" , color: "#4ecdc4" },
+    { Icon: TbBolt, label: "WebSockets" , color: "#4ecdc4" },
     { Icon: TbShieldLock, label: "JWT Auth" , color: "#f5a623" },
 ]
 
