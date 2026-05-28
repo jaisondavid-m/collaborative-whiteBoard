@@ -20,6 +20,7 @@ func (c *Client) ReadMessages() {
 		delete(c.Room.Clients,c)
 		c.Room.mu.Unlock()
 		c.Conn.Close()
+		c.Room.CleanupIfEmpty()
 	}()
 
 	for {

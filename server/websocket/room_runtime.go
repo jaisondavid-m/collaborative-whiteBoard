@@ -73,6 +73,18 @@ func (r *RuntimeRoom) Run() {
 
 }
 
+func (r *RuntimeRoom) CleanupIfEmpty() {
+	r.mu.Lock()
+	empty := len(r.Clients) == 0
+	r.mu.Unlock()
+
+	if empty {
+		delete(ActiveRooms,r.RoomID)
+		close(r.Broadcast)
+		log.Printf("Room %s deleted (no user)", r.RoomID)
+	}
+}
+
 func (r *RuntimeRoom) SendHistory(c *Client) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
