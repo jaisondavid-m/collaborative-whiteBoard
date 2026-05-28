@@ -24,6 +24,7 @@ function Login() {
                 "token",
                 response.data.token
             )
+            localStorage.setItem("userid",response.data.userid)
             // alert("Login SuccessFull")
             // navigate("/home")
             // console.log(response.data)

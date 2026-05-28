@@ -26,11 +26,17 @@ function Whiteboard() {
     const socketRef = useRef(null)
     const drawingRef = useRef(false)
     const lastPosRef = useRef({ x: 0, y:0 })
+    const chatEndRef = useRef(null)
 
     const [tool,setTool]                =   useState("pen")
     const [color,setColor]              =   useState("#1a1a2e")
     const [size,setSize]                =   useState(5)
     const [connected,setConnected]      =   useState(false)
+    const [users, setUsers]             =   useState([])
+    const [messages, setMessages]       =   useState([])
+    const [chatInput, setChatInput]     =   useState("")
+
+    const myUserID = localStorage.getItem("userid") || "anonymous"
 
     const drawSegment = useCallback((ctx, event) => {
         const isErase = event.color === "#eraser"
@@ -55,6 +61,30 @@ function Whiteboard() {
             if (ev.type === "draw") drawSegment(ctx, ev)
         })
     },[drawSegment])
+
+    useEffect(() => {
+
+        chatEndRef.current?.scrollIntoView({ behavior: "smooth" })
+
+        // const ws = joinRoomSocket(roomId)
+        // socketRef.current = ws
+
+        // ws.onopen = () => setConnected(true)
+        // ws.onclose = () => setConnected(false)
+
+        // ws.onmessage = (event) => {
+        //     try {
+        //         const msg = JSON.parse(event.data)
+        //         const canvas = canvasRef.current
+        //         if (!canvas) return
+        //         const ctx = canvas.getContext("2d")
+
+        //         if (msg.type === "sync") replayHistory(msg.events)
+        //         else if (msg.type)
+        //     }
+        // }
+        
+    },[messages])
 
     // useEffect(() => {
 
@@ -91,7 +121,9 @@ function Whiteboard() {
                 if (msg.type === "sync") replayHistory(msg.events)
                 else if (msg.type === "draw") drawSegment(ctx, msg)
                 else if (msg.type === "clear") ctx.clearRect(0, 0, canvas.width, canvas.height)
-            } catch {}
+                else if (msg.type === "presence") setUsers(msg.users)
+                else if (msg.type === "chat")   setMessages(prev => [...prev, msg])
+            } catch {} 
         }
         return () => ws.close()
     },[roomId,drawSegment,replayHistory])
@@ -160,6 +192,20 @@ function Whiteboard() {
         const canvas = canvasRef.current
         canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height)
         sendEvent("clear")
+    }
+
+    const sendChat = () => {
+
+        const text = chatInput.trim()
+        if (!text) return
+        sendEvent("chat", {text})
+        setChatInput("")
+
+    }
+
+    const formatTime = (ts) => {
+        if (!ts) return ""
+        return new Date(ts).toLocaleTimeString([], {hour: "2-digit",minute: "2-digit"})
     }
 
     return (
@@ -272,6 +318,59 @@ function Whiteboard() {
                         onTouchEnd={onPointerUp}
                     />
                 </div>
+                <aside className="w-[220px] bg-[#13131f] border-l border-[#1f1f33] flex flex-col shrink-0">
+                    <div className="px-3 py-2 border-b border-[#1f1f33]">
+                        <p className="text-[8px] tracking-[1.5px] text-[#444] mb-2">ONLINE - {users.length}</p>
+                        <div className="flex flex-col gap-1 max-h-[100px] overflow-y-auto">
+                            {users.length === 0 && (
+                                <span className="text-[10px] text-[#444]">No users Yet</span>
+                            )}
+                            {users.map(u => (
+                                <div key={u} className="flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#4ecdc4] shrink-0"/>
+                                    <span className={`text-[11px] truncate ${u === myUserID ? "text-[#4ecdc4]" : "text-[#aaa]"}`}>
+                                        {u === myUserID ? `${u} (you)` : u }
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-2">
+                        {messages.length === 0 && (
+                            <span className="text-[10px] text-[#333] mt-2 text-center">No Messages Yet</span>
+                        )}
+                        {messages.map((m,i) => {
+                            const isMe = m.userId === myUserID
+                            return (
+                                <div key={i} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
+                                    <span className="text-[9px] text-[#555] mb-0.5">{m.userId} · {formatTime(m.timestamp)}</span>
+                                    <div className={`px-2 py-1.5 rounded-lg text-[11px] max-w-full break-words leading-relaxed ${
+                                        isMe ? "bg-[#0f3460] text-[#a0d0f0]" : "bg-[#1e1e30] text-[#ccc]"
+                                    }`}>
+                                        {m.text}
+                                    </div>
+                                </div>
+                            )
+                        })}
+                        <div ref={chatEndRef} />
+                    </div>
+                    <div className="px-2 py-2 border-t border-[#1f1f33] flex gap-1.5">
+                        <input
+                            type="text"
+                            value={chatInput}
+                            onChange={e => setChatInput(e.target.value)}
+                            onKeyDown={e => e.key === "Enter" && sendChat()}
+                            placeholder="Message..."
+                            className="flex-1 bg-[#4ecdc4] border border-[#2a2a40] text-[#e0e0e0] text-[11px] px-2 py-1.5 rounded-md outline-none focus:border-[#4ecdc4] placeholder:text-[#444] font-mono"
+                        />
+                        <button
+                            onClick={sendChat}
+                            className="bg-[#4ecdc4] text-[#0d0d14] text-[11px] font-bold px-2 py-1.5 rounded-md hover:bg-[#3db8b0] transition-colors cursor-pointer"
+                        >
+                            ↑
+                        </button>
+                    </div>
+                </aside>
             </div>
         </div>
     )
