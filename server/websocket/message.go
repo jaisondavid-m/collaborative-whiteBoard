@@ -5,6 +5,8 @@ const (
 	EventClear		= "clear"
 	EventBegin 		= "begin"
 	EventSync		= "sync"
+	EventChat 		= "chat"
+	EventPresence	= "presence"
 )
 
 type DrawEvent struct {
@@ -21,4 +23,16 @@ type DrawEvent struct {
 type SyncMessage struct {
 	Type		string			`json:"type"`
 	Events		[]DrawEvent		`json:"events"`
+}
+
+type ChatMessage struct {
+	Type		string			`json:"type"`
+	UserID		string			`json:"userId"`
+	Text		string			`json:"text"`
+	Timestamp	int64			`json:"timestamp"`
+}
+
+type PresenceMessage struct {
+	Type 		string			`json:"type"`
+	Users		[]string		`json:"users"`
 }

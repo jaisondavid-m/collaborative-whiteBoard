@@ -110,7 +110,8 @@ func JoinRoom(c *gin.Context) {
 	runtimeRoom.AddClient(client)
 
 	runtimeRoom.SendHistory(client)
-
+	runtimeRoom.SendChatHistory(client)
+	
 	go client.ReadMessages()
 
 }
