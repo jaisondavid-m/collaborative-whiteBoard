@@ -38,7 +38,7 @@ function Home() {
 
     return (
         <div className="min-h-screen bg-[#f5f5f2] font-mono">
-            <header className="h-14 bg-white border-b border-black/10 flex items-center justify-between px-6 shrink-0">
+            {/* <header className="h-14 bg-white border-b border-black/10 flex items-center justify-between px-6 shrink-0">
                 <div className="flex items-center gap-2 text-sm font-medium">
                     <span className="w-7 h-7 bg-[#4ecdc4] rounded-md flex items-center justify-center text-white text-sm">⬡</span>
                     SketchBoard
@@ -54,7 +54,7 @@ function Home() {
                         User
                     </div>
                 </div>
-            </header>
+            </header> */}
             <main className="max-w-3xl mx-auto px-6 py-10">
                 <h1 className="text-2xl font-medium text-gray-900 mb-1">Welcome Back !!</h1>
                 <p className="text-sm text-gray-500 mb-8">Pick Up where you left off or start a new session.</p>

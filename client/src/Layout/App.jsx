@@ -8,6 +8,7 @@ import Rooms from "../Pages/Rooms.jsx"
 import Whiteboard from '../Pages/Whiteboard.jsx'
 
 import ProtectedRoute from "../routes/ProtectedRoute.jsx"
+import AppLayout from "./AppLayout.jsx"
 
 function App() {
 
@@ -19,6 +20,20 @@ function App() {
         <Route path='/login' element={token ? <Navigate to="/home" /> : <Login/> } />
         <Route path='/register' element={token ? <Navigate to="/home"/> : <Register/> } />
         <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout/>
+            </ProtectedRoute>
+          }
+        >
+          <Route path='/home' element={<Home/>} />
+          <Route path='/room' element={<Rooms/>} />
+          <Route path='/whiteboard/:roomId' element={<Whiteboard/>} />
+        </Route>
+
+        <Route path='/' element={<Navigate to={token ? "/home" : "/login"} />} />
+
+        {/* <Route
           path='/home'
           element={
             <ProtectedRoute>
@@ -51,7 +66,7 @@ function App() {
               }
             />
           }
-        />
+        /> */}
       </Routes>
     </BrowserRouter>
   )
