@@ -13,7 +13,7 @@ function Input({
             <label className="text-sm font-medium text-gray-700">{label}</label>
             <input
                 name={name}
-                type={type}
+                type={type || "text"}
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}

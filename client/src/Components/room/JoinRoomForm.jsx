@@ -9,17 +9,40 @@ import ToastContainer from "../ui/Toast.jsx"
 
 import { useNavigate } from "react-router-dom"
 
+import { checkRoomPassword } from "../../api/room.api.js"
+
 function JoinRoomForm() {
 
     const navigate = useNavigate()
 
     const [roomId, setRoomId] = useState("")
 
+    const [password, setPassword] = useState("")
+
+    const [needsPassword, setNeedsPassword] = useState(false)
+
+    const [loading, setLoading] = useState(false)
+
     const { toasts, toast } = useToast()
 
-    const handleJoin = (e) => {
+    const handleJoin = async (e) => {
         e.preventDefault()
-        navigate(`/whiteboard/${roomId}`)
+        if (!roomId.trim()) return
+        setLoading(true)
+        try {
+            await checkRoomPassword(roomId,password)
+            navigate(`/whiteboard/${roomId}`)
+        } catch (err) {
+            const msg = err.response?.data?.error || "Error"
+            if (err.response?.status === 401) {
+                setNeedsPassword(true)
+                toast("Wrong Password")
+            } else {
+                toast(msg)
+            }
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -39,8 +62,18 @@ function JoinRoomForm() {
                         onChange={(e) => setRoomId(e.target.value)}
                         placeholder="Enter Room ID"
                     />
-                    <Button type="submit">
-                        Join Room
+                    {needsPassword && (
+                        <Input
+                            label="Password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Enter room password"
+                        />
+                    )}
+                    <Button type="submit" disabled={loading}>
+                        {/* Join Room */}
+                        {loading ? "Checking..." : "Join Room"}
                     </Button>
                 </form>
                 <ToastContainer toasts={toasts} />

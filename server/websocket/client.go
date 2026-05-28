@@ -38,13 +38,22 @@ func (c *Client) ReadMessages() {
 		}
 
 		switch peek.Type {
-		case EventDraw, EventBegin, EventClear:
+		case EventDraw, EventBegin, EventClear, EventShape:
 			var event DrawEvent
 			if err := json.Unmarshal(raw, &event); err != nil {
 				log.Printf("Invalid draw event : %v",err)
 				continue
 			}
 			event.UserID = c.UserID
+			c.Room.mu.Lock()
+
+			if event.Type == EventClear {
+				c.Room.History = []DrawEvent{}
+			} else if event.Type != EventBegin {
+				c.Room.History = append(c.Room.History, event)
+			}
+			c.Room.mu.Unlock()
+
 			stamped, _ := json.Marshal(event)
 			c.Room.Broadcast <- stamped
 		case EventChat:

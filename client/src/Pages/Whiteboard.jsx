@@ -1,12 +1,16 @@
 import React , { useEffect , useRef , useState , useCallback } from "react"
 
-import { useParams , useNavigate } from "react-router-dom"
+import { useParams , useNavigate , useLocation } from "react-router-dom"
 
 import { joinRoomSocket } from "../api/room.api.js"
 
 const TOOLS = {
     pen:    { label: "Pen", icon: "✏️", cursor: "crosshair" },
-    eraser: { label: "Eraser", icon: "⬜", cursor: "cell" }
+    eraser: { label: "Eraser", icon: "⬜", cursor: "cell" },
+
+    rectangle: { label: "Rectangle", icon: "▭", cursor: "crosshair" },
+    circle: { label : "Circle", icon: "◯", cursor: "crosshair" },
+    line: {label: "Line" , icon: "/" , cursor: "crosshair"}
 }
 
 const COLORS = [
@@ -21,10 +25,13 @@ function Whiteboard() {
 
     const { roomId } = useParams()
     const navigate = useNavigate()
+    const location = useLocation()
+    const roomPassword = location.state?.password || ""
 
     const canvasRef = useRef(null)
     const socketRef = useRef(null)
     const drawingRef = useRef(false)
+    const startPosRef = useRef({ x:0 , y:0 })
     const lastPosRef = useRef({ x: 0, y:0 })
     const chatEndRef = useRef(null)
 
@@ -50,6 +57,44 @@ function Whiteboard() {
         ctx.moveTo(event.prevX, event.prevY)
         ctx.lineTo(event.x, event.y)
         ctx.stroke()
+        ctx.restore()
+    },[])
+
+    const drawShape = useCallback((ctx, shape) => {
+
+        ctx.save()
+
+        ctx.strokeStyle = shape.color
+        ctx.lineWidth = shape.size
+        ctx.lineCap = "round"
+
+        const width = shape.x - shape.startX
+        const height = shape.y - shape.startY
+
+        if (shape.tool === "rectangle") {
+            ctx.strokeRect(
+                shape.startX,
+                shape.startY,
+                width,
+                height,
+            )
+        } else if (shape.tool === "circle") {
+            const radius = Math.sqrt(width*width + height*height)
+            ctx.beginPath()
+            ctx.arc(
+                shape.startX,
+                shape.startY,
+                radius,
+                0,
+                Math.PI*2
+            )
+            ctx.stroke()
+        } else if (shape.tool === "line") {
+            ctx.beginPath()
+            ctx.moveTo(shape.startX,shape.startY)
+            ctx.lineTo(shape.x, shape.y)
+            ctx.stroke()
+        }
         ctx.restore()
     },[])
 
@@ -105,7 +150,7 @@ function Whiteboard() {
     // },[roomId])
 
     useEffect(() => {
-        const ws = joinRoomSocket(roomId)
+        const ws = joinRoomSocket(roomId,roomPassword)
         socketRef.current = ws
 
         ws.onopen = () => setConnected(true)
@@ -123,6 +168,7 @@ function Whiteboard() {
                 else if (msg.type === "clear") ctx.clearRect(0, 0, canvas.width, canvas.height)
                 else if (msg.type === "presence") setUsers(msg.users)
                 else if (msg.type === "chat")   setMessages(prev => [...prev, msg])
+                else if (msg.type === "shape")  drawShape(ctx, msg)
             } catch {} 
         }
         return () => ws.close()
@@ -164,6 +210,7 @@ function Whiteboard() {
         e.preventDefault()
         drawingRef.current = true
         const pos = getPos(e, canvasRef.current)
+        startPosRef.current = pos
         lastPosRef.current = pos
         sendEvent("begin",{ x:pos.x, y:pos.y, color: tool === "eraser" ? "#eraser" : color, size })
     }
@@ -174,19 +221,59 @@ function Whiteboard() {
         const canvas = canvasRef.current
         const ctx = canvas.getContext("2d")
         const pos = getPos(e, canvas)
-        const prev = lastPosRef.current
-        const payload = {
-            x: pos.x, y: pos.y,
-            prevX: prev.x, prevY: prev.y,
-            color: tool === "eraser" ? "#eraser" : color,
-            size,
+
+        if (tool === "pen" || tool === "eraser") {
+            const prev = lastPosRef.current
+            const payload = {
+                x: pos.x,
+                y: pos.y,
+                prevX: prev.x,
+                prevY: prev.y,
+                color: tool === "eraser" ? "#eraser" : color,
+                size,
+            }
+            drawSegment(ctx, { ...payload, type: "draw" })
+            sendEvent("draw",payload)
+            lastPosRef.current = pos
         }
-        drawSegment(ctx, {...payload, type: "draw"})
-        sendEvent("draw",payload)
-        lastPosRef.current = pos
+        // const prev = lastPosRef.current
+        // const payload = {
+        //     x: pos.x, y: pos.y,
+        //     prevX: prev.x, prevY: prev.y,
+        //     color: tool === "eraser" ? "#eraser" : color,
+        //     size,
+        // }
+        // drawSegment(ctx, {...payload, type: "draw"})
+        // sendEvent("draw",payload)
+        // lastPosRef.current = pos
     }
 
-    const onPointerUp = () => { drawingRef.current = false }
+    const onPointerUp = (e) => { 
+        if (!drawingRef.current) return
+        drawingRef.current = false
+        if (
+            tool === "rectangle" ||
+            tool === "circle" ||
+            tool === "line"
+        ) {
+            const canvas = canvasRef.current
+            const ctx = canvas.getContext("2d")
+
+            const pos = getPos(e, canvas)
+
+            const payload = {
+                tool,
+                startX: startPosRef.current.x,
+                startY: startPosRef.current.y,
+                x: pos.x,
+                y: pos.y,
+                color,
+                size,
+            }
+            drawShape(ctx, payload)
+            sendEvent("shape",payload)
+        }
+    }
 
     const clearCanvas = () => {
         const canvas = canvasRef.current
@@ -315,7 +402,7 @@ function Whiteboard() {
                         onMouseLeave={onPointerUp}
                         onTouchStart={onPointerDown}
                         onTouchMove={onPointerMove}
-                        onTouchEnd={onPointerUp}
+                        onTouchEnd={(e) => onPointerUp(e.changedTouches[0])}
                     />
                 </div>
                 <aside className="w-[220px] bg-[#13131f] border-l border-[#1f1f33] flex flex-col shrink-0">

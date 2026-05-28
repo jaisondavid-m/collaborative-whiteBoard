@@ -13,6 +13,7 @@ function CreateRoomForm() {
     const [formData, setFormData] = useState({
         roomId: "",
         name: "",
+        password: "",
     })
 
     const { toasts , toast } = useToast()
@@ -67,6 +68,14 @@ function CreateRoomForm() {
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="Enter Room Name"
+                    />
+                    <Input
+                        label="Password (optional)"
+                        name="password"
+                        type="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="Leave Blank for publick room"
                     />
                     <Button type="submit">
                         Create Room

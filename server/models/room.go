@@ -10,4 +10,5 @@ type Room struct {
 	Name 			string 			`json:"name"`
 	OwnerID 		uint 			`json:"ownerId"`
 	IsActive 		bool 			`json:"isActive" gorm:"default:true"`
+	Password 		string			`json:"-" gorm:"default:null"`
 }

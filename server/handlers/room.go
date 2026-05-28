@@ -20,8 +20,9 @@ var upgrader = gws.Upgrader{
 }
 
 type CreateRoomRequest struct {
-	RoomID string `json:"roomId"`
-	Name   string `json:"name"`
+	RoomID 		string 		`json:"roomId"`
+	Name   		string 		`json:"name"`
+	Password 	string 		`json:"password"`
 }
 
 func CreateRoom(c *gin.Context) {
@@ -44,10 +45,23 @@ func CreateRoom(c *gin.Context) {
 		return
 	}
 
+	hashedPassword := ""
+	if body.Password != "" {
+		h, err := utils.HashPassword(body.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError,gin.H{
+				"error":"Failed to hash password",
+			})
+			return
+		}
+		hashedPassword = h
+	}
+
 	room := models.Room{
 		RoomID:   body.RoomID,
 		Name:     body.Name,
 		IsActive: true,
+		Password: hashedPassword,
 	}
 
 	config.DB.Create(&room)
@@ -55,6 +69,7 @@ func CreateRoom(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Room Created Successfully",
 		"room":    room,
+		"isProctected": hashedPassword != "",
 	})
 }
 
@@ -69,6 +84,16 @@ func JoinRoom(c *gin.Context) {
 			"error": "Room not found",
 		})
 		return
+	}
+
+	if roomModel.Password != "" {
+		provided := c.Query("password")
+		if provided == "" || !utils.CheckPasswordHash(provided, roomModel.Password) {
+			c.JSON(http.StatusUnauthorized,gin.H{
+				"error":"Invalid Room Password",
+			})
+			return
+		}
 	}
 
 	userID := ""
@@ -111,7 +136,7 @@ func JoinRoom(c *gin.Context) {
 
 	runtimeRoom.SendHistory(client)
 	runtimeRoom.SendChatHistory(client)
-	
+
 	go client.ReadMessages()
 
 }
@@ -156,6 +181,51 @@ func ListRooms(c *gin.Context) {
 		result[i] = rr
 	}
 	c.JSON(http.StatusOK,gin.H{"rooms":result})
+}
+
+func CheckRoomPassword(c *gin.Context) {
+
+	roomID := c.Param("roomId")
+
+	var body struct {
+		Password string	`json:"password"`
+	}
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest,gin.H{
+			"error":"Invalid Body",
+		})
+		return
+	}
+
+	var room models.Room
+	if err := config.DB.Where("room_id = ?",roomID).First(&room).Error; err != nil {
+		c.JSON(http.StatusNotFound,gin.H{
+			"error":"Room Not Found",
+		})
+		return 
+	}
+
+	if room.Password == "" {
+		c.JSON(http.StatusOK,gin.H{
+			"ok": true,
+			"isProtected":false,
+		})
+		return 
+	}
+
+	if !utils.CheckPasswordHash(body.Password, room.Password) {
+		c.JSON(http.StatusUnauthorized,gin.H{
+			"error":"Wrong Password",
+		})
+		return 
+	}
+
+	c.JSON(http.StatusOK,gin.H{
+		"ok":true,
+		"isProctected":true,
+	})
+
 }
 
 // func JoinRoom(c *gin.Context) {
