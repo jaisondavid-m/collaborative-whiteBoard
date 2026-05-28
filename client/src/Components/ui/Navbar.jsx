@@ -1,6 +1,6 @@
 import React , { useState , useEffect , useRef } from "react"
 import { useNavigate, useLocation , Link } from "react-router-dom"
-import { HiHome , HiSquares2X2 } from "react-icons/hi2"
+import { HiHome , HiOutlineInformationCircle, HiSquares2X2 } from "react-icons/hi2"
 import { IoNotifications, IoChevronDown, IoNotificationsOutline } from "react-icons/io5"
 import { RiDoorOpenLine , RiUserLine , RiSettings3Line , RiLayoutGridLine , RiMenuLine , RiCloseLine, RiAddLine } from "react-icons/ri"
 import { TbHexagon } from "react-icons/tb"
@@ -8,6 +8,7 @@ import { TbHexagon } from "react-icons/tb"
 const NAV_LINKS = [
     { label: "Home", path: "/home" , Icon: HiHome },
     { label: "Rooms" , path: "/room" , Icon: HiSquares2X2 },
+    { label: "About" , path: "/about" , Icon: HiOutlineInformationCircle }
 ]
 
 function DropdownItem({ Icon , label , onClick , danger }) {

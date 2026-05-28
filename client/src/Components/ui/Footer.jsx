@@ -12,10 +12,10 @@ const FOOTER_LINKS = {
         { label: "Whiteboard" , path: "/room" },
     ],
     Company: [
-        { label: "About" , path: "#" },
+        { label: "About" , path: "/about" },
         { label: "Blog" , path: "#" },
         { label: "Careers" , path: "#" },
-        { label: "Contact" , path: "#" },
+        { label: "Contact" , path: "/about" },
     ] ,
     Legal: [
         { label: "Privacy Policy" , path: "#" },
