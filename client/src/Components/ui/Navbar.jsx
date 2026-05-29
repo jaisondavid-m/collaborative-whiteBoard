@@ -11,6 +11,7 @@ const isPrivileged = role === "admin" || role === "superadmin"
 const NAV_LINKS = [
     { label: "Home", path: "/home" , Icon: HiHome },
     { label: "Rooms" , path: "/room" , Icon: HiSquares2X2 },
+    { label: "Profile" , path: "/profile" , Icon: RiUserLine },
     { label: "About" , path: "/about" , Icon: HiOutlineInformationCircle },
     ...(isPrivileged ? [{ label: "Admin", path: "/admin", Icon: RiLayoutGridLine }] : [])
 ]
@@ -34,7 +35,7 @@ function DropdownItem({ Icon , label , onClick , danger }) {
     )
 }
 
-function UserAvatar({ userId, onClick, dropdownRef, open }) {
+function UserAvatar({ userId, onClick, dropdownRef, open, onNavigate }) {
     const initials = userId ? userId.slice(0,2).toUpperCase() : "??"
     return (
         <div className="relative" ref={dropdownRef}>
