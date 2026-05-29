@@ -18,16 +18,16 @@ const FOOTER_LINKS = {
         { label: "Contact" , path: "/about" },
     ] ,
     Legal: [
-        { label: "Privacy Policy" , path: "#" },
-        { label: "Terms of Policy" , path: "#" },
-        { label: "Cookie Policy" , path: "#" },
+        { label: "Privacy Policy" , path: "/privacypolicy" },
+        { label: "Terms of Policy" , path: "/privacypolicy" },
+        { label: "Cookie Policy" , path: "/privacypolicy" },
     ]
 }
 
 const SOCIAL_LINKS = [
-    { label: "Github" , href: "#" , Icon: RiGithubLine },
-    { label: "Twitter / X" , href: "#" , Icon: RiTwitterXLine },
-    { label: "Discard", href: "#" , Icon: RiDiscordLine }
+    { label: "Github" , href: "https://github.com/jaisondavid-m" , Icon: RiGithubLine },
+    { label: "Twitter / X" , href: "https://x.com" , Icon: RiTwitterXLine },
+    { label: "Discard", href: "https://discord.com" , Icon: RiDiscordLine }
 ]
 
 function FooterLinkGroup({ title, links }) {
@@ -40,7 +40,7 @@ function FooterLinkGroup({ title, links }) {
                 {links.map(link => (
                     <li key={link.label}>
                         <Link
-                            to={link.label}
+                            to={link.path}
                             className="text-sm text-gray-500 hover:text-[#0f6e56] transition-colors duration-150"
                         >
                             {link.label}

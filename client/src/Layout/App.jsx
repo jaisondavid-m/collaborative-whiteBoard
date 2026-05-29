@@ -7,6 +7,7 @@ import Home from "../Pages/Home.jsx"
 import Rooms from "../Pages/Rooms.jsx"
 import Whiteboard from '../Pages/Whiteboard.jsx'
 import About from "../Pages/About.jsx"
+import PrivacyPolicy from "../Pages/PrivacyPolicy.jsx"
 
 import ProtectedRoute from "../routes/ProtectedRoute.jsx"
 import AppLayout from "./AppLayout.jsx"
@@ -30,6 +31,7 @@ function App() {
           <Route path='/home' element={<Home/>} />
           <Route path='/room' element={<Rooms/>} />
           <Route path='/about' element={<About/>} />
+          <Route path='/privacypolicy' element={<PrivacyPolicy/>} />
           <Route path='/whiteboard/:roomId' element={<Whiteboard/>} />
         </Route>
 
