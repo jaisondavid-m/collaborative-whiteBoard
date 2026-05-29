@@ -6,6 +6,7 @@ import Register from '../Pages/Register.jsx'
 import Home from "../Pages/Home.jsx"
 import Rooms from "../Pages/Rooms.jsx"
 import Whiteboard from '../Pages/Whiteboard.jsx'
+import AdminPage from "../Pages/AdminPage.jsx"
 import About from "../Pages/About.jsx"
 import PrivacyPolicy from "../Pages/PrivacyPolicy.jsx"
 
@@ -31,6 +32,7 @@ function App() {
           <Route path='/home' element={<Home/>} />
           <Route path='/room' element={<Rooms/>} />
           <Route path='/about' element={<About/>} />
+          <Route path='/admin' element={<AdminPage/>} />
           <Route path='/privacypolicy' element={<PrivacyPolicy/>} />
           <Route path='/whiteboard/:roomId' element={<Whiteboard/>} />
         </Route>

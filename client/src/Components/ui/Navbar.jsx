@@ -5,11 +5,17 @@ import { IoNotifications, IoChevronDown, IoNotificationsOutline } from "react-ic
 import { RiDoorOpenLine , RiUserLine , RiSettings3Line , RiLayoutGridLine , RiMenuLine , RiCloseLine, RiAddLine } from "react-icons/ri"
 import { TbHexagon } from "react-icons/tb"
 
+const role = localStorage.getItem("role") || ""
+const isPrivileged = role === "admin" || role === "superadmin"
+
 const NAV_LINKS = [
     { label: "Home", path: "/home" , Icon: HiHome },
     { label: "Rooms" , path: "/room" , Icon: HiSquares2X2 },
-    { label: "About" , path: "/about" , Icon: HiOutlineInformationCircle }
+    { label: "About" , path: "/about" , Icon: HiOutlineInformationCircle },
+    ...(isPrivileged ? [{ label: "Admin", path: "/admin", Icon: RiLayoutGridLine }] : [])
 ]
+
+const userId = localStorage.getItem("userid") || ""
 
 function DropdownItem({ Icon , label , onClick , danger }) {
     return (
@@ -60,7 +66,14 @@ function UserAvatar({ userId, onClick, dropdownRef, open }) {
                     <div className="py-1">
                         <DropdownItem Icon={RiUserLine} label="Profile" onClick={() => {}} />
                         <DropdownItem Icon={RiSettings3Line} label="Setting" onClick={() => {}} />
-                        <DropdownItem Icon={RiLayoutGridLine} label="My Rooms" onClick={() => {}} />
+                        <DropdownItem Icon={RiLayoutGridLine} label="My Rooms" onClick={() => {window.location.href = "/room"}} />
+                        {(role === "admin" || role === "superadmin") && (
+                            <DropdownItem
+                                Icon={RiLayoutGridLine}
+                                label="Admin Panel"
+                                onClick={() => window.location.href = "/admin"}
+                            />
+                        )}
                     </div>
                     <div className="border-t border-black/5 py-1">
                         <DropdownItem
@@ -70,6 +83,7 @@ function UserAvatar({ userId, onClick, dropdownRef, open }) {
                             onClick={() => {
                                 localStorage.removeItem("token")
                                 localStorage.removeItem("userid")
+                                localStorage.removeItem("role")
                                 window.location.href = "/login"
                             }}
                         />
@@ -108,6 +122,14 @@ function MobileMenu({ open , links , currentPath , onNavigate , userId , onLogou
                     </div>
                     <span className="text-sm text-gray-700 font-medium">{userId || "Guest"}</span>
                 </div>
+                {(role === "admin" || role === "superadmin") && (
+                    <button
+                        onClick={() => onNavigate("/admin")}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#0f6e56] hover:bg-[#e6faf8] rounded-lg transition-colors text-left"
+                    >
+                        <RiLayoutGridLine size={15} /> Admin Panel
+                    </button>
+                )}
                 <button
                     onClick={onLogout}
                     className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors text-left"
@@ -154,6 +176,7 @@ function Navbar() {
     const handleLogout = () => {
         localStorage.removeItem("token")
         localStorage.removeItem("userid")
+        localStorage.removeItem("role")
         window.location.href = "/login"
     }
 
@@ -210,6 +233,7 @@ function Navbar() {
                         </button>
                         <UserAvatar
                             userId={userId}
+                            role={role}
                             onClick={() => setDropdownOpen(o => !o)}
                             dropdownRef={dropdownRef}
                             open={dropdownOpen}
@@ -230,6 +254,7 @@ function Navbar() {
                 currentPath={location.pathname}
                 onNavigate={navigate}
                 userId={userId}
+                role={role}
                 onLogout={handleLogout}
             />
         </nav>

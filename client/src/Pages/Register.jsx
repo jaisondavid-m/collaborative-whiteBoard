@@ -26,6 +26,7 @@ function Register() {
                 response.data.token
             )
             localStorage.setItem("userid",response.data.userid)
+            localStorage.setItem("role",response.data.role)
             toast("Account Created Successfully")
             setTimeout(() => {
                 navigate("/home")
