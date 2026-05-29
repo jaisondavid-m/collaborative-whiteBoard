@@ -53,6 +53,8 @@ function Register() {
                     title="Create Account"
                     buttonText={loading ? "Registering..." : "Register"}
                     onSubmit={handleRegister}
+                    toast={toast}
+                    setLoading={setLoading}
                 />
                 <p className="text-sm text-center text-gray-500">
                     Already have an account?{" "}

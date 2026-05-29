@@ -48,6 +48,8 @@ function Login() {
                     title="Login"
                     buttonText={loading ? "Logging in..." : "Login"}
                     onSubmit={handleLogin}
+                    toast={toast}
+                    setLoading={setLoading}
                 />
                 <p className="text-sm text-center text-gray-500">
                     Don't have and account?{" "}

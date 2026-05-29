@@ -2,11 +2,14 @@ import React , { useState } from "react"
 import Input from "../ui/Input.jsx"
 import Button from "../ui/Button.jsx"
 import Card from "../ui/Card.jsx"
+import GoogleLoginButton from "../ui/GoogleLoginButton.jsx"
 
 function AuthForm({
     title,
     buttonText,
     onSubmit,
+    toast,
+    setLoading,
 }) {
 
     const [formData, setFormData] = useState({
@@ -54,6 +57,12 @@ function AuthForm({
                         {buttonText}
                     </Button>
                 </form>
+                <div className="flex items-center gap-3">
+                    <div className="flex-1 h-px bg-gray-200" />
+                    <span className="text-sm text-gray-400">or</span>
+                    <div className="flex-1 h-px bg-gray-200" />
+                </div>
+                <GoogleLoginButton toast={toast} setLoading={setLoading} />
             </div>
         </Card>
     )
