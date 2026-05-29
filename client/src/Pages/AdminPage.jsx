@@ -16,6 +16,7 @@ function AdminPage() {
 
     const role = localStorage.getItem("role")
     const isSuperAdmin = role === "superadmin"
+    const canViewAdminPanel = role === "admin" || role === "superadmin"
 
     useEffect(() => {
         fetchUsers()
@@ -84,7 +85,7 @@ function AdminPage() {
                                 <th className="text-left px-6 py-3 font-medium text-gray-600">User ID</th>
                                 <th className="text-left px-6 py-3 font-medium text-gray-600">Role</th>
                                 <th className="text-left px-6 py-3 font-medium text-gray-600">Joined</th>
-                                {isSuperAdmin && (
+                                {canViewAdminPanel && (
                                     <th className="text-left px-6 py-3 font-medium text-gray-600">Actions</th>
                                 )}
                             </tr>
