@@ -29,4 +29,16 @@ func SetupRoutes(r *gin.Engine) {
 		room.POST("/check/:roomId",handlers.CheckRoomPassword)
 	}
 
+	admin := r.Group("/admin")
+	admin.Use(middleware.AuthMiddleware(),middleware.AdminMiddleware())
+	{
+		admin.GET("/users",handlers.ListUsers)
+	}
+
+	superadmin := r.Group("/superadmin")
+	superadmin.Use(middleware.AuthMiddleware(),middleware.SuperAdminMiddleware())
+	{
+		superadmin.POST("/promote",handlers.UpdateRole)
+	}
+
 }

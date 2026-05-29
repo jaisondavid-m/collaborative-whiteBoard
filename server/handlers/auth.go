@@ -47,7 +47,7 @@ func Register(c *gin.Context) {
 
 	config.DB.Create(&user)
 
-	token, err := utils.GenerateJWT(user.UserID)
+	token, err := utils.GenerateJWT(user.UserID,user.Role)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -94,7 +94,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.GenerateJWT(user.UserID)
+	token, err := utils.GenerateJWT(user.UserID, user.Role)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

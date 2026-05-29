@@ -8,10 +8,11 @@ import (
 
 var jwtSecret = []byte("secretkeysecretkey")
 
-func GenerateJWT(userid string) (string, error) {
+func GenerateJWT(userid string, role string) (string, error) {
 
 	claims := jwt.MapClaims{
 		"userid":userid,
+		"role":role,
 		"exp":time.Now().Add(time.Hour*3).Unix(),
 	}
 
@@ -48,4 +49,17 @@ func ExtractClaims(token *jwt.Token) (string, bool) {
 	}
 	uid, ok := claims["userid"].(string)
 	return uid, ok
+}
+
+func ExtractRole(token *jwt.Token) (string, bool) {
+	claims, ok := token.Claims.(jwt.MapClaims)
+
+	if !ok {
+		return "", false
+	}
+
+	role, ok := claims["role"].(string)
+
+	return role, ok
+
 }
