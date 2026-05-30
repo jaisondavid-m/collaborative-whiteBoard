@@ -4,6 +4,7 @@ import { HiHome , HiOutlineInformationCircle, HiSquares2X2 } from "react-icons/h
 import { IoNotifications, IoChevronDown, IoNotificationsOutline } from "react-icons/io5"
 import { RiDoorOpenLine , RiUserLine , RiSettings3Line , RiLayoutGridLine , RiMenuLine , RiCloseLine, RiAddLine } from "react-icons/ri"
 import { TbHexagon } from "react-icons/tb"
+import { RiFileList3Line } from "react-icons/ri"
 
 const role = localStorage.getItem("role") || ""
 const isPrivileged = role === "admin" || role === "superadmin"
@@ -13,7 +14,10 @@ const NAV_LINKS = [
     { label: "Rooms" , path: "/room" , Icon: HiSquares2X2 },
     { label: "Profile" , path: "/profile" , Icon: RiUserLine },
     { label: "About" , path: "/about" , Icon: HiOutlineInformationCircle },
-    ...(isPrivileged ? [{ label: "Admin", path: "/admin", Icon: RiLayoutGridLine }] : [])
+    ...(isPrivileged ? [
+        { label: "Admin", path: "/admin", Icon: RiLayoutGridLine },
+        { label: "Audit Logs" , path: "/audit-logs" , Icon: RiFileList3Line }
+    ] : [])
 ]
 
 const userId = localStorage.getItem("userid") || ""

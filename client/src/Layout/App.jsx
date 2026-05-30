@@ -10,6 +10,7 @@ import AdminPage from "../Pages/AdminPage.jsx"
 import About from "../Pages/About.jsx"
 import PrivacyPolicy from "../Pages/PrivacyPolicy.jsx"
 import Profile from "../Pages/Profile.jsx"
+import Audit from "../Pages/Audit.jsx"
 
 import ProtectedRoute from "../routes/ProtectedRoute.jsx"
 import AppLayout from "./AppLayout.jsx"
@@ -35,6 +36,7 @@ function App() {
           <Route path='/about' element={<About/>} />
           <Route path='/profile' element={<Profile/>} />
           <Route path='/admin' element={<AdminPage/>} />
+          <Route path='/audit-logs' element={<Audit/>} />
           <Route path='/privacypolicy' element={<PrivacyPolicy/>} />
           <Route path='/whiteboard/:roomId' element={<Whiteboard/>} />
         </Route>

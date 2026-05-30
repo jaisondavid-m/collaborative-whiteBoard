@@ -1,14 +1,14 @@
-import React , { useState , useEffect , useCallback , useRef } from "react"
+import React, { useState, useEffect, useCallback, useRef } from "react"
 import {
 
-    TbShieldCheck , TbShieldX , TbActivity , TbUsers , TbRoute ,
-    TbFilter , TbRefresh , TbSearch , TbChevronDown , TbChevronUp ,
-    TbChevronLeft , TbChevronRight , TbX , TbClock , TbUser ,
-    TbWorld , TbTag , TbCode , TbAlertTriangle , TbCheck , 
-    TbSortAscending , TbSortDescending , TbDownload , TbMinus ,
-    TbLogin , TbLogout , TbDoor , TbKey , TbEdit , TbList,
-    TbDatabase , TbTrendingUp , TbTrendingDown , TbMinus ,
-    TbCalendar , TbInforCircle, 
+    TbShieldCheck, TbShieldX, TbActivity, TbUsers, TbRoute,
+    TbFilter, TbRefresh, TbSearch, TbChevronDown, TbChevronUp,
+    TbChevronLeft, TbChevronRight, TbX, TbClock, TbUser,
+    TbWorld, TbTag, TbCode, TbAlertTriangle, TbCheck,
+    TbSortAscending, TbSortDescending, TbDownload,
+    TbLogin, TbLogout, TbDoor, TbKey, TbEdit, TbList,
+    TbDatabase, TbTrendingUp, TbTrendingDown, TbMinus,
+    TbCalendar, TbInfoCircle,
     TbEye
 
 } from "react-icons/tb"
@@ -35,25 +35,25 @@ const STATUS_CONFIG = {
 }
 
 const METHOD_CONFIG = {
-    GET:        { bg: "bg-blue-50"      ,   text: "text-blue-700"   ,   border: "border-blue-200"   },
-    POST:       { bg: "bg-violet-50"    ,   text: "text-violet-700" ,   border: "border-violet-200" },
-    PUT:        { bg: "bg-amber-50"     ,   text: "text-amber-700"  ,   border: "border-amber-200"  },
-    PATCH:      { bg: "bg-orange-50"    ,   text: "text-orange-700" ,   border: "border-orange-200" },
-    DELETE:     { bg: "bg-red-50"       ,   text: "text-red-700"    ,   border: "border-red-200"    },
+    GET: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200" },
+    POST: { bg: "bg-violet-50", text: "text-violet-700", border: "border-violet-200" },
+    PUT: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
+    PATCH: { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200" },
+    DELETE: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200" },
 }
 
 const ACTION_ICONS = {
-    login:          TbLogin,
-    register:       TbUser,
-    logout:         TbLogout,
-    create_room:    TbDoor,
-    join_room:      TbKey,
-    update_role:    TbEdit,
+    login: TbLogin,
+    register: TbUser,
+    logout: TbLogout,
+    create_room: TbDoor,
+    join_room: TbKey,
+    update_role: TbEdit,
 }
 
 function getMethodFromAction(action = "") {
     const method = action.split(" ")[0]
-    return METHOD_CONFIG[method] || { bg: "bg-gray-50" , text: "text-gray-600" , border: "border-gray-200" }
+    return METHOD_CONFIG[method] || { bg: "bg-gray-50", text: "text-gray-600", border: "border-gray-200" }
 }
 
 function getActionIcon(action = "") {
@@ -68,11 +68,11 @@ function formatDate(dateStr) {
 
     const d = new Date(dateStr)
 
-    return d.toLocaleString("en-IN",{
-        day: "2-digit", month: "short" , year: "numeric",
-        hour: "2-digit" , minute: "2-digit" , second: "2-digit",
+    return d.toLocaleString("en-IN", {
+        day: "2-digit", month: "short", year: "numeric",
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
     })
-    
+
 }
 
 function timeAgo(dateStr) {
@@ -90,22 +90,22 @@ function timeAgo(dateStr) {
     }
 
     const h = Math.floor(m / 60)
-    if (h<24) {
+    if (h < 24) {
         return `${h}h ago`
     }
 
-    return `${Math.floor(h/24)}d ago`
+    return `${Math.floor(h / 24)}d ago`
 
 }
 
-function MetricCard({ label, value , sub , Icon , trend , accent = "teal" }) {
+function MetricCard({ label, value, sub, Icon, trend, accent = "teal" }) {
 
     const accents = {
-        teal:       { icon: "text-[#4ecdc4]"        ,       bg: "bg-[#4ecdc4]/10" },
-        green:      { icon: "text-emerald-500"      ,       bg: "bg-emerald-50"   },
-        red:        { icon: "text-red-500"          ,       bg: "bg-red-50"       },
-        amber:      { icon: "text-amber-500"        ,       bg: "bg-amber-50"     },
-        violet:     { icon: "text-violet-500"       ,       bg: "bg-violet-50"    },
+        teal: { icon: "text-[#4ecdc4]", bg: "bg-[#4ecdc4]/10" },
+        green: { icon: "text-emerald-500", bg: "bg-emerald-50" },
+        red: { icon: "text-red-500", bg: "bg-red-50" },
+        amber: { icon: "text-amber-500", bg: "bg-amber-50" },
+        violet: { icon: "text-violet-500", bg: "bg-violet-50" },
     }
 
     const a = accents[accent] || accents.teal
@@ -128,15 +128,15 @@ function MetricCard({ label, value , sub , Icon , trend , accent = "teal" }) {
             <div>
                 <p className="text-2xl font-bold text-gray-900 tracking-tight">{value}</p>
                 <p className="text-xs text-gray-500 mt-0.5">{label}</p>
-                {sub && <p className="text=[11px] text-gray-400">{sub}</p>}
+                {sub && <p className="text-[11px] text-gray-400">{sub}</p>}
             </div>
         </div>
     )
 }
 
-function FilterChip({ label , onRemove }) {
+function FilterChip({ label, onRemove }) {
     return (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#4ecdc4]/10 text=[#0f6e56] text-[11px] font-medium rounded-full border border-[#4ecdc4]/20">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#4ecdc4]/10 text-[#0f6e56] text-[11px] font-medium rounded-full border border-[#4ecdc4]/20">
             {label}
             <button
                 onClick={onRemove}
@@ -148,17 +148,17 @@ function FilterChip({ label , onRemove }) {
     )
 }
 
-function MetaModal({ log , onClose }) {
+function MetaModal({ log, onClose }) {
 
     if (!log) return null
 
     let meta = {}
 
     try {
-        meta = JSON.parse(log.meta || "{}") 
-    } catch {}
+        meta = JSON.parse(log.meta || "{}")
+    } catch { }
 
-    const StatusIcon = STATUS_CONFIG[log.status]?.Icon || TbInforCircle
+    const StatusIcon = STATUS_CONFIG[log.status]?.Icon || TbInfoCircle
 
     return (
         <div
@@ -173,7 +173,7 @@ function MetaModal({ log , onClose }) {
                 <div className="flex items-center justify-between px-6 py-4 border-b border-black/[0.07]">
                     <div className="flex items-center gap-3">
                         <span className={`w-8 h-8 rounded-xl flex items-center justify-center ${STATUS_CONFIG[log.status]?.bg}`}>
-                            <StatusIcon size={16}  className={STATUS_CONFIG[log.status]?.text}/>
+                            <StatusIcon size={16} className={STATUS_CONFIG[log.status]?.text} />
                         </span>
                         <div>
                             <p className="text-sm font-semibold text-gray-800 font-mono">{log.action}</p>
@@ -190,13 +190,13 @@ function MetaModal({ log , onClose }) {
                 <div className="px-6 py-5 flex flex-col gap-4">
                     <div className="grid grid-cols-2 gap-3">
                         {[
-                            { label: "Actor"        ,       value: log.actorId      || "-"     ,         Icon: TbUser     },
-                            { label: "Role"         ,       value: log.actorRole    || "-"     ,         Icon: TbTag      },
-                            { label: "IP Address"   ,       value: log.ip           || "-"     ,         Icon: TbWorld    },
-                            { label: "Target"       ,       value: log.targetId     || "-"     ,         Icon: TbRoute    },
-                            { label: "Target Type"  ,       value: log.targetType   || "-"     ,         Icon: TbDatabase },
-                            { label: "Status"       ,       value: log.status       || "-"     ,         Icon: StatusIcon },
-                        ].map(({ label, value , Icon }) => (
+                            { label: "Actor", value: log.actorId || "-", Icon: TbUser },
+                            { label: "Role", value: log.actorRole || "-", Icon: TbTag },
+                            { label: "IP Address", value: log.ip || "-", Icon: TbWorld },
+                            { label: "Target", value: log.targetId || "-", Icon: TbRoute },
+                            { label: "Target Type", value: log.targetType || "-", Icon: TbDatabase },
+                            { label: "Status", value: log.status || "-", Icon: StatusIcon },
+                        ].map(({ label, value, Icon }) => (
                             <div key={label} className="bg-gray-50 rounded-xl p-3">
                                 <div className="flex items-center gap-1.5 mb-1">
                                     <Icon size={12} className="text-gray-400" />
@@ -223,7 +223,7 @@ function MetaModal({ log , onClose }) {
     )
 }
 
-function LogRow({ log , onClick }) {
+function LogRow({ log, onClick }) {
 
     const status = STATUS_CONFIG[log.status] || STATUS_CONFIG.success
     const methodStyle = getMethodFromAction(log.action)
@@ -248,26 +248,26 @@ function LogRow({ log , onClick }) {
             <td className="px-4 py-3">
                 <span
                     className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border ${status.bg} ${status.text} ${status.border}`}
-                >   
+                >
                     <status.Icon size={10} />
                     {status.label}
-                </span> 
+                </span>
             </td>
             <td className="px-4 py-3">
                 {log.actorId
                     ? <div className="flex items-center gap-1.5">
-                        <span className="w-5 h-5 rounded-full bg-[#4ecdc4]/15 text-[#0f6e56] flexx items-center justify-center text-[9px] font-bold">
+                        <span className="w-5 h-5 rounded-full bg-[#4ecdc4]/15 text-[#0f6e56] flex items-center justify-center text-[9px] font-bold">
                             {log.actorId[0]?.toUpperCase()}
                         </span>
                         <span className="text-xs text-gray-700 font-mono">
                             {log.actorId}
                         </span>
-                      </div>
+                    </div>
                     : <span className="text-xs text-gray-400">anonymous</span>
                 }
             </td>
             <td className="px-4 py-3">
-                <span className="text-xs text-gray-500 font-mono">{log.ip  || "-"}</span>
+                <span className="text-xs text-gray-500 font-mono">{log.ip || "-"}</span>
             </td>
             <td className="px-4 py-3">
                 <div title={formatDate(log.CreatedAt)}>
@@ -279,16 +279,16 @@ function LogRow({ log , onClick }) {
                 <button
                     className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-black/[0.06] text-gray-500"
                 >
-                    <TbEye size={14}/>
+                    <TbEye size={14} />
                 </button>
             </td>
         </tr>
     )
 }
 
-function TopActionBar({ label , count , max , color = "#4ecdc4" }) {
+function TopActionBar({ label, count, max, color = "#4ecdc4" }) {
 
-    const pct = max ? Math.round((count/max)*100) : 0
+    const pct = max ? Math.round((count / max) * 100) : 0
 
     return (
         <div className="flex items-center gap-3">
@@ -329,7 +329,7 @@ function Audit() {
 
     const [search, setSearch] = useState("")
     const [debouncedSearch, setDebouncedSearch] = useState("")
-    
+
     const limit = 20
     const searchTimer = useRef(null)
 
@@ -339,18 +339,18 @@ function Audit() {
             setDebouncedSearch(search)
             setPage(1)
         }, 400);
-    },[search])
+    }, [search])
 
     const fetchLogs = useCallback(async () => {
         setLoading(true)
         try {
-            const params = new URLSearchParams({ page , limit })
+            const params = new URLSearchParams({ page, limit })
 
             if (filters.status) params.set("status", filters.status)
-            if (filters.method) params.set("method",filters.method)
-            if (filters.actor || debouncedSearch) params.set("actor",filters.actor || debouncedSearch)
-            if (filters.action) params.set("action",filters.action)
-            if (filters.from) params.set("from",filters.from)
+            if (filters.method) params.set("method", filters.method)
+            if (filters.actor || debouncedSearch) params.set("actor", filters.actor || debouncedSearch)
+            if (filters.action) params.set("action", filters.action)
+            if (filters.from) params.set("from", filters.from)
             if (filters.to) params.set("to", filters.to)
 
             const res = await API.get(`/admin/audit-logs?${params}`)
@@ -368,7 +368,7 @@ function Audit() {
         } finally {
             setLoading(false)
         }
-    },[page,filters,debouncedSearch,sortDir])
+    }, [page, filters, debouncedSearch, sortDir])
 
     const fetchStats = useCallback(async () => {
 
@@ -382,12 +382,12 @@ function Audit() {
         } finally {
             setStatsLoading(false)
         }
-    },[])
+    }, [])
 
-    useEffect(() => { fetchLogs() },[fetchLogs])
-    useEffect(() => { fetchStats() },[fetchStats])
+    useEffect(() => { fetchLogs() }, [fetchLogs])
+    useEffect(() => { fetchStats() }, [fetchStats])
 
-    const activeFilters = Object.entries(filters).filter(([,v]) => v !== "")
+    const activeFilters = Object.entries(filters).filter(([, v]) => v !== "")
 
     const clearFilters = (key) => {
         setFilters(f => ({ ...f, [key]: "" }))
@@ -395,19 +395,19 @@ function Audit() {
     }
 
     const clearAll = () => {
-        setFilters({ action: "" , actor: "" , status: "" , method: "" , from: "" , to: "" })
+        setFilters({ action: "", actor: "", status: "", method: "", from: "", to: "" })
         setSearch("")
         setPage(1)
     }
 
     const exportCSV = () => {
 
-        const header = ["Action","Status","Actor","Role","IP","Target","Created At"]
+        const header = ["Action", "Status", "Actor", "Role", "IP", "Target", "Created At"]
         const rows = logs.map(l => [
-            l.action , l.status , l.actorId , l.actorRole , l.ip , l.targetId,
+            l.action, l.status, l.actorId, l.actorRole, l.ip, l.targetId,
             formatDate(l.CreatedAt)
         ])
-        const csv = [header,...rows].map(r => r.map(v => `"${v ?? ""}"`).join(".")).join("\n")
+        const csv = [header, ...rows].map(r => r.map(v => `"${v ?? ""}"`).join(",")).join("\n")
         const blob = new Blob([csv], { type: "text/csv" })
         const a = document.createElement("a")
         a.href = URL.createObjectURL(blob)
@@ -420,7 +420,308 @@ function Audit() {
     return (
         <div className="min-h-screen bg-[#f5f5f2] font-mono">
 
+            <div className="bg-white border-b border-black/[0.07] px-6 py-5">
+                <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <span className="w-9 h-9 bg-[#4ecdc4]/10 text-[#4ecdc4] rounded-xl flex items-center justify-center">
+                            <TbShieldCheck size={20} />
+                        </span>
+                        <div>
+                            <h1 className="text-base font-bold text-gray-900">Audit Logs</h1>
+                            <p className="text-[11px] text-gray-400">Full request &amp; action trail</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={exportCSV}
+                            className="flex items-center gap-2 px-3 py-2 text-xs text-gray-600 border border-black/[0.1] rounded-xl hover:bg-gray-50 transition-colors"
+                        >
+                            <TbDownload size={14} /> Export CSV
+                        </button>
+                        <button
+                            onClick={() => {
+                                fetchLogs();
+                                fetchStats()
+                            }}
+                            className="flex items-center gap-2 px-3 py-2 text-xs text-gray-600 border border-black/[0.1] rounded-xl hover:bg-gray-50 transition-colors"
+                        >
+                            <TbRefresh size={14} /> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <MetricCard
+                        label="Total Requests"
+                        value={statsLoading ? "…" : (stats?.total_requests ?? 0).toLocaleString()}
+                        Icon={TbActivity}
+                        accent="teal"
+                    />
+                    <MetricCard
+                        label="Failures"
+                        value={statsLoading ? "…" : (stats?.failed_requests ?? 0).toLocaleString()}
+                        sub="HTTP 4xx / 5xx"
+                        Icon={TbShieldX}
+                        accent="red"
+                    />
+                    <MetricCard
+                        label="Success Rate"
+                        value={statsLoading ? "…" : `${(stats?.success_rate ?? 0).toFixed(1)}%`}
+                        Icon={TbTrendingUp}
+                        accent="green"
+                    />
+                    <MetricCard
+                        label="Unique Actors"
+                        value={statsLoading ? "…" : (stats?.top_actors?.length ?? 0)}
+                        sub="tracked users"
+                        Icon={TbUsers}
+                        accent="violet"
+                    />
+                </div>
+                {/* Top actions + Top actors */}
+                {stats && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="bg-white border border-black/[0.07] rounded-2xl p-5">
+                            <p className="text-xs font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                                <TbList size={14} className="text-[#4ecedc4]" />
+                                Top Endpoints
+                            </p>
+                            <div className="flex flex-col gap-3">
+                                {stats.top_actions?.slice(0,8).map((a,i) => (
+                                    <TopActionBar
+                                        key={i}
+                                        label={a.action}
+                                        count={a.count}
+                                        max={maxActionCount}
+                                        color={i % 2 === 0 ? "#4ecdc4" : "#a78bfa"}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        <div className="bg-white border border-black/[0.07] rounded-2xl p-5">
+                            <p className="text-xs font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                                <TbUsers size={14} className="text-violet-500" />
+                                Most Active Users
+                            </p>
+                            <div className="flex flex-col gap-3">
+                                {stats.top_actions?.slice(0,8).map((a,i) => (
+                                    <div key={i} className="flex items-center gap-3">
+                                        <span className="w-6 h-6 rounded-full bg-violet-50 text-violet-700 flex items-center justify-center text-[10px] font-bold shrink-0">
+                                            {a.actor_id?.[0]?.toUpperCase() || "?"}
+                                        </span>
+                                        <TopActionBar
+                                            label={a.action_id || "anonymous"}
+                                            count={a.count}
+                                            max={stats.top_actors?.[0]?.count || 1}
+                                            color="#7c3aed"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+                <div className="bg-white border border-black/[0.07] rounded-2xl p-4 flex flex-col gap-3">
+                    <div className="flex flex-wrap gap-3 items-center">
+                        <div className="relative flex-1 min-w-[180px]">
+                            <TbSearch size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input
+                                type="text"
+                                value={search}
+                                placeholder="Search By Actor..."
+                                onChange={e => setSearch(e.target.value)}
+                                className="w-full pl-8 pr-3 py-2 text-xs bg-gray-50 border border-black/[0.08] rounded-xl outline-none focus:border-[#4ecdc4] transition-colors"
+                            />
+                        </div>
+                        
+                        {/* Status */}
+                        <select
+                            value={filters.status}
+                            onChange={e => {
+                                setFilters(f => ({ ...f , status: e.target.value }))
+                                setPage(1)
+                            }}
+                            className="px-3 py-2 text-xs bg-gray-50 border border-black/[0.08] rounded-xl outline-none focus:border-[#4ecdc4]"
+                        >
+                            <option value="">All Status</option>
+                            <option value="success">Success</option>
+                            <option value="failure">Failure</option>
+                        </select>
+
+                        {/* Method */}
+                        <select
+                            value={filters.method}
+                            onChange={e => {
+                                setFilters(f => ({ ...f, method: e.target.value }))
+                                setPage(1)
+                            }}
+                            className="px-3 py-2 text-xs bg-gray-50 border border-black/[0.08] rounded-xl outline-none focus:border-[#4ecdc4]"
+                        >
+                            <option value="">All Methods</option>
+                            {["GET","POST","PUT","PATCH","DELETE"].map(m => (
+                                <option key={m} value={m}>{m}</option>
+                            ))}
+                        </select>
+
+                        {/* Action Path */}
+                        <input
+                            type="text"
+                            placeholder="Filter by action/path…"
+                            value={filters.action}
+                            onChange={e => {
+                                setFilters(f => ({ ...f , action: e.target.value }))
+                                setPage(1)
+                            }}
+                            className="px-3 py-2 text-xs bg-gray-50 border border-black/[0.08] rounded-xl outline-none focus:border-[#4ecdc4] w-44"
+                        />
+                        <div className="flex items-center gap-1.5">
+                            <TbCalendar size={13} className="text-gray-400" />
+                            <input
+                                type="date"
+                                value={filters.from}
+                                onChange={e => {
+                                    setFilters(f => ({ ...f , from: e.target.value }))
+                                    setPage(1)
+                                }}
+                                className="px-2 py-2 text-xs bg-gray-50 border border-black/[0.08] rounded-xl outline-none focus:border-[#4ecdc4]"
+                            />
+                            <span className="text-gray-400 text-xs">→</span>
+                            <input
+                                type="date"
+                                value={filters.to}
+                                onChange={e => {
+                                    setFilters(f => ({ ...f , to: e.target.value }))
+                                }}
+                                className="px-2 py-2 text-xs bg-gray-50 border border-black/[0.08] rounded-xl outline-none focus:border-[#4ecdc4]"
+                            />
+                        </div>
+
+                        {/* Sort */}
+                        <button
+                            onClick={() => setSortDir(d => d === "desc" ? "asc" : "desc")}
+                            className="flex items-center gap-1.5 px-3 py-2 text-xs text-gray-600 border border-black/[0.08] rounded-xl hover:bg-gray-50 transition-colors"
+                        >
+                            {sortDir === "desc"
+                                ? <><TbSortDescending size={14} /> Newest</>
+                                : <><TbSortAscending size={14} /> Oldest</>
+                            }
+                        </button>
+                    </div>
+                    {(activeFilters.length > 0 || search) && (
+                        <div className="flex flex-wrap items-center gap-2 pt-1 border-black/[0.05]">
+                            <TbFilter size={12} className="text-gray-400" />
+                            {search && <FilterChip label={`actor: ${search}`} onRemove={() => setSearch("")} />}
+                            {activeFilters.map(([k, v]) => (
+                                <FilterChip key={k} label={`${k}: ${v}`} onRemove={() => clearFilters(k)} />
+                            ))}
+                            <button
+                                onClick={clearAll}
+                                className="text-[11px] text-red-400 hover:text-red-600 transition-colors ml-1"
+                            >
+                                Clear All
+                            </button>
+                        </div>
+                    )}
+                </div>
+                <div className="bg-white border border-black/[0.07] rounded-2xl overflow-hidden">
+                    <div className="flex items-center justify-between px-5 py-2 border-b border-black/[0.06]">
+                        <p className="text-xs text-gray-500">
+                            <span className="font-semibold text-gray-800">{total.toLocaleString()}</span> total Logs
+                            {loading && <span className="ml-2 text-[#4ecdc4] animate-pulse">loading...</span>}
+                        </p>
+                        <p className="text-[11px] text-gray-400">Page {page} of {pages}</p>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[700px]">
+                            <thead>
+                                <tr className="bg-gray-50/80">
+                                    {["Action / Path" , "Status" , "Actor" , "IP" , "Time" , ""].map(h => (
+                                        <th key={h} className="px-4 py-2.5 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                                            {h}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {loading
+                                    ? Array.from({ length: 8 }).map((_,i) => (
+                                        <tr key={i} className="border-b border-black/[0.05]">
+                                            {Array.from({ length: 6 }).map((_,j) => (
+                                                <td key={j} className="px-4 py-3">
+                                                    <div className="h-3 bg-gray-100 rounded-md animate-pulse" />
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    ))
+                                    : logs.length === 0
+                                        ? <tr>
+                                            <td colSpan={6} className="px-4 py-16 text-center text-sm text-gray-400">
+                                                No Audit Logs Found !
+                                            </td>
+                                        </tr>
+                                        : logs.map((log,i) => (
+                                            <LogRow key={log.ID || i} log={log} onClick={setSelectedLog} />
+                                        ))
+                                }
+                            </tbody>
+                        </table>
+                    </div> 
+                    {pages > 1 && (
+                        <div className="flex items-center justify-between px-5 py-3 border-t border-black/[0.06]">
+                            <button
+                                onClick={() => setPage(p => Math.max(1, p-1))}
+                                disabled={page===1}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 border border-black/[0.1] rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <TbChevronLeft size={13} /> Prev
+                            </button>
+                            <div className="flex items-center gap-1">
+                                {Array.from({ length: Math.min(pages, 7)}, (_,i) => {
+                                    const p = pages <= 7
+                                        ? i + 1
+                                        : page <=4 ? i + 1
+                                        : page >= pages - 3 ? pages - 6 -i
+                                        : pages - 3 + i
+                                    return (
+                                        <button
+                                            key={p}
+                                            onClick={() => setPage(p)}
+                                            className={`w-7 h-7 text-[11px] rounded-lg transition-colors font-mono
+                                                ${page === p
+                                                    ? "bg-[#4ecdc4] text-white font-bold"
+                                                    : "text-gray-500 hover:bg-gray-100"
+                                                }
+                                                `}
+                                        >
+                                            {p}
+                                        </button>
+                                    )
+                                } )}
+                            </div>
+                            <button
+                                onClick={() => setPage(p => Math.min(pages, p+1))}
+                                disabled = {page === pages}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 border border-black/[0.1] rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            >
+                                Next <TbChevronRight size={13} />
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Detail Modal */}
+
+            {selectedLog && (
+                <MetaModal
+                    log={selectedLog}
+                    onClose={() => setSelectedLog(null)}
+
+                />
+            )}
         </div>
     )
-
 }
+
+export default Audit
