@@ -38,6 +38,7 @@ func ConnectDB() {
 	err = DB.AutoMigrate(
 		&models.User{},
 		&models.Room{},
+		&models.AuditLog{},
 	)
 	if err != nil {
 		log.Fatal("Migration Failed")
