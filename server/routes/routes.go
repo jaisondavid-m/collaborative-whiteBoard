@@ -9,6 +9,8 @@ import (
 
 func SetupRoutes(r *gin.Engine) {
 
+	r.Use(middleware.AuditMiddleware())
+
 	auth := r.Group("/auth")
 	{
 		auth.POST("/register",handlers.Register)
@@ -34,6 +36,8 @@ func SetupRoutes(r *gin.Engine) {
 	admin.Use(middleware.AuthMiddleware(),middleware.AdminMiddleware())
 	{
 		admin.GET("/users",handlers.ListUsers)
+		admin.GET("/audit-logs",handlers.ListAuditLogs)
+		admin.GET("/audit-logs/stats",handlers.GetAuditStats)
 	}
 
 	superadmin := r.Group("/superadmin")
