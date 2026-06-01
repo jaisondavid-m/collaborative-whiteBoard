@@ -4,12 +4,16 @@ import Button from "../ui/Button.jsx"
 import Card from "../ui/Card.jsx"
 import GoogleLoginButton from "../ui/GoogleLoginButton.jsx"
 
+import PasswordRequirements from "./PasswordRequirements.jsx"
+import PasswordStrength from "./PasswordStrength.jsx"
+
 function AuthForm({
     title,
     buttonText,
     onSubmit,
     toast,
     setLoading,
+    isRegister = false,
 }) {
 
     const [formData, setFormData] = useState({
@@ -25,8 +29,29 @@ function AuthForm({
     }
 
     const handleSubmit = (e) => {
+
         e.preventDefault()
+        
+        if (isRegister && !isPasswordValid()) {
+            toast(
+                "Password doest not meet all requirements",
+                "error"
+            )
+            return
+        }
+
         onSubmit(formData)
+
+    }
+
+    const isPasswordValid = () => {
+        return (
+            formData.password.length >= 8 &&
+            /[A-Z]/.test(formData.password) &&
+            /[a-z]/.test(formData.password) &&
+            /[0-9]/.test(formData.password) &&
+            /[!@#$%^&*()_+\-=?"'\\/|<>.,;:()[\]{}]/.test(formData.password)
+        )
     }
 
     return (
@@ -34,7 +59,12 @@ function AuthForm({
             <div className="flex flex-col gap-6">
                 <div>
                     <h1 className="text-3xl font-bold">{title}</h1>
-                    <p className="text-gray-500 mt-2">Welcome Back</p>
+                    <p className="text-gray-500 mt-2">
+                        {isRegister
+                            ? "Create your SketchBoard account"
+                            : "Welcom Back to SketchBoard !"
+                        }
+                    </p>
                 </div>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <Input
@@ -53,7 +83,22 @@ function AuthForm({
                         type="password"
                         name="password"
                     />
-                    <Button type="submit">
+                    {isRegister && (
+                        <div>
+                            <PasswordStrength
+                                password={formData.password}
+                            />
+                            <PasswordRequirements
+                                password={formData.password}
+                            />
+                        </div>
+                    )}
+                    <Button
+                        type="submit"
+                        disabled={
+                            isRegister && !isPasswordValid()
+                        }
+                    >
                         {buttonText}
                     </Button>
                 </form>

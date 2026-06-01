@@ -21,6 +21,20 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	if err := utils.ValidateUserID(input.UserID); err != nil {
+		c.JSON(http.StatusBadRequest,gin.H{
+			"error":err.Error(),
+		})
+		return
+	}
+
+	if err := utils.ValidatePassword(input.Password); err != nil {
+		c.JSON(http.StatusBadRequest,gin.H{
+			"error":err.Error(),
+		})
+		return
+	}
+
 	var existingUser models.User
 
 	config.DB.Where("user_id = ?", input.UserID).First(&existingUser)
@@ -73,6 +87,12 @@ func Login(c *gin.Context) {
 			"error": "Invalid Input",
 		})
 		return
+	}
+
+	if input.UserID == "" || input.Password == "" {
+		c.JSON(http.StatusBadRequest,gin.H{
+			"error":"both userid and password are required",
+		})
 	}
 
 	var user models.User

@@ -1,12 +1,21 @@
 import React from "react"
 
-function Button({ children , type = "button" , onClick , disabled=false }) {
+function Button({ children , type = "button" , onClick , disabled=false , className="" , ...props }) {
     return (
         <button
+            {...props}
             type={type}
             onClick={onClick}
             disabled={disabled}
-            className="w-full bg-black text-white py-3 rounded-xl font-medium hover:opacity-90 transition"
+            className={`
+                w-full py-3 rounded-xl font-medium transition
+                ${
+                    disabled
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-black text-white hover:opacity-90"
+                }
+                ${className}
+            `}
         >
             {children}
         </button>

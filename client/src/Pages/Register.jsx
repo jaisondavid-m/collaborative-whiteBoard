@@ -55,8 +55,9 @@ function Register() {
                     onSubmit={handleRegister}
                     toast={toast}
                     setLoading={setLoading}
+                    isRegister={true}
                 />
-                <p className="text-sm text-center text-gray-500">
+                <p className="text-sm mt-5 text-center text-gray-500">
                     Already have an account?{" "}
                     <Link
                         to="/login"

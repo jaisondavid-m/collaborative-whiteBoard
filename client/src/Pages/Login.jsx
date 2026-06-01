@@ -51,7 +51,7 @@ function Login() {
                     toast={toast}
                     setLoading={setLoading}
                 />
-                <p className="text-sm text-center text-gray-500">
+                <p className="text-sm text-center mt-5 text-gray-500">
                     Don't have and account?{" "}
                     <Link
                         to="/register"
