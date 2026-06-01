@@ -32,11 +32,11 @@ function Cursor1() {
         reducedMotion: true,
     })
 
-    const [mounted, setMounted] = useState(false)
+    // const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
 
-        setMounted(false)
+        // setMounted(true)
 
         const s = state.current
         s.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -67,7 +67,7 @@ function Cursor1() {
             clearTimeout(s.idleTimer)
             show()
             s.idleTimer = setTimeout(() => {
-                hide
+                hide()
             }, IDLE_TIMEOUT);
         }
 
@@ -84,8 +84,8 @@ function Cursor1() {
             ring.style.transform = "translate(-50%,-50%) scale(0.6)"
         }
 
-        const onUp = (e) => {
-            e.pressing = true
+        const onUp = () => {
+            s.pressing = false
             dot.style.transform = "translate(-50%,-50%) scale(1)"
             dot.style.background = DOT_COLOR
             ring.style.transform = "translate(-50%,-50%) scale(1)"
@@ -95,7 +95,7 @@ function Cursor1() {
             const el = e.target
             const isDisabled =
                 el.matches("[disabled],[aria-disabled=true]") ||
-                el.matches("[disabled],[aria-disabled=true]")
+                el.closist("[disabled],[aria-disabled=true]")
             s.disabled = !!isDisabled
 
             const isText =
@@ -184,7 +184,7 @@ function Cursor1() {
 
         return () => {
             document.removeEventListener("mousemove", onMove)
-            document.removeEventListener("mousedown", onMove)
+            document.removeEventListener("mousedown", onDown)
             document.removeEventListener("mouseup",onUp)
             document.removeEventListener("mouseover", onOver)
             cancelAnimationFrame(s.raf)
@@ -193,7 +193,17 @@ function Cursor1() {
 
     }, [])
 
-    if (!mounted) return null
+    useEffect(() => {
+        if (window.matchMedia("(pointer: coarse)").matches) {
+            return
+        }
+        document.body.classList.add("custom-cursor")
+        return () => {
+            document.body.classList.remove("custom-cursor")
+        }
+    },[])
+
+    // if (!mounted) return null
 
     const base = {
         position: "fixed",
@@ -247,7 +257,7 @@ function Cursor1() {
                 borderRadius: "50%",
                 background: DOT_COLOR,
                 zIndex: 99999,
-                transform: "transform .08s ease, background .1s ease",
+                transition: "transform .08s ease, background .1s ease",
             }}
         />
         </>

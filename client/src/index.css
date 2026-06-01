@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
+body.custom-cursor,
 body.custom-cursor * {
-    cursor: none;
+    cursor: none !important;
 }
 
 body {
