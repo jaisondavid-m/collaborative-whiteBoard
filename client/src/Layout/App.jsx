@@ -13,6 +13,7 @@ import Profile from "../Pages/Profile.jsx"
 import Audit from "../Pages/Audit.jsx"
 
 import Cursor1 from "../Components/ui/cursors/Cursor1.jsx"
+import Cursor2 from "../Components/ui/cursors/Cursor2.jsx"
 
 import ProtectedRoute from "../routes/ProtectedRoute.jsx"
 import AppLayout from "./AppLayout.jsx"
@@ -23,7 +24,8 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Cursor1/>
+      {/* <Cursor1/> */}
+      <Cursor2/>
       <Routes>
         <Route path='/login' element={token ? <Navigate to="/home" /> : <Login/> } />
         <Route path='/register' element={token ? <Navigate to="/home"/> : <Register/> } />
