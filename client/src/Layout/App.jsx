@@ -52,6 +52,7 @@ function App() {
         </Route>
 
         <Route path='/' element={<Navigate to={token ? "/home" : "/login"} />} />
+        {/* <Route path='/setting' element={<CursorSettings/>} /> */}
 
         {/* <Route
           path='/home'

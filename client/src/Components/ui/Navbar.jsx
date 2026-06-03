@@ -17,7 +17,8 @@ const NAV_LINKS = [
     ...(isPrivileged ? [
         { label: "Admin", path: "/admin", Icon: RiLayoutGridLine },
         { label: "Audit Logs" , path: "/audit-logs" , Icon: RiFileList3Line }
-    ] : [])
+    ] : []),
+    { label: "Setting" , path: "/setting" , Icon: RiSettings3Line }
 ]
 
 const userId = localStorage.getItem("userid") || ""

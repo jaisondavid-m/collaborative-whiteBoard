@@ -33,7 +33,7 @@ const SOCIAL_LINKS = [
 function FooterLinkGroup({ title, links }) {
     return (
         <div className="flex flex-col gap-3">
-            <h3 className="text-xs font-semibold text-gray-900 tracking-widest uppercase">
+            <h3 className="text-xs font-semibold text-[#e0e0e0] tracking-widest uppercase">
                 {title}
             </h3>
             <ul className="flex flex-col gap-2">
@@ -41,7 +41,7 @@ function FooterLinkGroup({ title, links }) {
                     <li key={link.label}>
                         <Link
                             to={link.path}
-                            className="text-sm text-gray-500 hover:text-[#0f6e56] transition-colors duration-150"
+                            className="text-sm text-[#888] hover:text-[#0f6e56] transition-colors duration-150"
                         >
                             {link.label}
                         </Link>
@@ -89,7 +89,7 @@ function Footer() {
                                     key={label}
                                     href={href}
                                     aria-label={label}
-                                    className="w-8 h-8 flex items-center justify-center rounded-md border-black/10 text-gray-400 hover:text-{#0f6e56]"
+                                    className="w-8 h-8 flex items-center justify-center rounded-md border-black/10 text-[#666] hover:text-{#0f6e56]"
                                 >
                                     <Icon size={15} />
                                 </a>

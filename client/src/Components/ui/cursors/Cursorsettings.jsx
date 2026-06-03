@@ -68,7 +68,7 @@ const OPTIONS = [
     }
 ]
 
-function Badge({ label , color }) {
+function Badge({ label, color }) {
     return (
         <span style={{
             fontSize: "10px",
@@ -87,7 +87,7 @@ function Badge({ label , color }) {
 
 function SandboxZone({ active }) {
 
-    const tags = ["button","link","input","disabled"]
+    const tags = ["button", "link", "input", "disabled"]
 
     return (
         <div style={{
@@ -97,10 +97,10 @@ function SandboxZone({ active }) {
             padding: "20px 24px",
             marginTop: "8px",
         }}>
-            <p style={{ fontSize: "11px" , color: "#444" , letterSpacing: "0.12em" , marginBottom: "14px" }}>
+            <p style={{ fontSize: "11px", color: "#444", letterSpacing: "0.12em", marginBottom: "14px" }}>
                 LIVE PREVIEW - move mouse here
             </p>
-            <div style={{ display: "flex" , flexWrap: "wrap" , gap: "10px" , alignItems: "center" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center" }}>
                 <button
                     style={{
                         background: "#13131f",
@@ -169,21 +169,30 @@ function SandboxZone({ active }) {
     )
 }
 
+function getContrastColor(hex) {
+    const r = parseInt(hex.slice(1,3),16)
+    const g = parseInt(hex.slice(3,5),16)
+    const b = parseInt(hex.slice(5,7),16)
+    const luminance = (0.299*r+0.587*g + 0.114*b)/255
+    return luminance > 0.55 ? "#0d0d14" : "#ffffff"
+}
+
 function CursorSettings() {
 
     const navigate = useNavigate()
     const savedRef = useRef(localStorage.getItem("cursorStyle") || "default")
     const [selected, setSelected] = useState(savedRef.current)
-    const [saveState, setSaveState] = useState(false)
+    const [saveState, setSaveState] = useState("idle")
     const [canUndo, setCanUndo] = useState(false)
 
     useLayoutEffect(() => {
         const prev = document.body.style.cursor
         document.body.style.cursor = selected !== "default" ? "none" : ""
+        document.body.style.background = "#0d0d14"
         return () => {
             document.body.style.cursor = prev
         }
-    },[selected])
+    }, [selected])
 
     useEffect(() => {
         const ids = OPTIONS.map(o => o.id)
@@ -191,34 +200,34 @@ function CursorSettings() {
             if (e.key === "ArrowDown" || e.key === "ArrowRight") {
                 setSelected(cur => {
                     const i = ids.indexOf(cur)
-                    return ids[(i+1)%ids.length]
+                    return ids[(i + 1) % ids.length]
                 })
             }
             if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
                 setSelected(cur => {
                     const i = ids.indexOf(cur)
-                    return ids[(i-1+ids.length)%ids.length]
+                    return ids[(i - 1 + ids.length) % ids.length]
                 })
             }
         }
-        window.addEventListener("keydown",onKey)
+        window.addEventListener("keydown", onKey)
         return () => {
-            window.removeEventListener("keydown",onKey)
+            window.removeEventListener("keydown", onKey)
         }
-    },[])
+    }, [])
 
     const handleSave = () => {
         setSaveState("saving")
         setTimeout(() => {
-            localStorage.setItem("cursorStyle",selected)
+            localStorage.setItem("cursorStyle", selected)
             savedRef.current = selected
             setSaveState("saved")
             setCanUndo(false)
             setTimeout(() => {
                 setSaveState("idle")
                 window.location.reload()
-            },800)
-        },250)
+            }, 800)
+        }, 250)
     }
 
     const handleUndo = () => {
@@ -233,26 +242,29 @@ function CursorSettings() {
 
     const isDirty = selected !== savedRef.current
 
+    const activeOption = OPTIONS.find(o => o.id === selected)
+    const accentColor = activeOption?.accent || "#4ecdc4"
+
     return (
         <div
             className="min-h-screen bg-[#0d0d14] text-[#e0e0e0] font-mono"
             style={{ cursor: selected !== "default" ? "none" : "" }}
         >
-            { selected === "cursor1" && <Cursor1/> }
-            { selected === "cursor2" && <Cursor2/> }
+            {selected === "cursor1" && <Cursor1 />}
+            {selected === "cursor2" && <Cursor2 />}
             {/* -- Header -- */}
             <header className="flex items-center justify-between px-5 h-12 bg-[#13131f] border-b border-[#1f1f33] shrink-0" >
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => navigate(-1)}
                         className="bg-transparent border border-[#2a2a40] text-[#aaa] px-3 py-1 rounded-md
-                        text-sm hover:border-[#4ecdc4] transition-colors"
-                        style={{ cursor: selected !== "default" ? "none" : "pointer" }}
+                        text-sm transition-colors"
+                        style={{ cursor: selected !== "default" ? "none" : "pointer" , borderColor: accentColor }}
                     >
                         ← Back
                     </button>
                     <span className="flex items-center gap-1.5 text-sm tracking-widest text-[#666]">
-                        <span className="text-[#4ecdc4]" >⬡</span>
+                        <span style={{ color: accentColor }} >⬡</span>
                         Settings
                         <span className="text-[#333]" ></span>
                         <span className="text-[#aaa]" >Cursor</span>
@@ -260,14 +272,14 @@ function CursorSettings() {
                 </div>
                 <div className="flex items-center gap-2">
                     {isDirty && (
-                        <span style={{ fontSize: "10px" , color: "#e94560" , letterSpacing: "0.08em" }} >
+                        <span style={{ fontSize: "10px", color: "#e94560", letterSpacing: "0.08em" }} >
                             ● unsaved
                         </span>
                     )}
                     <span className="text-[10px] text-[#333] tracking-widest" >↑↓ to cycle</span>
                 </div>
             </header>
-            <main className="max-w-2xl mx-auto px-6 py-10" >
+            <main className="min-h-screen mx-auto px-6 py-10" >
                 <div className="mb-8">
                     <h1 className="text-lg font-medium text-[#e0e0e0] mb-1 tracking-wide">
                         Cursor Style
@@ -315,12 +327,12 @@ function CursorSettings() {
                                     justifyContent: "center"
                                 }}
                                 >
-                                    <opt.PreviewSVG/>
+                                    <opt.PreviewSVG />
                                 </div>
 
                                 {/* Text */}
                                 <div style={{ flex: 1, minWidth: 0 }} >
-                                    <div style={{ display: "flex" , alignContent: "center" , gap: "8px" , marginBottom: "5px" , flexWrap: "wrap" }} >
+                                    <div style={{ display: "flex", alignContent: "center", gap: "8px", marginBottom: "5px", flexWrap: "wrap" }} >
                                         <span
                                             style={{
                                                 fontSize: "13px",
@@ -336,7 +348,7 @@ function CursorSettings() {
                                             <Badge label="active" color={opt.accent} />
                                         )}
                                     </div>
-                                    <p style={{ fontSize: "11px" , color: "#555" , lineHeight: "1.65" , margin: 0 }}>
+                                    <p style={{ fontSize: "11px", color: "#555", lineHeight: "1.65", margin: 0 }}>
                                         {opt.description}
                                     </p>
                                 </div>
@@ -363,143 +375,154 @@ function CursorSettings() {
                                         />
                                     )}
                                 </div>
-                                <div className="mb-8">
-                                    <p className="text-10px]" >
-                                        Interactive preview
-                                    </p>
-                                    <SandboxZone active={selected} />
-                                </div>
 
-                                <div style={{
-                                    background: "#0a0a12",
-                                    border: "1px solid #1a1a28",
-                                    borderRadius: "10px",
-                                    padding: "14px 18px",
-                                    marginBottom: "28px",
-                                    
-                                }} >
-                                    <p style={{
-                                        fontSize: "11px" , color: "#555" , margin: "0 0 8px" , letterSpacing: "0.08em"
-                                    }} >
-                                        HOW IT WORKS
-                                    </p>
-                                    {[
-                                        "Custom cursors set cursor: none on the body so the OS pointer is hidden.",
-                                        "A canvas layer renders the chosen cursor via requestAnimationFrame.",
-                                        "On text inputs the ring becomes a caret. On disabled elements opacity drops.",
-                                        "Cursor1 adds a 12-dot fading trail (skipped if prefers-reduced-motion is set).",
-                                        "Cursor2 outer ring rotates at 0.3°/frame, accelerating to 1.2°/frame on hover.",
-                                    ].map((note,i) => (
-                                        <div
-                                            key={i}
-                                            style={{
-                                                display: "flex",
-                                                gap: "8px",
-                                                marginBottom: "5px",
-                                                alignItems: "flex-start",
-                                            }}
-                                        >
-                                            <span style={{ color: "#4ecdc4" , fontSize: "10px" , marginTop: "2px" , flexShrink: 0 }} >◈</span>
-                                            <p style={{ fontSize: "11px" , color: "#444" , margin: 0, lineHeight: "1.6" }} >{note}</p>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {/* ---action row---- */}
-                                <div style={{ display: "flex" , gap: "10px" }} >
-                                    {canUndo && (
-                                        <button
-                                            onClick={handleUndo}
-                                            style={{
-                                                background: "transparent",
-                                                border: "1px solid #2a2a40",
-                                                color: "#888",
-                                                borderRadius: "10px",
-                                                padding: "12px 20px",
-                                                fontSize: "12px",
-                                                fontFamily: "monospace",
-                                                cursor: selected !== "default" ? "none" : "pointer",
-                                                letterSpacing: "0.6em",
-                                                flexShrink: 0,
-                                            }}
-                                        >
-                                            ↩ Revert
-                                        </button>
-                                    )}
-                                    <button
-                                    onClick={handleSave}
-                                        style={{
-                                            flex: 1,
-                                            background: saveState === "saved" ? "#0f6e56" : "#4ecdc4",
-                                            border: "none",
-                                            color: "#0d0d14",
-                                            borderRadius: "10px",
-                                            padding: "13px 20px",
-                                            fontSize: "12px",
-                                            fontFamily: "monospace",
-                                            letterSpacing: "0.12em",
-                                            cursor: selected !== "default" ? "none" : "pointer",
-                                            transition: "background .2s",
-                                            opacity: saveState !== "idle" ? 0.85 : 1,
-                                        }}
-                                    >
-                                        { saveState === "idle" && "Apply & Reload" }
-                                        { saveState === "saving" && "Saving..." }
-                                        { saveState === "saved" && "✓ Saved" }
-                                    </button>
-                                </div>
-
-                                {/* --- other settings --- */}
-                                <div style={{ marginTop: "48px" }}>
-                                    <p style={{ fontSize: "10px" , letterSpacing: "0.14em" , color: "#2a2a40" , marginBottom: "12px" }} >
-                                        MORE SETTINGS
-                                    </p>
-                                    <div style={{ display: "flex" , flexDirection: "column" , gap: "8px" }} >
-                                        {[
-                                            { label: "Account" , icon: "◎" , path: "/setting/account" },
-                                            { label: "Notifications" , icon: "◈"  ,path: "/setting/notifications" },
-                                        ].map(item => (
-                                            <button
-                                                key={item.label}
-                                                onClick={() => navigate(item.path)}
-                                                style={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    gap: "12px",
-                                                    padding: "12px 18px",
-                                                    background: "#13131f",
-                                                    border: "1px solid #1f1f33",
-                                                    borderRadius: "10px",
-                                                    color: "#888",
-                                                    fontSize: "12px",
-                                                    fontFamily: "monospace",
-                                                    cursor: selected !== "default" ? "none" : "pointer",
-                                                    transition: "border-color .15s, color .15s",
-                                                    textAlign: "left",
-                                                    width: "100%"
-                                                }}
-                                                onMouseEnter={e => {
-                                                    e.currentTarget.style.borderColor = "#4ecdc4"
-                                                    e.currentTarget.style.color = "#e0e0e0"
-                                                }}
-                                                onMouseLeave={e => {
-                                                    e.currentTarget.style.borderColor = "#1f1f33"
-                                                    e.currentTarget.style.color = "#888"
-                                                }}
-                                            >
-                                                <span style={{ color: "#4ecdc4" , fontSize: "14px" }} >
-                                                    {item.label}
-                                                </span>
-                                                <span style={{ marginLeft: "auto" , color: "#2a2a40" , fontSize: "11px" }} >
-                                                    →
-                                                </span>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
                             </div>
                         )
                     })}
+                    <div className="mb-8">
+                        <p className="text-10px]" >
+                            Interactive preview
+                        </p>
+                        <SandboxZone active={selected} />
+                    </div>
+
+                    <div style={{
+                        background: "#0a0a12",
+                        border: "1px solid #1a1a28",
+                        borderRadius: "10px",
+                        padding: "14px 18px",
+                        marginBottom: "28px",
+
+                    }} >
+                        <p style={{
+                            fontSize: "11px", color: "#555", margin: "0 0 8px", letterSpacing: "0.08em"
+                        }} >
+                            HOW IT WORKS
+                        </p>
+                        {[
+                            "Custom cursors set cursor: none on the body so the OS pointer is hidden.",
+                            "A canvas layer renders the chosen cursor via requestAnimationFrame.",
+                            "On text inputs the ring becomes a caret. On disabled elements opacity drops.",
+                            "Cursor1 adds a 12-dot fading trail (skipped if prefers-reduced-motion is set).",
+                            "Cursor2 outer ring rotates at 0.3°/frame, accelerating to 1.2°/frame on hover.",
+                        ].map((note, i) => (
+                            <div
+                                key={i}
+                                style={{
+                                    display: "flex",
+                                    gap: "8px",
+                                    marginBottom: "5px",
+                                    alignItems: "flex-start",
+                                }}
+                            >
+                                <span style={{ color: accentColor, fontSize: "10px", marginTop: "2px", flexShrink: 0 }} >◈</span>
+                                <p style={{ fontSize: "11px", color: "#444", margin: 0, lineHeight: "1.6" }} >{note}</p>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* ---action row---- */}
+                    <div style={{ display: "flex", gap: "10px" }} >
+                        {canUndo && (
+                            <button
+                                onClick={handleUndo}
+                                style={{
+                                    background: "transparent",
+                                    border: "1px solid #2a2a40",
+                                    color: "#888",
+                                    borderRadius: "10px",
+                                    padding: "12px 20px",
+                                    fontSize: "12px",
+                                    fontFamily: "monospace",
+                                    cursor: selected !== "default" ? "none" : "pointer",
+                                    letterSpacing: "0.6em",
+                                    flexShrink: 0,
+                                }}
+                            >
+                                ↩ Revert
+                            </button>
+                        )}
+                        <button
+                            onClick={handleSave}
+                            style={{
+                                flex: 1,
+                                background: saveState === "saved" 
+                                    ? "#0fe656"
+                                    : selected === "default"
+                                    ? "#2a2a40"
+                                    : accentColor,
+                                border: selected === "default" && saveState === "idle"
+                                    ? "1px solid #aaaaaa"
+                                    : "none",
+                                color: saveState === "saved" 
+                                    ? "#fff" 
+                                    : selected === "default"
+                                    ? "#aaaaaa"
+                                    : getContrastColor(accentColor),
+                                borderRadius: "10px",
+                                padding: "13px 20px",
+                                fontSize: "12px",
+                                fontFamily: "monospace",
+                                letterSpacing: "0.08em",
+                                cursor: selected !== "default" ? "none" : "pointer",
+                                transition: "background .2s",
+                                opacity: saveState !== "idle" ? 0.85 : 1,
+                            }}
+                        >
+                            {saveState === "idle" && "Apply & Reload"}
+                            {saveState === "saving" && "Saving..."}
+                            {saveState === "saved" && "✓ Saved"}
+                        </button>
+                    </div>
+
+                    {/* --- other settings --- */}
+                    <div style={{ marginTop: "48px" }}>
+                        <p style={{ fontSize: "10px", letterSpacing: "0.14em", color: "#2a2a40", marginBottom: "12px" }} >
+                            MORE SETTINGS
+                        </p>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }} >
+                            {[
+                                { label: "Account", icon: "◎", path: "/setting/account" },
+                                { label: "Notifications", icon: "◈", path: "/setting/notifications" },
+                            ].map(item => (
+                                <button
+                                    key={item.label}
+                                    onClick={() => navigate(item.path)}
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "12px",
+                                        padding: "12px 18px",
+                                        background: "#13131f",
+                                        border: "1px solid #1f1f33",
+                                        borderRadius: "10px",
+                                        color: "#888",
+                                        fontSize: "12px",
+                                        fontFamily: "monospace",
+                                        cursor: selected !== "default" ? "none" : "pointer",
+                                        transition: "border-color .15s, color .15s",
+                                        textAlign: "left",
+                                        width: "100%"
+                                    }}
+                                    onMouseEnter={e => {
+                                        e.currentTarget.style.borderColor =  accentColor
+                                        e.currentTarget.style.color = "#e0e0e0"
+                                    }}
+                                    onMouseLeave={e => {
+                                        e.currentTarget.style.borderColor = "#1f1f33"
+                                        e.currentTarget.style.color = "#888"
+                                    }}
+                                >
+                                    <span style={{ color: accentColor, fontSize: "14px" }} >
+                                        {item.label}
+                                    </span>
+                                    <span style={{ marginLeft: "auto", color: "#2a2a40", fontSize: "11px" }} >
+                                        →
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </main>
         </div>
