@@ -50,7 +50,7 @@ function Cursor2() {
 
         const [ top , bot , lft , rgt ] = armRefs.current
         
-        // const corners = cornersRef.current
+        const corners = cornersRef.current
 
         const setArms = (len) => {
             if (!top) return
@@ -121,7 +121,7 @@ function Cursor2() {
         const onOver = (e) => {
             const el = e.target
             s.disabled = !!(el.matches("[disabled],[aria-disabled=true]") || el.closest("[disabled],[aria-disabled=true]"))
-            s.onText = !!(el.matches('input,textarea,[contenteditabled="true"]'))
+            s.onText = !!(el.matches('input,textarea,[contenteditable="true"]'))
             s.hovering = !s.disabled && !s.onText && !!el.closest("a,button,[role=button],[tabindex]")
             s.rotSpeed = s.hovering ? ROT_HOVER : ROT_IDLE
         }

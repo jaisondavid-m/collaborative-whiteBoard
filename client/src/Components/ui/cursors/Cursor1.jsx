@@ -29,7 +29,7 @@ function Cursor1() {
         visible: true,
         idleTimer: null,
         raf: null,
-        reducedMotion: true,
+        reducedMotion: false,
     })
 
     // const [mounted, setMounted] = useState(false)
@@ -95,7 +95,7 @@ function Cursor1() {
             const el = e.target
             const isDisabled =
                 el.matches("[disabled],[aria-disabled=true]") ||
-                el.closist("[disabled],[aria-disabled=true]")
+                el.closest("[disabled],[aria-disabled=true]")
             s.disabled = !!isDisabled
 
             const isText =

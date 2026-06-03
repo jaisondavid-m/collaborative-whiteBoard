@@ -11,6 +11,9 @@ import About from "../Pages/About.jsx"
 import PrivacyPolicy from "../Pages/PrivacyPolicy.jsx"
 import Profile from "../Pages/Profile.jsx"
 import Audit from "../Pages/Audit.jsx"
+import CursorSettings from '../Components/ui/cursors/Cursorsettings.jsx'
+
+import useCursor from "../hooks/useCursor.js"
 
 import Cursor1 from "../Components/ui/cursors/Cursor1.jsx"
 import Cursor2 from "../Components/ui/cursors/Cursor2.jsx"
@@ -21,11 +24,12 @@ import AppLayout from "./AppLayout.jsx"
 function App() {
 
   const token = localStorage.getItem("token")
+  const cursorStyle = useCursor()
 
   return (
     <BrowserRouter>
-      {/* <Cursor1/> */}
-      <Cursor2/>
+      { cursorStyle === "cursor1" && <Cursor1/>}
+      { cursorStyle === "cursor2" && <Cursor2/>}
       <Routes>
         <Route path='/login' element={token ? <Navigate to="/home" /> : <Login/> } />
         <Route path='/register' element={token ? <Navigate to="/home"/> : <Register/> } />
@@ -40,6 +44,7 @@ function App() {
           <Route path='/room' element={<Rooms/>} />
           <Route path='/about' element={<About/>} />
           <Route path='/profile' element={<Profile/>} />
+          <Route path='/setting' element={<CursorSettings/>} />
           <Route path='/admin' element={<AdminPage/>} />
           <Route path='/audit-logs' element={<Audit/>} />
           <Route path='/privacypolicy' element={<PrivacyPolicy/>} />
