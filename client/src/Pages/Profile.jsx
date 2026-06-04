@@ -53,47 +53,46 @@ function DeleteModal({ onClose, onConfirm, isDeleting }) {
                 onClick={!isDeleting ? onClose : undefined}
             />
             <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm border border-gray-200 overflow-hidden" >
-                <div className="h-1.5 bg-gradient-to-r from-red-400 to-red-600 w-full" >
-                    <div className="p-6" >
-                        <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4" >
-                            <span className="text-2xl" >🗑️</span>
-                        </div>
-                        <h2 className="text-center text-lg font-semibold text-gray-900 mb-1" >Delete Account</h2>
-                        <p className="text-center text-sm text-gray-500 mb-5" >
-                            This action is <span className="font-semibold text-red-500">irreversible</span>. Your account and all associated data will be permanently removed.
+                {/* <div className="h-1.5 bg-gradient-to-r from-red-400 to-red-600 w-full" /> */}
+                <div className="p-6" >
+                    <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4" >
+                        <span className="text-2xl" >🗑️</span>
+                    </div>
+                    <h2 className="text-center text-lg font-semibold text-gray-900 mb-1" >Delete Account</h2>
+                    <p className="text-center text-sm text-gray-500 mb-5" >
+                        This action is <span className="font-semibold text-red-500">irreversible</span>. Your account and all associated data will be permanently removed.
+                    </p>
+                    <div className={`flex items-center justify-center gap-2 mb-5 rounded-xl py-2.5 px-4 border ${canDelete ? "bg-red-50 border-red-200" : "bg-red-50 border-red-100"}`} >
+                        {!canDelete && (
+                            <svg className="w-4 h-4 text-red-400 animate-spin" fill="none" viewBox="0 0 24 24" >
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                            </svg>
+                        )}
+                        <p className="text-sm text-red-500 font-medium" >
+                            {canDelete ? "!! You can now confirm deletion" : <>Please wait <span className="font-bold">{countdown}s</span> before confirming</>}
                         </p>
-                        <div className={`flex items-center justify-center gap-2 mb-5 rounded-xl py-2.5 px-4 border ${canDelete ? "bg-red-50 border-red-200" : "bg-red-50 border-red-100"}`} >
-                            {!canDelete && (
-                                <svg className="w-4 h-4 text-red-400 animate-spin" fill="none" viewBox="0 0 24 24" >
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                                </svg>
-                            )}
-                            <p className="text-sm text-red-500 font-medium" >
-                                {canDelete ? "!! You can now confirm deletion" : <>Please wait <span className="font-bold">{countdown}s</span> before confirming</>}
-                            </p>
-                        </div>
-                        <div className="flex gap-3" >
-                            <button
-                                onClick={onClose}
-                                disabled={isDeleting}
-                                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={onConfirm}
-                                disabled={!canDelete || isDeleting}
-                                className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all
+                    </div>
+                    <div className="flex gap-3" >
+                        <button
+                            onClick={onClose}
+                            disabled={isDeleting}
+                            className="flex-1 py-2.5 cursor-pointer rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={onConfirm}
+                            disabled={!canDelete || isDeleting}
+                            className={`flex-1 py-2.5 rounded-xl cursor-pointer text-sm font-medium transition-all
                                         ${canDelete && !isDeleting
-                                        ? "bg-red-500 hover:bg-red-600 text-white cursor-pointer"
-                                        : "bg-red-200 text-red-300 cursor-not-allowed"
-                                    }
+                                    ? "bg-red-500 hover:bg-red-600 text-white cursor-pointer"
+                                    : "bg-red-200 text-red-300 cursor-not-allowed"
+                                }
                                     `}
-                            >
-                                {isDeleting ? "Deleting..." : !canDelete ? `Wais ${countdown}s` : "Delete Account"}
-                            </button>
-                        </div>
+                        >
+                            {isDeleting ? "Deleting..." : !canDelete ? `Wais ${countdown}s` : "Delete Account"}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -232,7 +231,7 @@ function Profile() {
                                 >
                                     🚪 Log Out
                                 </button>
-                                <button className="mt-2 rounded-xl border border-red-200 bg-red-200 bg-red-50/50 p-4" >
+                                <div className="mt-2 rounded-xl border border-red-200 bg-red-200 bg-red-50/50 p-4" >
                                     <p className="text-[11px] font-semibold text-red-400 uppercase tracking-widest mb-1" >Danger Zone</p>
                                     <p className="text-xs text-gray-400 mb-3" >Once deleted, you account cannot be recovered</p>
                                     <button
@@ -241,7 +240,7 @@ function Profile() {
                                     >
                                         Delete Account
                                     </button>
-                                </button>
+                                </div>
                             </div>
                         </div>
                     </div>
