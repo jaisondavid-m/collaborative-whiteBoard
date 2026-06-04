@@ -98,7 +98,6 @@ function DeleteModal({ onClose, onConfirm, isDeleting }) {
             </div>
         </div>
     )
-
 }
 
 function Profile() {
