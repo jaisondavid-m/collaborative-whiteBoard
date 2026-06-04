@@ -22,6 +22,7 @@ func SetupRoutes(r *gin.Engine) {
 	protected.Use(middleware.AuthMiddleware())
 	{
 		protected.GET("/profile",handlers.Profile)
+		protected.DELETE("/user",handlers.DeleteAccount)
 	}
 
 	room := protected.Group("/room")

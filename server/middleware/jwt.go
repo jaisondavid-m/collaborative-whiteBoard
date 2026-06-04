@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"net/http"
+	"server/config"
+	"server/models"
 	"server/utils"
 	"strings"
 
@@ -53,6 +55,17 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		c.Set("userid",userid)
 		c.Set("role",role)
+
+		var user models.User
+		config.DB.Where("user_id=? AND is_deleted=?",userid,false).First(&user)
+
+		if user.ID == 0 {
+			c.JSON(http.StatusUnauthorized,gin.H{
+				"error":"Account has been deleted",
+			})
+			c.Abort()
+			return
+		}
 
 		c.Next()
 

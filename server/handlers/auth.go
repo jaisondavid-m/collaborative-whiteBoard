@@ -124,6 +124,13 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	if user.IsDeleted {
+		c.JSON(http.StatusUnauthorized,gin.H{
+			"error":"Account has been deleted",
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login Successfully",
 		"role": user.Role,
