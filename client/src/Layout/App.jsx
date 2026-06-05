@@ -12,6 +12,7 @@ import PrivacyPolicy from "../Pages/PrivacyPolicy.jsx"
 import Profile from "../Pages/Profile.jsx"
 import Audit from "../Pages/Audit.jsx"
 import CursorSettings from '../Components/ui/cursors/Cursorsettings.jsx'
+import NotFound from "../Pages/NotFound.jsx"
 
 import useCursor from "../hooks/useCursor.js"
 
@@ -50,7 +51,7 @@ function App() {
           <Route path='/privacypolicy' element={<PrivacyPolicy/>} />
           <Route path='/whiteboard/:roomId' element={<Whiteboard/>} />
         </Route>
-
+        <Route path='*' element={<NotFound/>} />
         <Route path='/' element={<Navigate to={token ? "/home" : "/login"} />} />
         {/* <Route path='/setting' element={<CursorSettings/>} /> */}
 
