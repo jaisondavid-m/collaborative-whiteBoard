@@ -45,5 +45,3 @@ CREATE TABLE audit_logs (
     INDEX idx_audit_logs_actor_id (actor_id),
     INDEX idx_audit_logs_action (action)
 );
-
-

@@ -11,6 +11,9 @@ function AdminPage() {
     const [users, setUsers] = useState([])
     const [loading, setLoading] = useState(true)
     const [promoting, setPromoting] = useState(null)
+    const [deleting, setDeleting] = useState(null)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [selectedUser, setSelectedUser] = useState(null)
     // const [error, setError] = useState("")
     const { toasts, toast } = useToast()
 
@@ -47,6 +50,41 @@ function AdminPage() {
         } finally {
             setPromoting(null)
         }
+    }
+
+    const handleDeleteUser = async () => {
+
+        if (!selectedUser) return
+
+        try {
+            
+            setDeleting(selectedUser)
+
+            await API.delete(`/admin/users/${selectedUser}`)
+
+            setUsers(prev =>
+                prev.filter(u => u.userid !==selectedUser)
+            )
+
+            toast("User deleted successfully")
+
+            setShowDeleteModal(false)
+            setSelectedUser(null)
+
+        } catch (err) {
+            toast(
+                err.response?.data?.error || "Failed to delete user",
+                "error"
+            )
+        } finally {
+            setDeleting(null)
+        }
+        
+    }
+
+    const openDeleteModal = (userid) => {
+        setSelectedUser(userid)
+        setShowDeleteModal(true)
     }
 
     const roleColor = (r) => {
@@ -146,6 +184,12 @@ function AdminPage() {
                                                                 {promoting === user.userid ? "..." : "Demote to User"}
                                                             </button>
                                                         )}
+                                                        <button
+                                                            onClick={() => openDeleteModal(user.userid)}
+                                                            className="px-3 py-1 bg-red-600 text-white rounded-md text-xs hover:bg-red-700"
+                                                        >
+                                                            Delete
+                                                        </button>
                                                     </div>
                                                 )}
                                             </td>
@@ -160,6 +204,44 @@ function AdminPage() {
                     </div>
                 )}
             </div>
+            {
+                showDeleteModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" >
+                        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" >
+                            <h2 className="text-xl font-bold text-gray-900" >
+                                Delete User
+                            </h2>
+                            <p className="mt-3 text-gray-600" >
+                                Are you sure you want to delete
+                                <span className="font-semibold text-red-600" >
+                                    {" "}{selectedUser}
+                                </span>
+                            </p>
+                            <p className="text-sm text-gray-500 mt-2" >
+                                This action cannot be undone.
+                            </p>
+                            <div className="flex justify-end gap-3 mt-6" >
+                                <button
+                                    onClick={() => {
+                                        setShowDeleteModal(false)
+                                        setSelectedUser(null)
+                                    }}
+                                    className="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    disabled={deleting}
+                                    onClick={handleDeleteUser}
+                                    className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 disabled:opacity-50"
+                                >
+                                    {deleting ? "Deleting..." : "Delete User"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
             <ToastContainer toasts={toasts} />
         </div>
     )

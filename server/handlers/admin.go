@@ -59,3 +59,33 @@ func UpdateRole(c *gin.Context) {
 	})
 
 }
+
+func DeleteUserByAdmin(c *gin.Context) {
+
+	userID := c.Param("userId")
+	
+	var user models.User
+	result := config.DB.Where("user_id = ?",userID).First(&user)
+
+	if result.Error != nil {
+		c.JSON(http.StatusNotFound,gin.H{
+			"error":"User not found",
+		})
+		return
+	}
+
+	if user.Role == "superadmin" {
+		c.JSON(http.StatusForbidden,gin.H{
+			"error":"Cannot delete superadmin",
+		})
+		return
+	}
+
+	user.IsDeleted = true
+	config.DB.Save(&user)
+
+	c.JSON(http.StatusOK,gin.H{
+		"message":"User deleted successfully",
+	})
+
+}

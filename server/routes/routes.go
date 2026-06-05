@@ -37,6 +37,7 @@ func SetupRoutes(r *gin.Engine) {
 	admin.Use(middleware.AuthMiddleware(),middleware.AdminMiddleware())
 	{
 		admin.GET("/users",handlers.ListUsers)
+		admin.DELETE("/users/:userId",handlers.DeleteUserByAdmin)
 		admin.GET("/audit-logs",handlers.ListAuditLogs)
 		admin.GET("/audit-logs/stats",handlers.GetAuditStats)
 	}
