@@ -13,7 +13,7 @@ import (
 
 func ListUsers(c *gin.Context) {
 	var users []models.User
-	config.DB.Select("id,user_id,role,created_at").Find(&users)
+	config.DB.Select("id,user_id,role,is_blocked,created_at").Find(&users)
 	c.JSON(http.StatusOK,gin.H{
 		"users":users,
 	})

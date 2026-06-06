@@ -14,6 +14,9 @@ function AdminPage() {
     const [deleting, setDeleting] = useState(null)
     const [showDeleteModal, setShowDeleteModal] = useState(false)
     const [selectedUser, setSelectedUser] = useState(null)
+    const [blocking, setBlocking] = useState(null)
+    const [showBlockModal, setShowBlockModal] = useState(false)
+    const [selectedBlockedUser, setSelectedBlockedUser] = useState(null)
     // const [error, setError] = useState("")
     const { toasts, toast } = useToast()
 
@@ -82,9 +85,44 @@ function AdminPage() {
         
     }
 
+    const handleBlockUser = async () => {
+
+        if (!selectedBlockedUser) return
+
+        try {
+            setBlocking(selectedBlockedUser)
+            await API.put(`/admin/users/${selectedBlockedUser}/block`)
+            setUsers(prev =>
+                prev.map(u =>
+                    u.userid === selectedBlockedUser
+                        ? { ...u, is_blocked: true }
+                        : u
+                )
+            )
+
+            toast("User Blocked Successfully")
+
+            setShowBlockModal(false)
+            setSelectedBlockedUser(null)
+
+        } catch (err) {
+            toast(
+                err.response?.data?.error || "Failed to block user",
+                "error"
+            )
+        } finally {
+            setBlocking(null)
+        }
+    }
+
     const openDeleteModal = (userid) => {
         setSelectedUser(userid)
         setShowDeleteModal(true)
+    }
+
+    const openBlockModal = (userid) => {
+        setSelectedBlockedUser(userid)
+        setShowBlockModal(true)
     }
 
     const roleColor = (r) => {
@@ -151,7 +189,16 @@ function AdminPage() {
                                         key={user.ID}
                                         className="hover:bg-gray-50/40 transition-all duration-200"
                                     >
-                                        <td className="px-6 py-4 font-medium text-gray-900">{user.userid}</td>
+                                        <td className="px-6 py-4 font-medium text-gray-900">
+                                            <div className="flex items-center gap-2" >
+                                                {user.userid}
+                                                {user.is_blocked && (
+                                                    <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800" >
+                                                        Blocked
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide ${roleColor(user.role)}`}>
                                                 {user.role}
@@ -184,6 +231,12 @@ function AdminPage() {
                                                                 {promoting === user.userid ? "..." : "Demote to User"}
                                                             </button>
                                                         )}
+                                                        <button
+                                                            onClick={() => openBlockModal(user.userid)}
+                                                            className="px-3 py-1 bg-yellow-600 text-white rounded-md text-xs hover:bg-yellow-700"
+                                                        >
+                                                            Block
+                                                        </button>
                                                         <button
                                                             onClick={() => openDeleteModal(user.userid)}
                                                             className="px-3 py-1 bg-red-600 text-white rounded-md text-xs hover:bg-red-700"
@@ -236,6 +289,45 @@ function AdminPage() {
                                     className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 disabled:opacity-50"
                                 >
                                     {deleting ? "Deleting..." : "Delete User"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+            {
+                showBlockModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" >
+                        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" >
+                            <h2 className="text-xl font-bold text-gray-900" >
+                                Block User
+                            </h2>
+                            <p className="mt-3 text-gray-600" >
+                                Are you sure you want to block
+                                <span className="font-semibold text-yellow-600" >
+                                    {" "}{selectedBlockedUser}
+                                </span>
+                                ?
+                            </p>
+                            <p className="text-sm text-gray-500 mt-2" >
+                                The user will no longer be able to login.
+                            </p>
+                            <div className="flex justify-end gap-3 mt-6" >
+                                <button
+                                    onClick={() => {
+                                        setShowBlockModal(false)
+                                        setSelectedBlockedUser(null)
+                                    }}
+                                    className="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gay-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    disabled={blocking}
+                                    onClick={handleBlockUser}
+                                    className="px-4 py-2 bg-yellow-600 text-white rounded-xl hover:bg-yellow-700 disabled:opacity-50"
+                                >
+                                    {blocking ? "Blocking" : "Block User"}
                                 </button>
                             </div>
                         </div>
