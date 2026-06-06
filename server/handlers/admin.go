@@ -13,7 +13,7 @@ import (
 
 func ListUsers(c *gin.Context) {
 	var users []models.User
-	config.DB.Select("id,user_id,role,is_blocked,created_at").Find(&users)
+	config.DB.Select("id,user_id,role,is_blocked,is_deleted,created_at").Find(&users)
 	c.JSON(http.StatusOK,gin.H{
 		"users":users,
 	})
@@ -143,6 +143,31 @@ func UnblockUserByAdmin(c *gin.Context) {
 
 	c.JSON(http.StatusOK,gin.H{
 		"message":"User unblocked successfully",
+	})
+
+}
+
+func RecoverUserByAdmin(c *gin.Context) {
+
+	userID := c.Param("userId")
+
+	var user models.User
+
+	result := config.DB.Where("user_id = ?",userID).First(&user)
+
+	if result.Error != nil {
+		c.JSON(http.StatusNotFound,gin.H{
+			"error":"User not Found",
+		})
+		return
+	}
+
+	user.IsDeleted = false
+
+	config.DB.Save(&user)
+	
+	c.JSON(http.StatusOK,gin.H{
+		"message":"User recovered Successfully",
 	})
 
 }

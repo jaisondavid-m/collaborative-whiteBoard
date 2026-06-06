@@ -66,7 +66,13 @@ function AdminPage() {
             await API.delete(`/admin/users/${selectedUser}`)
 
             setUsers(prev =>
-                prev.filter(u => u.userid !== selectedUser)
+                prev.filter(prev =>
+                    prev.map(u =>
+                        u.userid === selectedUser
+                            ? {...u , is_deleted: true}
+                            : u
+                    )
+                )
             )
 
             toast("User deleted successfully")
@@ -132,6 +138,33 @@ function AdminPage() {
                 err.response?.data?.error || "Failed to unblock user",
                 "error"
             )
+        }
+
+    }
+
+    const handleRecoverUser = async (userid) => {
+
+        try {
+
+            await API.put(`/admin/users/${userid}/recover`)
+
+            setUsers(prev =>
+                prev.map(u =>
+                    u.userid === userid
+                        ? { ...u, is_deleted: false }
+                        : u
+                )
+            )
+
+            toast("User recovered successfully")
+
+        } catch (err) {
+
+            toast(
+                err.response?.data?.error || "Failed to recover user",
+                "error"
+            )
+
         }
 
     }
@@ -218,6 +251,11 @@ function AdminPage() {
                                                         Blocked
                                                     </span>
                                                 )}
+                                                {user.is_deleted && (
+                                                    <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800" >
+                                                        Deleted
+                                                    </span>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
@@ -267,13 +305,22 @@ function AdminPage() {
                                                                 Block
                                                             </button>
                                                         )}
+                                                        {user.is_deleted ? (
+                                                            <button
+                                                                onClick={() => handleRecoverUser(user.userid)}
+                                                                className="px-3 py-1 bg-green-600 text-white rounded-md text-xs hover:bg-green-700"
+                                                            >
+                                                                Recover
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => openDeleteModal(user.userid)}
+                                                                className="px-3 py-1 bg-red-600 text-white rounded-md text-xs hover:bg-red-700"
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        )}
 
-                                                        <button
-                                                            onClick={() => openDeleteModal(user.userid)}
-                                                            className="px-3 py-1 bg-red-600 text-white rounded-md text-xs hover:bg-red-700"
-                                                        >
-                                                            Delete
-                                                        </button>
                                                     </div>
                                                 )}
                                             </td>
