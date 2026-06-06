@@ -60,13 +60,13 @@ function AdminPage() {
         if (!selectedUser) return
 
         try {
-            
+
             setDeleting(selectedUser)
 
             await API.delete(`/admin/users/${selectedUser}`)
 
             setUsers(prev =>
-                prev.filter(u => u.userid !==selectedUser)
+                prev.filter(u => u.userid !== selectedUser)
             )
 
             toast("User deleted successfully")
@@ -82,7 +82,7 @@ function AdminPage() {
         } finally {
             setDeleting(null)
         }
-        
+
     }
 
     const handleBlockUser = async () => {
@@ -113,6 +113,27 @@ function AdminPage() {
         } finally {
             setBlocking(null)
         }
+    }
+
+    const handleUnblockUser = async (userid) => {
+
+        try {
+            await API.put(`/admin/users/${userid}/unblock`)
+            setUsers(prev =>
+                prev.map(u =>
+                    u.userid === userid
+                        ? { ...u, is_blocked: false }
+                        : u
+                )
+            )
+            toast("User unblocked successfully")
+        } catch (err) {
+            toast(
+                err.response?.data?.error || "Failed to unblock user",
+                "error"
+            )
+        }
+
     }
 
     const openDeleteModal = (userid) => {
@@ -231,12 +252,22 @@ function AdminPage() {
                                                                 {promoting === user.userid ? "..." : "Demote to User"}
                                                             </button>
                                                         )}
-                                                        <button
-                                                            onClick={() => openBlockModal(user.userid)}
-                                                            className="px-3 py-1 bg-yellow-600 text-white rounded-md text-xs hover:bg-yellow-700"
-                                                        >
-                                                            Block
-                                                        </button>
+                                                        {user.is_blocked ? (
+                                                            <button
+                                                                onClick={() => handleUnblockUser(user.userid)}
+                                                                className="px-3 py-1 bg-green-600 text-white rounded-md text-xs hover:bg-green-700"
+                                                            >
+                                                                UnBlock
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => openBlockModal(user.userid)}
+                                                                className="px-3 py-1 bg-yellow-600 text-white rounded-md text-xs hover:bg-yellow-700"
+                                                            >
+                                                                Block
+                                                            </button>
+                                                        )}
+
                                                         <button
                                                             onClick={() => openDeleteModal(user.userid)}
                                                             className="px-3 py-1 bg-red-600 text-white rounded-md text-xs hover:bg-red-700"
