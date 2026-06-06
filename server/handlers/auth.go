@@ -115,18 +115,25 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	if user.IsDeleted {
+		c.JSON(http.StatusUnauthorized,gin.H{
+			"error":"Account has been deleted",
+		})
+		return
+	}
+
+	if user.IsBlocked {
+		c.JSON(http.StatusForbidden,gin.H{
+			"error":"Account has been blocked by admin",
+		})
+		return
+	}
+
 	token, err := utils.GenerateJWT(user.UserID, user.Role)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Token Generation Failed",
-		})
-		return
-	}
-
-	if user.IsDeleted {
-		c.JSON(http.StatusUnauthorized,gin.H{
-			"error":"Account has been deleted",
 		})
 		return
 	}

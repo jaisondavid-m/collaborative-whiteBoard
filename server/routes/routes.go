@@ -38,6 +38,7 @@ func SetupRoutes(r *gin.Engine) {
 	{
 		admin.GET("/users",handlers.ListUsers)
 		admin.DELETE("/users/:userId",handlers.DeleteUserByAdmin)
+		admin.PUT("/users/:userId/block",handlers.BlockUserByAdmin)
 		admin.GET("/audit-logs",handlers.ListAuditLogs)
 		admin.GET("/audit-logs/stats",handlers.GetAuditStats)
 	}

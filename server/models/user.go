@@ -9,5 +9,6 @@ type User struct {
 	Password 	string		`json:"password" gorm:"not null"`
 	Role		string		`json:"role" gorm:"default:'user'"`
 	IsDeleted	bool		`json:"is_deleted" gorm:"default:false"`
+	IsBlocked 	bool		`json:"is_blocked" gorm:"default:false"`
 	
 }
