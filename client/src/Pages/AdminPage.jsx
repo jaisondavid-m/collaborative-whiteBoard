@@ -66,13 +66,12 @@ function AdminPage() {
             await API.delete(`/admin/users/${selectedUser}`)
 
             setUsers(prev =>
-                prev.filter(prev =>
                     prev.map(u =>
                         u.userid === selectedUser
                             ? {...u , is_deleted: true}
                             : u
                     )
-                )
+                
             )
 
             toast("User deleted successfully")
@@ -146,7 +145,7 @@ function AdminPage() {
 
         try {
 
-            await API.put(`/admin/users/${userid}/recover`)
+            await API.put(`/admin/users/${userid}`)
 
             setUsers(prev =>
                 prev.map(u =>

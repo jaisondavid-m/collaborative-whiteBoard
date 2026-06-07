@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 import API from "../api/axios.js"
+import Loading from "../Components/ui/Loading.jsx"
 
 function Home() {
 
@@ -35,6 +36,8 @@ function Home() {
             })
             .finally(() => setLoading(false))
     }, [])
+
+    if(loading) return  <Loading message="Fetching your rooms" />
 
     return (
         <div className="min-h-screen bg-[#f5f5f2] font-mono">
