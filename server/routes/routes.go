@@ -12,6 +12,7 @@ func SetupRoutes(r *gin.Engine) {
 	r.Use(middleware.AuditMiddleware())
 
 	auth := r.Group("/auth")
+	auth.Use(middleware.RateLimit(middleware.AuthLimit))
 	{
 		auth.POST("/register",handlers.Register)
 		auth.POST("/login",handlers.Login)
@@ -20,6 +21,7 @@ func SetupRoutes(r *gin.Engine) {
 
 	protected := r.Group("/api")
 	protected.Use(middleware.AuthMiddleware())
+	protected.Use(middleware.RateLimit(middleware.DefaultLimit))
 	{
 		protected.GET("/profile",handlers.Profile)
 		protected.DELETE("/user",handlers.DeleteAccount)
@@ -34,7 +36,11 @@ func SetupRoutes(r *gin.Engine) {
 	}
 
 	admin := r.Group("/admin")
-	admin.Use(middleware.AuthMiddleware(),middleware.AdminMiddleware())
+	admin.Use(
+		middleware.AuthMiddleware(),
+		middleware.AdminMiddleware(),
+		middleware.RateLimit(middleware.DefaultLimit),
+	)
 	{
 		admin.GET("/users",handlers.ListUsers)
 		admin.DELETE("/users/:userId",handlers.DeleteUserByAdmin)
@@ -46,7 +52,11 @@ func SetupRoutes(r *gin.Engine) {
 	}
 
 	superadmin := r.Group("/superadmin")
-	superadmin.Use(middleware.AuthMiddleware(),middleware.SuperAdminMiddleware())
+	superadmin.Use(
+		middleware.AuthMiddleware(),
+		middleware.SuperAdminMiddleware(),
+		middleware.RateLimit(middleware.DefaultLimit),
+	)
 	{
 		superadmin.POST("/promote",handlers.UpdateRole)
 	}
