@@ -7,6 +7,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     role VARCHAR(255) DEFAULT 'user',
     is_deleted BOOLEAN DEFAULT FALSE,
+    is_blocked BOOLEAN DEFAULT FALSE,
 
     INDEX idx_users_deleted_at (deleted_at)
 );
