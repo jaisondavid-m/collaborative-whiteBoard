@@ -66,7 +66,7 @@ function Home() {
                     {[
                         { label: "Active rooms", value: recentRooms.filter(r => r.live).length },
                         { label: "Sessoins this week", value: 12 },
-                        { lable: "Collaborators", value: 4 },
+                        { label: "Collaborators", value: 4 },
                     ].map(s => (
                         <div key={s.label} className="bg-black/[0.04] rounded-lg p-4 text-center">
                             <p className="text-2xl font-medium text-gray-900">{s.value}</p>
@@ -109,7 +109,19 @@ function Home() {
                 {error && <p className="text-sm text-gray-400 text-center py-6">{error}</p>}
                 {!loading && recentRooms.length === 0 && (
                     <div className="text-center py-10 text-gray-400 text-center text-sm">
-                        No rooms yet. Create one to get started.
+                        <div className="bg-white border border-dashed border-gray-300 rounded-xl p-8 text-center" >
+                            <div className="text-4xl mb-3" >🎨</div>
+                            <p className="font-medium text-gray-700">No Rooms found</p>
+                            <p className="text-sm text-gray-400 mt-1" >
+                                Create your first collaborative whiteboard
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => navigate("/room")}
+                            className="mt-4 px-4 py-2 bg-[#4ecdc4] text-white rounded-lg"
+                        >
+                            Create Room
+                        </button>
                     </div>
                 )}
                 <div className="flex flex-col gap-2">
@@ -125,7 +137,7 @@ function Home() {
                                 </span>
                                 <div>
                                     <p className="text-sm font-medium text-gray-800">{room.name}</p>
-                                    <p className="text-xs text-gray-400">{room.roomId}</p>
+                                    <p className="text-xs text-gray-400">{room.roomId} • {timeAgo(room.UpdatedAt)}</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-1.5 text-xs">
