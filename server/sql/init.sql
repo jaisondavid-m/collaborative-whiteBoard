@@ -46,3 +46,26 @@ CREATE TABLE audit_logs (
     INDEX idx_audit_logs_actor_id (actor_id),
     INDEX idx_audit_logs_action (action)
 );
+
+CREATE TABLE notifications (
+
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    created_at DATETIME NULL,
+    updated_at DATETIME NULL,
+    deleted_at DATETIME NULL,
+
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+
+    sender_id VARCHAR(255),
+    recipient_id VARCHAR(255),
+
+    is_read BOOLEAN DEFAULT FALSE,
+    type VARCHAR(255) DEFAULT 'info',
+
+    INDEX idx_notifications_sender_id (sender_id),
+    INDEX idx_notifications_recipient_id (recipient_id),
+    INDEX idx_notifications_deleted_at (deleted_at)
+
+);
