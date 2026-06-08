@@ -25,6 +25,10 @@ func SetupRoutes(r *gin.Engine) {
 	{
 		protected.GET("/profile",handlers.Profile)
 		protected.DELETE("/user",handlers.DeleteAccount)
+		protected.GET("/notifications",handlers.GetMyNotifications)
+		protected.GET("/notifications/unread-count",handlers.UnreadCount)
+		protected.PUT("/notifications/:id/read",handlers.MarkNotificationRead)
+		protected.PUT("/notifications/read-all",handlers.MarkAllRead)
 	}
 
 	room := protected.Group("/room")
@@ -49,6 +53,7 @@ func SetupRoutes(r *gin.Engine) {
 		admin.PUT("/users/:userId/block",handlers.BlockUserByAdmin)
 		admin.GET("/audit-logs",handlers.ListAuditLogs)
 		admin.GET("/audit-logs/stats",handlers.GetAuditStats)
+		admin.POST("/notifications/send",handlers.SendNotification)
 	}
 
 	superadmin := r.Group("/superadmin")
