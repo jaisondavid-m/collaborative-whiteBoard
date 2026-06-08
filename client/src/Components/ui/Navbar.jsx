@@ -6,6 +6,9 @@ import { RiDoorOpenLine , RiUserLine , RiSettings3Line , RiLayoutGridLine , RiMe
 import { TbHexagon } from "react-icons/tb"
 import { RiFileList3Line } from "react-icons/ri"
 
+import NotificationModal from "../ui/notification/NotificationModal.jsx"
+import API from "../../api/axios.js"
+
 const role = localStorage.getItem("role") || ""
 const isPrivileged = role === "admin" || role === "superadmin"
 
@@ -154,6 +157,8 @@ function Navbar() {
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const [mobileOpen, setMobileOpen] = useState(false)
     const [scrolled, setScrolled] = useState(false)
+    const [notifOpen, setNotifOpen] = useState(false)
+    const [unreadCount, setUnreadCount] = useState(0)
     const dropdownRef = useRef(null)
 
     const userId = localStorage.getItem("userid") || ""
@@ -172,6 +177,17 @@ function Navbar() {
         }
         document.addEventListener("mousedown",handleClickOutside)
         return () => document.removeEventListener("mousedown",handleClickOutside)
+    },[])
+
+    useEffect(() => {
+        const fetchCount = () => {
+            API.get("/api/notifications/unread-count")
+                .then(res => setUnreadCount(res.data?.count ?? 0))
+                .catch(() => {})
+        }
+        fetchCount()
+        const interval = setInterval(fetchCount, 30000)
+        return () => clearInterval(interval)
     },[])
 
     useEffect(() => {
@@ -233,9 +249,16 @@ function Navbar() {
                             <RiAddLine size={14} />
                             New Room
                         </button>
-                        <button className="hidden sm:flex w-8 h-8 rounded-md items-center justify-center text-gray-400 hover:bg-black/[0.04] hover:text-gray-700 transition-colors relative">
+                        <button
+                            onClick={() => setNotifOpen(o => !o)}
+                            className="hidden sm:flex w-8 h-8 rounded-md items-center justify-center text-gray-400 hover:bg-black/[0.04] hover:text-gray-700 transition-colors relative"
+                        >
                             <IoNotificationsOutline size={17} />
-                            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#4ecdc4] rounded-full" />
+                            {unreadCount > 0 && (
+                                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#4ecdc4] rounded-full text-white text-[9px] flex items-center justify-center px-0.5 font-bold">
+                                    {unreadCount > 9 ? "9+" : unreadCount}
+                                </span>
+                            )}
                         </button>
                         <UserAvatar
                             userId={userId}
@@ -262,6 +285,11 @@ function Navbar() {
                 userId={userId}
                 role={role}
                 onLogout={handleLogout}
+            />
+            <NotificationModal
+                open={notifOpen}
+                onClose={() => setNotifOpen(false)}
+                onCountChange={() => API.get("/api/notifications/unread-count").then(r => setUnreadCount(r.data.count ?? 0))}
             />
         </nav>
     )
