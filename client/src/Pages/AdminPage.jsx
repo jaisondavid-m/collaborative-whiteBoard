@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom"
 import API from "../api/axios.js"
 
 import ToastContainer from "../Components/ui/Toast.jsx"
+import SendNotificationModal from "../Components/ui/notification/SendNotificationModal.jsx"
 import { useToast } from "../hooks/useToast.js"
+import { RiBellLine } from "react-icons/ri"
 
 function AdminPage() {
 
@@ -17,6 +19,7 @@ function AdminPage() {
     const [blocking, setBlocking] = useState(null)
     const [showBlockModal, setShowBlockModal] = useState(false)
     const [selectedBlockedUser, setSelectedBlockedUser] = useState(null)
+    const [showNotifModal, setShowNotifModal] = useState(false)
     // const [error, setError] = useState("")
     const { toasts, toast } = useToast()
 
@@ -199,6 +202,12 @@ function AdminPage() {
                         className="text-sm text-gray-600 hover:text-black underline"
                     >
                         ← Back to Home
+                    </button>
+                    <button
+                        onClick={() => setShowNotifModal(true)}
+                        className="flex items-center gap-1.5 text-sm bg-[#4ecdc4] text-white px-4 py-2 rounded-xl hover:bg-[#3db8b0] transition-all active:scale-95"
+                    >
+                       <RiBellLine size={14} /> Send Notification
                     </button>
                 </div>
             </div>
@@ -411,7 +420,15 @@ function AdminPage() {
                     </div>
                 )
             }
-            <ToastContainer toasts={toasts} />
+            <SendNotificationModal
+                open={showNotifModal}
+                onClose={() => setShowNotifModal(false)}
+                users={users}
+                onSent={() => toast("Notification sent successfully")}
+            />
+            <ToastContainer
+                toasts={toasts} 
+            />
         </div>
     )
 }

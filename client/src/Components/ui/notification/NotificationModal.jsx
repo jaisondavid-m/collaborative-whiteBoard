@@ -61,7 +61,7 @@ function NotificationModal({ open, onClose, onCountChange }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-start justify-end pt-16 pr-4 sm:pr-6 " >
-            <div className="absollute inset-0" onClick={onClose} />
+            <div className="absolute inset-0" onClick={onClose} />
             <div className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-black/10 overflow-hidden font-mono flex flex-col max-h-[80vh]" >
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-black/8" >
@@ -78,7 +78,7 @@ function NotificationModal({ open, onClose, onCountChange }) {
                         {unread > 0 && (
                             <button
                                 onClick={markAllRead}
-                                className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#0f6e56] transition-colrs"
+                                className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#0f6e56] transition-colors"
                             >
                                 <IoCheckmarkDoneOutline size={14} /> All read
                             </button>
@@ -99,6 +99,44 @@ function NotificationModal({ open, onClose, onCountChange }) {
                             Loading..
                         </div>
                     )}
+                    {!loading && notifs.length === 0 && (
+                        <div className="flex flex-col items-center justify-center py-14 text-gray-400" >
+                            <RiBellLine size={32} className="mb-3 opacity-30" />
+                            <p className="text-sm" >No notifications yet</p>
+                        </div>
+                    )}
+                    {!loading && notifs.map(n => {
+                        const s = TYPE_STYLES[n.type] ?? TYPE_STYLES.info
+                        return (
+                            <div
+                                key={n.ID}
+                                onClick={() => !n.is_read && markRead(m.ID)}
+                                className={`relative flex gap-3 px-5 py-4 border-b border-black/5 transition-colors cursor-pointer
+                                        ${n.is_read ? "bg-white" : "bg-[#f7fffe hover:bg-[#eefaf8]"}
+                                    `}
+                            >
+                                {/* Color bar */}
+                                <div className={`absolute left-0 top-3 bottom-3 w-0.5 ${s.bar} rounded-r`} />
+                                <div className="flex-1 min-w-0 pl-2" >
+                                    <div className="flex items-center justify-between gap-2 mb-0.5" >
+                                        <span className="text-xs font-semibold text-gray-800 truncate" >{n.title}</span>
+                                        <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium ${s.badge}`} >
+                                            {s.label}
+                                        </span>
+                                    </div> 
+                                    <p className="text-xs text-gray-500 leading-relaxed line-clamp-2" >{n.message}</p> 
+                                    <div className="flex items-center justify-between mt-1.5" >
+                                        <span className="text-[10px] text-gray-400" >
+                                            {timeAgo(n.CreatedAt)}
+                                        </span>
+                                        {!n.is_read && (
+                                            <span className="w-1.5 h-1.5 rounded-full bg-[#4ecdc4]" />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    })}
                 </div>
             </div>
         </div>
