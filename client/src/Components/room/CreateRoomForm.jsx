@@ -75,7 +75,7 @@ function CreateRoomForm() {
                         type="password"
                         value={formData.password}
                         onChange={handleChange}
-                        placeholder="Leave Blank for publick room"
+                        placeholder="Leave Blank for public room"
                     />
                     <Button type="submit">
                         Create Room

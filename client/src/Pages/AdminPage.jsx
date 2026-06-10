@@ -20,6 +20,8 @@ function AdminPage() {
     const [showBlockModal, setShowBlockModal] = useState(false)
     const [selectedBlockedUser, setSelectedBlockedUser] = useState(null)
     const [showNotifModal, setShowNotifModal] = useState(false)
+    const [search, setSearch] = useState("")
+    const [filter, setFilter] = useState("all")
     // const [error, setError] = useState("")
     const { toasts, toast } = useToast()
 
@@ -69,12 +71,12 @@ function AdminPage() {
             await API.delete(`/admin/users/${selectedUser}`)
 
             setUsers(prev =>
-                    prev.map(u =>
-                        u.userid === selectedUser
-                            ? {...u , is_deleted: true}
-                            : u
-                    )
-                
+                prev.map(u =>
+                    u.userid === selectedUser
+                        ? { ...u, is_deleted: true }
+                        : u
+                )
+
             )
 
             toast("User deleted successfully")
@@ -171,6 +173,20 @@ function AdminPage() {
 
     }
 
+    const filteredUsers = users.filter(user => {
+
+        const matchedSearch = user.userid.toLowerCase().includes(search.toLowerCase())
+
+        const matchesFilter =
+            filter === "all" ||
+            (filter === "admin" && user.role === "admin" || user.role === "superadmin") ||
+            (filter === "blocked" && user.is_blocked) ||
+            (filter === "deleted" && user.is_deleted)
+
+        return matchedSearch && matchesFilter
+
+    })
+
     const openDeleteModal = (userid) => {
         setSelectedUser(userid)
         setShowDeleteModal(true)
@@ -189,7 +205,7 @@ function AdminPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-7xl mx-auto">
                 <div className="flex items-center justify-between mb-6 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900">Admin Panel</h1>
@@ -207,11 +223,60 @@ function AdminPage() {
                         onClick={() => setShowNotifModal(true)}
                         className="flex items-center gap-1.5 text-sm bg-[#4ecdc4] text-white px-4 py-2 rounded-xl hover:bg-[#3db8b0] transition-all active:scale-95"
                     >
-                       <RiBellLine size={14} /> Send Notification
+                        <RiBellLine size={14} /> Send Notification
                     </button>
                 </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div className="max-w-7xl mx-auto mb-4" >
+                <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm" >
+                    <input
+                        type="text"
+                        placeholder="Search users..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4ecdc4]"
+                    />
+                </div>
+                <div className="flex flex-wrap gap-2 mt-4" >
+                    <button
+                        onClick={() => setFilter("all")}
+                        className={`px-4 py-2 rounded-xl text-sm ${filter === "all"
+                                ? "bg-[#4ecdc4] text-white"
+                                : "bg-gray-100"
+                            }`}
+                    >
+                        All
+                    </button>
+                    <button
+                        onClick={() => setFilter("admin")}
+                        className={`px-4 py-2 rounded-xl text-sm ${filter === "admin"
+                                ? "bg-[#4ecdc4] text-white"
+                                : "bg-gray-100"
+                            }`}
+                    >
+                        Admins
+                    </button>
+                    <button
+                        onClick={() => setFilter("blocked")}
+                        className={`px-4 py-2 rounded-xl text-sm ${filter === "blocked"
+                                ? "bg-[#4ecdc4] text-white"
+                                : "bg-gray-100"
+                            }`}
+                    >
+                        Blocked
+                    </button>
+                    <button
+                        onClick={() => setFilter("deleted")}
+                        className={`px-4 py-2 rounded-xl text-sm ${filter === "deleted"
+                                ? "bg-[#4ecdc4] text-white"
+                                : "bg-gray-100"
+                            }`}
+                    >
+                        Deleted
+                    </button>
+                </div>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6 max-w-7xl mx-auto">
                 <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
                     <p className="text-sm text-gray-500">Total Users</p>
                     <h2 className="text-2xl font-bold mt-1">{users.length}</h2>
@@ -226,35 +291,63 @@ function AdminPage() {
                         {users.filter(u => u.role === "superadmin").length}
                     </h2>
                 </div>
+                <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm" >
+                    <p className="text-sm text-gray-500" >Blocked Users</p>
+                    <h2 className="text-2xl font-bold mt-1" >
+                        {users.filter(u => u.is_blocked).length}
+                    </h2>
+                </div>
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm" >
+                    <p className="text-sm text-gray-500" >Delete Users</p>
+                    <h2 className="text-2xl font-bold mt-1" >
+                        {users.filter(u => u.is_deleted).length}
+                    </h2>
+                </div>
             </div>
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-7xl mx-auto">
+                <div className="px-6 py-4 border-b bg-gray-50 text-center" >
+                    <h2 className="font-semibold text-gray-800" >User Management</h2>
+                    <p className="text-sm text-gray-500 mt-1" >
+                        Manage users, roles, blocks and recoveries.
+                    </p>
+                </div>
                 {loading ? (
                     <div className="text-center py-12 text-gray-500">
                         Loading users...
                     </div>
                 ) : (
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex justify-center items-center">
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto flex justify-center items-center">
+
                         <table className="w-full text-sm">
                             <thead className="bg-gray-100/80 backdrop-blur border-b border-gray-200">
                                 <tr>
-                                    <th className="text-left px-6 py-3 font-medium text-gray-600">User ID</th>
+                                    <th className="text-left px-6 py-3 font-medium text-gray-600">User</th>
                                     <th className="text-left px-6 py-3 font-medium text-gray-600">Role</th>
                                     <th className="text-left px-6 py-3 font-medium text-gray-600">Joined</th>
+                                    <th className="text-left px-6 py-3 font-medium text-gray-600">Status</th>
                                     {canViewAdminPanel && (
                                         <th className="text-left px-6 py-3 font-medium text-gray-600">Actions</th>
                                     )}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
-                                {users.map(user => (
+                                {filteredUsers.map(user => (
                                     <tr
                                         key={user.ID}
                                         className="hover:bg-gray-50/40 transition-all duration-200"
                                     >
                                         <td className="px-6 py-4 font-medium text-gray-900">
                                             <div className="flex items-center gap-2" >
-                                                {user.userid}
-                                                {user.is_blocked && (
+                                                <div className="w-10 h-10 rounded-full bg-[#e6faf8] text-[#0f6e56] flex items-center justify-center font-semibold" >
+                                                    {user.userid.slice(0, 2).toUpperCase()}
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-gray-900">{user.userid}</p>
+                                                    <p className="text-xs text-gray-500" >
+                                                        ID #{user.ID}
+                                                    </p>
+                                                </div>
+                                                {/* {user.is_blocked && (
                                                     <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800" >
                                                         Blocked
                                                     </span>
@@ -263,7 +356,7 @@ function AdminPage() {
                                                     <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800" >
                                                         Deleted
                                                     </span>
-                                                )}
+                                                )} */}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
@@ -274,12 +367,27 @@ function AdminPage() {
                                         <td className="px-6 py-4 text-gray-500">
                                             {new Date(user.CreatedAt).toLocaleDateString()}
                                         </td>
+                                        <td className="px-6 py-4" >
+                                            {user.is_deleted ? (
+                                                <span className="px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">
+                                                    Deleted
+                                                </span>
+                                            ) : user.is_blocked ? (
+                                                <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-700" >
+                                                    Blocked
+                                                </span>
+                                            ) : (
+                                                <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700" >
+                                                    Active
+                                                </span>
+                                            )}
+                                        </td>
                                         {isSuperAdmin && (
                                             <td className="px-6 py-4">
                                                 {user.role === "superadmin" ? (
                                                     <span className="text-gray-400">Protected</span>
                                                 ) : (
-                                                    <div className="flex gap-2">
+                                                    <div className="flex flex-wrap gap-2">
                                                         {user.role === "user" && (
                                                             <button
                                                                 disabled={promoting === user.userid}
@@ -343,6 +451,36 @@ function AdminPage() {
                     </div>
                 )}
             </div>
+            <div className="max-w-7xl mx-auto mt-6" >
+                <div className="grid md:grid-cols-2 gap-4" >
+                    <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm" >
+                        <h3 className="font-semibold text-lg" >Notifications</h3>
+                        <p className="text-sm text-gray-500 mt-2" >
+                            Send notifications to users
+                        </p>
+                        <button
+                            onClick={() => setShowNotifModal(true)}
+                            className="mt-4 px-4 py-2 bg-[#4ecdc4] text-white rounded-xl"
+                        >
+                            Send Notification
+                        </button>
+                    </div>
+                    <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm" >
+                        <h3 className="font-semibold text-lg" >
+                            Audit Logs
+                        </h3>
+                        <p className="text-sm text-gray-500 mt-2" >
+                            View system activities and admin actions.
+                        </p>
+                        <button
+                            onClick={() => navigate("/audit-logs")}
+                            className="mt-4 px-4 py-2 bg-gray-800 text-white rounded-xl"
+                        >
+                            View logs
+                        </button>
+                    </div>
+                </div>
+            </div>
             {
                 showDeleteModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" >
@@ -404,7 +542,7 @@ function AdminPage() {
                                         setShowBlockModal(false)
                                         setSelectedBlockedUser(null)
                                     }}
-                                    className="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gay-50"
+                                    className="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50"
                                 >
                                     Cancel
                                 </button>
@@ -427,7 +565,7 @@ function AdminPage() {
                 onSent={() => toast("Notification sent successfully")}
             />
             <ToastContainer
-                toasts={toasts} 
+                toasts={toasts}
             />
         </div>
     )
