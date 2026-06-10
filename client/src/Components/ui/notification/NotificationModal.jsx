@@ -45,7 +45,17 @@ function NotificationModal({ open, onClose, onCountChange }) {
 
     const markRead = async (id) => {
         await API.put(`/api/notifications/${id}/read`)
-        setNotifs(prev => prev.map(n => n.ID === id ? { ...n, is_read: true } : n))
+        setNotifs(
+            prev => prev.map(n =>
+                n.ID === id 
+                    ? {
+                         ...n, 
+                         is_read: true ,
+                         justRead: true,
+                      } 
+                    : n
+            )
+        )
         onCountChange?.()
     }
 
@@ -60,16 +70,22 @@ function NotificationModal({ open, onClose, onCountChange }) {
     if (!open) return null
 
     return (
-        <div className="fixed inset-0 z-50 flex items-start justify-end pt-16 pr-4 sm:pr-6 " >
-            <div className="absolute inset-0" onClick={onClose} />
-            <div className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-black/10 overflow-hidden font-mono flex flex-col max-h-[80vh]" >
+        <div className="fixed inset-0 z-50 flex items-start justify-end pt-14 pr-6" >
+            <div
+                className="absolute inset-0"
+                onClick={onClose} 
+            />
+            <div className="relative w-full max-w-md bg-white/90 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] backdrop-blur-xl border border-white/40 overflow-hidden font-mono flex flex-col max-h-[80vh]" >
+                <div
+                    className="absolute -top-2 right-8 w-4 h-4 bg-white rotate-45 border-l border-t border-gray-200"
+                />
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-black/8" >
+                <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-[#f8ffff] to-white" >
                     <div className="flex items-center gap-2" >
                         <RiBellLine size={16} className="text-[#4ecdc4]" />
                         <span className="text-sm font-semibold text-gray-800" >Notifications</span>
                         {unread > 0 && (
-                            <span className="px-2 py-0.5 bg-[#4ecdc4] text-white text-xs rounded-full font-medium" >
+                            <span className="px-2 py-0.5 bg-[#4ecdc4] text-white text-[10px] rounded-full animate-pulse" >
                                 {unread}
                             </span>
                         )}
@@ -101,8 +117,13 @@ function NotificationModal({ open, onClose, onCountChange }) {
                     )}
                     {!loading && notifs.length === 0 && (
                         <div className="flex flex-col items-center justify-center py-14 text-gray-400" >
-                            <RiBellLine size={32} className="mb-3 opacity-30" />
-                            <p className="text-sm" >No notifications yet</p>
+                            <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center" >
+                                <RiBellLine size={28} />
+                            </div>
+                            <p className="text-sm font-medium mt-4" >You're all caught up</p>
+                            <p className="text-xs text-gray-400 mt-1" >
+                                No new notifications
+                            </p>
                         </div>
                     )}
                     {!loading && notifs.map(n => {
@@ -110,13 +131,20 @@ function NotificationModal({ open, onClose, onCountChange }) {
                         return (
                             <div
                                 key={n.ID}
-                                onClick={() => !n.is_read && markRead(m.ID)}
-                                className={`relative flex gap-3 px-5 py-4 border-b border-black/5 transition-colors cursor-pointer
-                                        ${n.is_read ? "bg-white" : "bg-[#f7fffe hover:bg-[#eefaf8]"}
+                                onClick={() => !n.is_read && markRead(n.ID)}
+                                className={`group relative flex gap-3 px-5 py-4 border-b border-gray-100 transition-all duration-200 cursor-pointer hover:translate-x-1 hover:shadow-sm
+                                        ${
+                                            n.is_read 
+                                                ? "bg-white" 
+                                                : "bg-[#f7fffe] hover:bg-[#eefaf8]"
+                                        }
                                     `}
                             >
                                 {/* Color bar */}
                                 <div className={`absolute left-0 top-3 bottom-3 w-0.5 ${s.bar} rounded-r`} />
+                                <div className={`mt-1 w-8 h-8 rounded-xl flex items-center justify-center ${s.badge}`} >
+                                    <RiBellLine size={14} />
+                                </div>
                                 <div className="flex-1 min-w-0 pl-2" >
                                     <div className="flex items-center justify-between gap-2 mb-0.5" >
                                         <span className="text-xs font-semibold text-gray-800 truncate" >{n.title}</span>
