@@ -10,6 +10,7 @@ import AdminPage from "../Pages/AdminPage.jsx"
 import About from "../Pages/About.jsx"
 import PrivacyPolicy from "../Pages/PrivacyPolicy.jsx"
 import Profile from "../Pages/Profile.jsx"
+import Chat from "../Pages/Chat.jsx"
 import Audit from "../Pages/Audit.jsx"
 import CursorSettings from '../Components/ui/cursors/Cursorsettings.jsx'
 import NotFound from "../Pages/NotFound.jsx"
@@ -47,6 +48,7 @@ function App() {
           <Route path='/profile' element={<Profile/>} />
           <Route path='/setting' element={<CursorSettings/>} />
           <Route path='/admin' element={<AdminPage/>} />
+          <Route path='chat' element={<Chat/>} />
           <Route path='/audit-logs' element={<Audit/>} />
           <Route path='/privacypolicy' element={<PrivacyPolicy/>} />
           <Route path='/whiteboard/:roomId' element={<Whiteboard/>} />

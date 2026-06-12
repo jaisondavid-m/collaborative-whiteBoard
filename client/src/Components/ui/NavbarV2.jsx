@@ -15,6 +15,7 @@ import {
     RiMenuLine,
     RiCloseLine,
     RiDoorOpenLine,
+    RiChat3Line
 } from "react-icons/ri"
 
 import { IoNotificationsOutline } from "react-icons/io5"
@@ -51,6 +52,11 @@ function NavbarV2() {
             label: "Rooms",
             path: "/room",
             icon: HiSquares2X2,
+        },
+        {
+            label: "Chat",
+            path: "/chat",
+            icon: RiChat3Line,
         },
         {
             label: "Profile",
