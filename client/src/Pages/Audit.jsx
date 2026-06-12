@@ -15,6 +15,8 @@ import {
 
 import API from "../api/axios.js"
 
+import MetricCardSkeleton from "../Components/ui/MetricCardSkeleton.jsx"
+
 const STATUS_CONFIG = {
     success: {
         label: "Success",
@@ -339,6 +341,7 @@ function Audit() {
             setDebouncedSearch(search)
             setPage(1)
         }, 400);
+        return () => clearTimeout(searchTimer.current)
     }, [search])
 
     const fetchLogs = useCallback(async () => {
@@ -452,32 +455,46 @@ function Audit() {
             </div>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-6">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <MetricCard
-                        label="Total Requests"
-                        value={statsLoading ? "…" : (stats?.total_requests ?? 0).toLocaleString()}
-                        Icon={TbActivity}
-                        accent="teal"
-                    />
-                    <MetricCard
-                        label="Failures"
-                        value={statsLoading ? "…" : (stats?.failed_requests ?? 0).toLocaleString()}
-                        sub="HTTP 4xx / 5xx"
-                        Icon={TbShieldX}
-                        accent="red"
-                    />
-                    <MetricCard
-                        label="Success Rate"
-                        value={statsLoading ? "…" : `${(stats?.success_rate ?? 0).toFixed(1)}%`}
-                        Icon={TbTrendingUp}
-                        accent="green"
-                    />
-                    <MetricCard
-                        label="Unique Actors"
-                        value={statsLoading ? "…" : (stats?.top_actors?.length ?? 0)}
-                        sub="tracked users"
-                        Icon={TbUsers}
-                        accent="violet"
-                    />
+                    {
+                        statsLoading ? (
+                            <>
+                                <MetricCardSkeleton/>
+                                <MetricCardSkeleton/>
+                                <MetricCardSkeleton/>
+                                <MetricCardSkeleton/>
+                            </>
+                        ) : (
+                            <>
+                                <MetricCard
+                                    label="Total Requests"
+                                    value={statsLoading ? "…" : (stats?.total_requests ?? 0).toLocaleString()}
+                                    Icon={TbActivity}
+                                    accent="teal"
+                                />
+                                <MetricCard
+                                    label="Failures"
+                                    value={statsLoading ? "…" : (stats?.failed_requests ?? 0).toLocaleString()}
+                                    sub="HTTP 4xx / 5xx"
+                                    Icon={TbShieldX}
+                                    accent="red"
+                                />
+                                <MetricCard
+                                    label="Success Rate"
+                                    value={statsLoading ? "…" : `${(stats?.success_rate ?? 0).toFixed(1)}%`}
+                                    Icon={TbTrendingUp}
+                                    accent="green"
+                                />
+                                <MetricCard
+                                    label="Unique Actors"
+                                    value={statsLoading ? "…" : (stats?.top_actors?.length ?? 0)}
+                                    sub="tracked users"
+                                    Icon={TbUsers}
+                                    accent="violet"
+                                />
+                            </>
+                        )
+                    }
+
                 </div>
                 {/* Top actions + Top actors */}
                 {stats && (
@@ -488,7 +505,7 @@ function Audit() {
                                 Top Endpoints
                             </p>
                             <div className="flex flex-col gap-3">
-                                {stats.top_actions?.slice(0,8).map((a,i) => (
+                                {stats.top_actions?.slice(0, 8).map((a, i) => (
                                     <TopActionBar
                                         key={i}
                                         label={a.action}
@@ -505,7 +522,7 @@ function Audit() {
                                 Most Active Users
                             </p>
                             <div className="flex flex-col gap-3">
-                                {stats.top_actions?.slice(0,8).map((a,i) => (
+                                {stats.top_actions?.slice(0, 8).map((a, i) => (
                                     <div key={i} className="flex items-center gap-3">
                                         <span className="w-6 h-6 rounded-full bg-violet-50 text-violet-700 flex items-center justify-center text-[10px] font-bold shrink-0">
                                             {a.actor_id?.[0]?.toUpperCase() || "?"}
@@ -534,12 +551,12 @@ function Audit() {
                                 className="w-full pl-8 pr-3 py-2 text-xs bg-gray-50 border border-black/[0.08] rounded-xl outline-none focus:border-[#4ecdc4] transition-colors"
                             />
                         </div>
-                        
+
                         {/* Status */}
                         <select
                             value={filters.status}
                             onChange={e => {
-                                setFilters(f => ({ ...f , status: e.target.value }))
+                                setFilters(f => ({ ...f, status: e.target.value }))
                                 setPage(1)
                             }}
                             className="px-3 py-2 text-xs bg-gray-50 border border-black/[0.08] rounded-xl outline-none focus:border-[#4ecdc4]"
@@ -559,7 +576,7 @@ function Audit() {
                             className="px-3 py-2 text-xs bg-gray-50 border border-black/[0.08] rounded-xl outline-none focus:border-[#4ecdc4]"
                         >
                             <option value="">All Methods</option>
-                            {["GET","POST","PUT","PATCH","DELETE"].map(m => (
+                            {["GET", "POST", "PUT", "PATCH", "DELETE"].map(m => (
                                 <option key={m} value={m}>{m}</option>
                             ))}
                         </select>
@@ -570,7 +587,7 @@ function Audit() {
                             placeholder="Filter by action/path…"
                             value={filters.action}
                             onChange={e => {
-                                setFilters(f => ({ ...f , action: e.target.value }))
+                                setFilters(f => ({ ...f, action: e.target.value }))
                                 setPage(1)
                             }}
                             className="px-3 py-2 text-xs bg-gray-50 border border-black/[0.08] rounded-xl outline-none focus:border-[#4ecdc4] w-44"
@@ -581,7 +598,7 @@ function Audit() {
                                 type="date"
                                 value={filters.from}
                                 onChange={e => {
-                                    setFilters(f => ({ ...f , from: e.target.value }))
+                                    setFilters(f => ({ ...f, from: e.target.value }))
                                     setPage(1)
                                 }}
                                 className="px-2 py-2 text-xs bg-gray-50 border border-black/[0.08] rounded-xl outline-none focus:border-[#4ecdc4]"
@@ -591,7 +608,7 @@ function Audit() {
                                 type="date"
                                 value={filters.to}
                                 onChange={e => {
-                                    setFilters(f => ({ ...f , to: e.target.value }))
+                                    setFilters(f => ({ ...f, to: e.target.value }))
                                 }}
                                 className="px-2 py-2 text-xs bg-gray-50 border border-black/[0.08] rounded-xl outline-none focus:border-[#4ecdc4]"
                             />
@@ -636,7 +653,7 @@ function Audit() {
                         <table className="w-full min-w-[700px]">
                             <thead>
                                 <tr className="bg-gray-50/80">
-                                    {["Action / Path" , "Status" , "Actor" , "IP" , "Time" , ""].map(h => (
+                                    {["Action / Path", "Status", "Actor", "IP", "Time", ""].map(h => (
                                         <th key={h} className="px-4 py-2.5 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
                                             {h}
                                         </th>
@@ -645,9 +662,9 @@ function Audit() {
                             </thead>
                             <tbody>
                                 {loading
-                                    ? Array.from({ length: 8 }).map((_,i) => (
+                                    ? Array.from({ length: 8 }).map((_, i) => (
                                         <tr key={i} className="border-b border-black/[0.05]">
-                                            {Array.from({ length: 6 }).map((_,j) => (
+                                            {Array.from({ length: 6 }).map((_, j) => (
                                                 <td key={j} className="px-4 py-3">
                                                     <div className="h-3 bg-gray-100 rounded-md animate-pulse" />
                                                 </td>
@@ -660,29 +677,29 @@ function Audit() {
                                                 No Audit Logs Found !
                                             </td>
                                         </tr>
-                                        : logs.map((log,i) => (
+                                        : logs.map((log, i) => (
                                             <LogRow key={log.ID || i} log={log} onClick={setSelectedLog} />
                                         ))
                                 }
                             </tbody>
                         </table>
-                    </div> 
+                    </div>
                     {pages > 1 && (
                         <div className="flex items-center justify-between px-5 py-3 border-t border-black/[0.06]">
                             <button
-                                onClick={() => setPage(p => Math.max(1, p-1))}
-                                disabled={page===1}
+                                onClick={() => setPage(p => Math.max(1, p - 1))}
+                                disabled={page === 1}
                                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 border border-black/[0.1] rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                             >
                                 <TbChevronLeft size={13} /> Prev
                             </button>
                             <div className="flex items-center gap-1">
-                                {Array.from({ length: Math.min(pages, 7)}, (_,i) => {
+                                {Array.from({ length: Math.min(pages, 7) }, (_, i) => {
                                     const p = pages <= 7
                                         ? i + 1
-                                        : page <=4 ? i + 1
-                                        : page >= pages - 3 ? pages - 6 -i
-                                        : pages - 3 + i
+                                        : page <= 4 ? i + 1
+                                            : page >= pages - 3 ? pages - 6 - i
+                                                : pages - 3 + i
                                     return (
                                         <button
                                             key={p}
@@ -697,11 +714,11 @@ function Audit() {
                                             {p}
                                         </button>
                                     )
-                                } )}
+                                })}
                             </div>
                             <button
-                                onClick={() => setPage(p => Math.min(pages, p+1))}
-                                disabled = {page === pages}
+                                onClick={() => setPage(p => Math.min(pages, p + 1))}
+                                disabled={page === pages}
                                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 border border-black/[0.1] rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                             >
                                 Next <TbChevronRight size={13} />
