@@ -92,3 +92,23 @@ CREATE TABLE messages (
     INDEX idx_messages_receiver_id (receiver_id)
 
 );
+
+CREATE TABLE converstations (
+
+    id              BIGINT          UNSIGNED        AUTO_INCREMENT      PRIMARY KEY,
+
+    created_at      DATETIME(3)     NULL,
+    updated_at      DATETIME(3)     NULL,
+    deleted_at      DATETIME(3)     NULL,
+
+    user1_id        VARCHAR(255),
+    user2_id        VARCHAR(255),
+
+    last_message    TEXT,
+    last_sender     VARCHAR(255),
+
+    INDEX idx_converstations_deleted_at (deleted_at),
+    INDEX idx_converstations_user1_id (user1_id),
+    INDEX idx_converstations_user2_id (user2_id)
+
+);
