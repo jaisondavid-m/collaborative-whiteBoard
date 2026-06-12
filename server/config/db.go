@@ -40,6 +40,8 @@ func ConnectDB() {
 		&models.Room{},
 		&models.AuditLog{},
 		&models.Notification{},
+		&models.Message{},
+		&models.Conversation{},
 	)
 	if err != nil {
 		log.Fatal("Migration Failed")
