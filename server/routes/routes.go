@@ -29,6 +29,23 @@ func SetupRoutes(r *gin.Engine) {
 		protected.GET("/notifications/unread-count",handlers.UnreadCount)
 		protected.PUT("/notifications/:id/read",handlers.MarkNotificationRead)
 		protected.PUT("/notifications/read-all",handlers.MarkAllRead)
+
+		// --- Private Messaging ---
+		msg := protected.Group("/messages")
+		{
+			msg.POST("/send",handlers.SendMessage)
+			msg.GET("/conversations",handlers.GetConversations) // inbox list
+			msg.GET("/:userId", handlers.GetConversation)
+			msg.DELETE("/:messageId", handlers.DeleteMessage)
+			msg.PUT("/:messageId/read",handlers.MarkMessageRead)
+			msg.GET("/unread-count",handlers.UnreadMessageCount)
+		}
+	}
+
+	ws := r.Group("/ws")
+	ws.Use(middleware.AuthMiddleware())
+	{
+		ws.GET("/private",handlers.PrivateChatWS)
 	}
 
 	room := protected.Group("/room")

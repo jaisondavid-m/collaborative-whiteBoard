@@ -29,6 +29,9 @@ type Conversation struct {
 
 }
 
-
-
+type SendMessageInput struct {
+	ReceiverID 		string		`json:"receiverId" binding:"required"`
+	Content 		string		`json:"content" binding:"required"`
+	MessageType 	string 		`json:"messageType"`
+}
 
