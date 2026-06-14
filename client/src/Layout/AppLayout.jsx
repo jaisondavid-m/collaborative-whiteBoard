@@ -9,7 +9,7 @@ function AppLayout() {
     const location = useLocation()
 
     const hideFooter =
-        location.pathname.startsWith("/setting")
+        location.pathname.startsWith("/setting") || location.pathname.startsWith("/chat")
 
     return (
         <div className="min-h-screen flex flex-col bg-[#f5f5f2]">

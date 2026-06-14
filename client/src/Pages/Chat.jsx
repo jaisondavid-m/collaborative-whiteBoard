@@ -41,7 +41,7 @@ function Chat() {
     return (
         <div 
             className="flex overflow-hidden bg-[#f5f5f2] font-mono"
-            style={{ height: "calc(100vh-56px)" }} 
+            // style={{ height: "calc(100vh-64px)" }} 
         >
             {/* Sidebar */}
             <aside className="w-[260px] shrink-0 flex flex-col bg-white border-r border-black/[0.08]" >
