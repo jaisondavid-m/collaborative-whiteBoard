@@ -113,3 +113,45 @@ func SendFriendRequest(c *gin.Context) {
 	})
 
 }
+
+
+func GetFriendsList(c *gin.Context) {
+
+	me := c.GetString("userid")
+
+	var friendships []models.Friendship
+
+	if err := config.DB.Where("user1_id = ? OR user2_id = ?", me, me).Find(&friendships).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to fetch friends",
+		})
+		return
+	}
+
+	friendIDs := make([]string, 0, len(friendships))
+
+	for _, f := range friendships {
+		if f.User1ID == me {
+			friendIDs = append(friendIDs, f.User2ID)
+		} else {
+			friendIDs = append(friendIDs, f.User1ID)
+		}
+	}
+
+	var friends []models.User
+
+	if len(friendIDs) > 0 {
+		
+		if err := config.DB.Where("user_id IN ?", friendIDs).Find(&friends).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":"Failed to fetch friends",
+			})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": friends,
+	})
+
+}
