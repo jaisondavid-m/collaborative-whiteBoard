@@ -1,26 +1,28 @@
 import React , { useEffect , useRef , useState } from "react"
 import API from "../api/axios.js"
 
+import MessageBubble from "../Components/ui/MessageBubble.jsx"
 
-function formatTime(dateStr) {
+
+export const formatTime = (dateStr) => {
 
     if (!dateStr) return ""
 
     return new Date(dateStr).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
 }
 
-function MessageBubble({ msg, isMe }) {
+// function MessageBubble({ msg, isMe }) {
 
-    return (
-        <div className="" >
-            <div>
-                {msg.content}
-            </div>
-            <span>{formatTime(msg.CreatedAt)}</span>
-        </div>
-    )
+//     return (
+//         <div className={`flex items-end gap-2 ${isMe ? "flex-row-reverse" : "" }`} >
+//             <div>
+//                 {msg.content}
+//             </div>
+//             <span>{formatTime(msg.CreatedAt)}</span>
+//         </div>
+//     )
  
-}
+// }
 
 function Chat() {
 
@@ -34,8 +36,42 @@ function Chat() {
 
     const bottomRef = useRef(null)
 
+    useEffect(() => {
+        API.get("/api/messages/conversations")
+            .then(res => setConversations(res.data.data ?? []))
+            .catch(() => {})
+    },[])
+
+    useEffect(() => {
+        if (!selectedConv) return
+        setMessages([])
+        API.get(`/api/messages/${selectedConv}`)
+            .then(res => setMessages(res.data.data ?? []))
+            .catch(() => {})
+    },[selectedConv])
+
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+    },[])
+
     const sendMessage = async () => {
 
+        const text = input.trim()
+
+        if (!text || !selectedConv || sending) return 
+
+        setSending(true)
+
+        try {
+            const res = await API.post("/api/messages/send", {
+                receiverId: selectedConv,
+                content: text,
+            })
+            setMessages(m => [ ...m. res.data.data ])
+            setInput("")
+        } catch {} finally {
+            setSending(false)
+        }
     }
 
     return (
@@ -47,7 +83,7 @@ function Chat() {
             <aside className="w-[260px] shrink-0 flex flex-col bg-white border-r border-black/[0.08]" >
                 <div className="px-3.5 py-3 border-b border-black/[0.06]" >
                     <h2 className="m-0 text-sm font-medium text-gray-900" >Messages</h2>
-                </div>
+                </div>  
                 <div className="flex-1 overflow-y-auto" >
                     {
                         conversations.map(conv => {
