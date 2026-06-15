@@ -83,4 +83,8 @@ func SetupRoutes(r *gin.Engine) {
 		superadmin.POST("/promote",handlers.UpdateRole)
 	}
 
+	friend := protected.Group("/friends")
+	{
+		friend.POST("/request",handlers.SendFriendRequest)
+	}
 }
