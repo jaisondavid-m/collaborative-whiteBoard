@@ -72,7 +72,7 @@ func SendFriendRequest(c *gin.Context) {
 	var existingRequest models.FriendRequest
 
 	if err := config.DB.Where(
-		"((sender_id ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) AND status = ?",
+		"((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) AND status = ?",
 		senderID, input.ReceiverID, input.ReceiverID, senderID, "pending",
 	).First(&existingRequest).Error; err == nil {
 
