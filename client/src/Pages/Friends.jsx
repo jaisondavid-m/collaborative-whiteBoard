@@ -3,7 +3,7 @@ import React from "react"
 
 function Friends() {
     return (
-        <div>
+        <div className="min-h-screen flex items-center justify-center " >
             Friend page
         </div>
     )
