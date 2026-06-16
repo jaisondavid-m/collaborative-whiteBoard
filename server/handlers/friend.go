@@ -145,7 +145,7 @@ func RespondFriendRequest(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid input, action must be 'action' or 'reject'",
+			"error": "Invalid input, action must be 'accept' or 'reject'",
 		})
 		return
 	}
@@ -156,7 +156,7 @@ func RespondFriendRequest(c *gin.Context) {
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{
-				"error":"Friend request not fount",
+				"error":"Friend request not Found",
 			})
 			return
 		}
@@ -195,13 +195,13 @@ func RespondFriendRequest(c *gin.Context) {
 
 	if err := config.DB.Save(&request).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to updated friend request",
+			"error": "Failed to update friend request",
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Friend request" + request.Status,
+		"message": "Friend request " + request.Status,
 		"data": request,
 	})
 
