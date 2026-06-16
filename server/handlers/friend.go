@@ -114,6 +114,25 @@ func SendFriendRequest(c *gin.Context) {
 
 }
 
+func GetPendingRequests(c *gin.Context) {
+
+	me := c.GetString("userid")
+
+	var requests []models.FriendRequest
+
+	if err := config.DB.Where("receiver_id = ? AND status = ?", me, "pending").Order("created_at DESC").Find(&requests).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to fetch friend requests",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": requests,
+	})
+
+}
+
 
 func RespondFriendRequest(c *gin.Context) {
 

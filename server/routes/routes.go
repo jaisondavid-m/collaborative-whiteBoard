@@ -87,6 +87,7 @@ func SetupRoutes(r *gin.Engine) {
 	{
 		friend.POST("/request",handlers.SendFriendRequest)
 		friend.PUT("/request/:requestId", handlers.RespondFriendRequest)
+		friend.GET("/requests",handlers.GetPendingRequests)
 		friend.GET("/list", handlers.GetFriendsList)
 	}
 }
