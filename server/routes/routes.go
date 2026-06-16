@@ -86,6 +86,7 @@ func SetupRoutes(r *gin.Engine) {
 	friend := protected.Group("/friends")
 	{
 		friend.POST("/request",handlers.SendFriendRequest)
+		friend.PUT("/request/:requestId", handlers.RespondFriendRequest)
 		friend.GET("/list", handlers.GetFriendsList)
 	}
 }

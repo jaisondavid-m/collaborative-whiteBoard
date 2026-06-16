@@ -115,6 +115,80 @@ func SendFriendRequest(c *gin.Context) {
 }
 
 
+func RespondFriendRequest(c *gin.Context) {
+
+	me := c.GetString("userid")
+	reqID := c.Param("requestId")
+
+	var input struct {
+		Action 			string			`json:"action" binding:"required,oneof=accept reject"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid input, action must be 'action' or 'reject'",
+		})
+		return
+	}
+
+	var request models.FriendRequest
+
+	if err := config.DB.Where("id = ? AND receiver_id = ? AND status = ?", reqID, me, "pending").First(&request).Error; err != nil {
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error":"Friend request not fount",
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":"Database error",
+		})
+		return
+	}
+
+	if input.Action == "accept" {
+
+		u1, u2 := request.SenderID, request.ReceiverID
+
+		if u1 > u2 {
+			u1, u2 = u2, u1
+		}
+
+		friendship := models.Friendship{
+			User1ID: u1,
+			User2ID: u2,
+		}
+
+		if err := config.DB.Create(&friendship).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to accept friend request",
+			})
+			return
+		}
+
+		request.Status = "accepted"
+
+	} else {
+		request.Status = "rejected"
+	}
+
+	if err := config.DB.Save(&request).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to updated friend request",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Friend request" + request.Status,
+		"data": request,
+	})
+
+}
+
+
 func GetFriendsList(c *gin.Context) {
 
 	me := c.GetString("userid")
