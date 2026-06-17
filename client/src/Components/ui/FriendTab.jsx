@@ -25,7 +25,7 @@ function FriendsTab({ toast }) {
     }, [])
 
     const filtered = friends.filter(f =>
-        f.user_id?.toLowerCase().includes(query.toLowerCase())
+        f.userid?.toLowerCase().includes(query.toLowerCase())
     )
 
     if (loading) return <LoadingRows />
@@ -60,11 +60,11 @@ function FriendsTab({ toast }) {
                     <ul className="divide-y divide-gray-100">
                         {
                             filtered.map(f => (
-                                <li key={f.user_id} className="flex items-center gap-3 py-3.5 px-1" >
-                                    <Avatar id={f.user_id} />
+                                <li key={f.userid} className="flex items-center gap-3 py-3.5 px-1" >
+                                    <Avatar id={f.userid} />
                                     <div className="flex-1 min-w-0" >
                                         <p className="text-sm font-medium text-gray-900 font-mono truncate" >
-                                            {f.user_id}
+                                            {f.userid}
                                         </p>
                                         {f.role && (
                                             <span className="inline-block mt-0.5 text-[10px] font-mono px-1.5 py-0.5

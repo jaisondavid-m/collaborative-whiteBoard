@@ -15,6 +15,7 @@ import LoadingRows from "../Components/ui/LoadingRows.jsx"
 import Empty from "../Components/ui/Empty.jsx"
 
 import FriendsTab from "../Components/ui/FriendTab.jsx"
+import AddTab from "../Components/ui/AddTab.jsx"
 
 import timeAgo from "../utils/TimeAgo.js"
 
@@ -93,7 +94,7 @@ function RequestTab({ toast }) {
                     </div>
                     <div className="flex items-center gap-2 shrink-0" >
                         <button
-                            onClick={() => {}}
+                            onClick={() => {respond(req.ID, "reject")}}
                             disabled={acting === req.ID}
                             aria-label="Decline"
                             className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-red-50 hover:border-red-200
@@ -102,7 +103,7 @@ function RequestTab({ toast }) {
                             <RiCloseLin size={16}/>
                         </button>
                         <button
-                            onClick={() => {}}
+                            onClick={() => {respond(req.ID, "accept")}}
                             disabled={acting === req.ID}
                             aria-label="Accept"
                             className="w-8 h-8 rounded-lg bg-[#4ecdc4] flex items-center justify-center
@@ -183,9 +184,9 @@ function Friends() {
                         </div>
 
                         <div className="px-4 py-4 min-h-[300px]" >
-                            { tab === "requests" && <RequestTab />  }
-                            { tab === "friends"  && <FriendsTab/>   }
-                            { tab === "add"      && <AddTab/>       }
+                            { tab === "requests" && <RequestTab toast={toast} />  }
+                            { tab === "friends"  && <FriendsTab toast={toast} />   }
+                            { tab === "add"      && <AddTab toast={toast} />       }
                         </div>
 
                     </div>
