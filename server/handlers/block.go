@@ -89,3 +89,30 @@ func BlockUser(c *gin.Context) {
 	})
 
 }
+
+func UnblockUser(c *gin.Context) {
+
+	me := c.GetString("userid")
+	targetID := c.Param("userId")
+
+	result := config.DB.Where("blocker_id = ? AND blocked_id = ?", me, targetID).Delete(&models.Block{})
+
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to unblock user",
+		})
+		return
+	}
+
+	if result.RowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Block not found",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User unblocked",
+	})
+
+}
