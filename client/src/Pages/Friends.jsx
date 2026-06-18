@@ -7,6 +7,7 @@ import {
     RiUserAddLine,
     RiTimeLine,
     RiSearchLine,
+    RiUserForbidLine
 } from "react-icons/ri"
 
 import { useToast }  from "../hooks/useToast.js"
@@ -16,6 +17,7 @@ import Empty from "../Components/ui/Empty.jsx"
 
 import FriendsTab from "../Components/ui/FriendTab.jsx"
 import AddTab from "../Components/ui/AddTab.jsx"
+import BlockedTab from "../Components/ui/BlockedTab.jsx"
 
 import timeAgo from "../utils/TimeAgo.js"
 
@@ -25,6 +27,7 @@ const TABS = [
     { id: "requests",       label: "Requests",      icon: RiTimeLine },
     { id: "friends",        label: "Friends",       icon: RiUserLine },
     { id: "add",            label: "Add Friend",    icon: RiUserAddLine },
+    { id: "blocked",        label: "Blocked",       icon: RiUserForbidLine }
 ]
 
 export const Avatar = ({ id, size = "md" }) => {
@@ -187,6 +190,7 @@ function Friends() {
                             { tab === "requests" && <RequestTab toast={toast} />  }
                             { tab === "friends"  && <FriendsTab toast={toast} />   }
                             { tab === "add"      && <AddTab toast={toast} />       }
+                            { tab === "blocked"  && <BlockedTab toast={toast} /> }
                         </div>
 
                     </div>
