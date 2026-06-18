@@ -47,7 +47,7 @@ func BlockUser(c *gin.Context) {
 
 	var existing models.Block
 
-	if err := config.DB.Where("blocked_id = ? AND blocked_id = ?", me, targetID).First(&existing).Error; err == nil {
+	if err := config.DB.Where("blocker_id = ? AND blocked_id = ?", me, targetID).First(&existing).Error; err == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":"User already blocked",
 		})
@@ -77,10 +77,10 @@ func BlockUser(c *gin.Context) {
 		u1, u2 = u2, u1
 	}
 
-	config.DB.Where("user1_id = AND user2_id = ?", u1, u2).Delete(&models.Friendship{})
+	config.DB.Where("user1_id = ? AND user2_id = ?", u1, u2).Delete(&models.Friendship{})
 
 	config.DB.Where(
-		"((sender_id ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) AND status = ?",
+		"((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) AND status = ?",
 		me, targetID, targetID, me, "pending",
 	).Delete(&models.FriendRequest{})
 
