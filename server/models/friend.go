@@ -22,6 +22,15 @@ type Friendship struct {
 
 }
 
+type Block struct {
+
+	gorm.Model
+
+	BlockerID 		string			`json:"blocker_id" gorm:"index;not null"`
+	BlockedID		string			`json:"blocked_id" gorm:"index;not null"`
+
+}
+
 type SendFriendRequestInput struct {
 	ReceiverID 		string 			`json:"receiver_id" binding:"required"`
 }
