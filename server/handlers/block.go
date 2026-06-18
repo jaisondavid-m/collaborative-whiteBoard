@@ -116,3 +116,39 @@ func UnblockUser(c *gin.Context) {
 	})
 
 }
+
+func GetBlockedList(c *gin.Context) {
+
+	me := c.GetString("userid")
+
+	var blocks []models.Block
+
+	if err := config.DB.Where("blocked_id = ?", me).Find(&blocks).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":"Failed to fetch blocked users",
+		})
+		return
+	}
+
+	blockedIDs := make([]string, 0, len(blocks))
+
+	for _ ,b := range blocks {
+		blockedIDs = append(blockedIDs, b.BlockedID)
+	}
+
+	var users []models.User
+
+	if len(blockedIDs) > 0 {
+		if err := config.DB.Where("user_id IN ?", blockedIDs).Find(&users).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":"Failed to fetch user details",
+			})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":users,
+	})
+
+}
