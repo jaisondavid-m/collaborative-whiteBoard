@@ -7,7 +7,7 @@ import {
     RiUserAddLine,
     RiTimeLine,
     RiSearchLine,
-    RiUserForbidLine
+    RiUserForbidLine,
 } from "react-icons/ri"
 
 import { useToast }  from "../hooks/useToast.js"
@@ -103,18 +103,18 @@ function RequestTab({ toast }) {
                             className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-red-50 hover:border-red-200
                             hover:text-red-500 transition-colors disabled:opacity-40"
                         >
-                            <RiCloseLin size={16}/>
+                            <RiCloseLine size={16}/>
                         </button>
                         <button
                             onClick={() => {respond(req.ID, "accept")}}
                             disabled={acting === req.ID}
                             aria-label="Accept"
                             className="w-8 h-8 rounded-lg bg-[#4ecdc4] flex items-center justify-center
-                            text-white hover:bg=[#3bb8b0] transition-colors disabled:opacity-40"
+                            text-white hover:bg-[#3bb8b0] transition-colors disabled:opacity-40"
                         >
                             {
                                 acting === req.ID
-                                    ? <span className="w-3 h-3 border-2 borde-white border-t-transparent rounded-full animate-spin" />
+                                    ? <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                     : <RiCheckLine size={16} />
                             }
                         </button>

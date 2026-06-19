@@ -3,6 +3,7 @@ import API from "../../api/axios.js"
 
 import {
     RiSearchLine,
+    RiUserForbidLine,
     RiUserLine,
 } from "react-icons/ri"
 
@@ -16,6 +17,7 @@ function FriendsTab({ toast }) {
     const [friends, setFriends] = useState([])
     const [loading, setLoading] = useState(false)
     const [query, setQuery] = useState("")
+    const [blocking, setBlocking] = useState(null)
 
     useEffect(() => {
         API.get("/api/friends/list")
@@ -27,6 +29,26 @@ function FriendsTab({ toast }) {
     const filtered = friends.filter(f =>
         f.userid?.toLowerCase().includes(query.toLowerCase())
     )
+
+    const handleBlock = async (id) => {
+
+        if (!window.confirm(`Block ${id}? This removes them as a friend`)) return
+
+        setBlocking(id)
+
+        try {
+
+            await API.post(`/api/friends/block/${id}`)
+            setFriends(p => p.filter(f => f.userid !== id))
+            toast(`${id} blocked`)
+
+        } catch (err) {
+            toast(e.response?.data?.error || "Failed to block user", "error")
+        } finally {
+            setBlocking(null)
+        }
+
+    }
 
     if (loading) return <LoadingRows />
 
@@ -73,7 +95,19 @@ function FriendsTab({ toast }) {
                                             </span>
                                         )}
                                     </div>
-                                    <div className="w-2 h-2 rounded-full bg-[#4ecdc4] shrink-0" title="Friend" />
+                                    <div className="flex items-center gap-2 shrink-0" >
+                                        <button
+                                            onClick={() => handleBlock(f.userid)}
+                                            disabled={blocking === f.userid}
+                                            aria-label="Block"
+                                            title="Block"
+                                            className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-300
+                                            hover:bg-red-50 hover:border-red-200 hover:text-red-500 transition-colors disabled:opacity-40"
+                                        >
+                                            <RiUserForbidLine size={15} />
+                                        </button>
+                                        <div className="w-2 h-2 rounded-full bg-[#4ecdc4] shrink-0" title="Friend" />
+                                    </div>                                    
                                 </li>
                             ))
                         }

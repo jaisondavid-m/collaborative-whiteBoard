@@ -14,7 +14,7 @@ function BlockedTab({ toast }) {
 
     useEffect(() => {
         API.get("/api/friends/blocked")
-            .then(r => setBlocked(r.data,data ?? []))
+            .then(r => setBlocked(r.data.data ?? []))
             .catch(() => toast("Failed to load blocked users", "error"))
             .finally(() => setLoading(false))
     },[])
@@ -41,7 +41,7 @@ function BlockedTab({ toast }) {
             <Empty
                 icon={RiUserForbidLine}
                 title="No blocked users"
-                sub="Users you will appear here"
+                sub="Users you block will appear here"
             />
         )
     }
