@@ -143,7 +143,7 @@ function RequestTab({ toast }) {
 
 function Friends() {
 
-    const [tab, setTab] = useState("requests")
+    const [tab, setTab] = useState("friends")
     const { toasts, toast } = useToast()
 
     return (
