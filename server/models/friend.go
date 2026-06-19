@@ -22,6 +22,14 @@ type Friendship struct {
 
 }
 
+type FriendInfo struct {
+
+	FriendshipID 		uint		`json:"friendship_id"`
+	UserID 				string		`json:"userid"`
+	Role 				string 		`json:"role"`
+
+}
+
 type Block struct {
 
 	gorm.Model

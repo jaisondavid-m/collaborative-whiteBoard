@@ -256,20 +256,36 @@ func GetFriendsList(c *gin.Context) {
 	}
 
 	friendIDs := make([]string, 0, len(friendships))
+	friendshipByUserID := make(map[string]uint, len(friendships))
+
 
 	for _, f := range friendships {
+
+		var otherID string
+
 		if f.User1ID == me {
-			friendIDs = append(friendIDs, f.User2ID)
+			otherID = f.User2ID
 		} else {
-			friendIDs = append(friendIDs, f.User1ID)
+			otherID = f.User1ID
 		}
+
+		// if f.User1ID == me {
+		// 	friendIDs = append(friendIDs, f.User2ID)
+		// } else {
+		// 	friendIDs = append(friendIDs, f.User1ID)
+		// }
+
+		friendIDs = append(friendIDs, otherID)
+		friendshipByUserID[otherID] = f.ID
 	}
 
 	var friends []models.User
 
 	if len(friendIDs) > 0 {
 		
-		if err := config.DB.Where("user_id IN ?", friendIDs).Find(&friends).Error; err != nil {
+		if err := config.DB.Where(
+			"user_id IN ? AND is_deleted = ? AND is_blocked = ?", friendIDs, false, false,
+		).Find(&friends).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error":"Failed to fetch friends",
 			})
@@ -277,8 +293,18 @@ func GetFriendsList(c *gin.Context) {
 		}
 	}
 
+	result := make([]models.FriendInfo, 0, len(friends))
+
+	for _, u := range friends {
+		result = append(result, models.FriendInfo{
+			FriendshipID: friendshipByUserID[u.UserID],
+			UserID: u.UserID,
+			Role: u.Role,
+		})
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"data": friends,
+		"data": result,
 	})
 
 }
