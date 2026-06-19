@@ -186,6 +186,23 @@ func RespondFriendRequest(c *gin.Context) {
 
 	if input.Action == "accept" {
 
+		var blockCheck models.Block
+
+		if err := config.DB.Where(
+			"(blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?)",
+			request.SenderID, request.ReceiverID, request.ReceiverID, request.SenderID,
+		).First(&blockCheck).Error; err != nil {
+			c.JSON(http.StatusForbidden, gin.H{
+				"error": "Cannot accept request, a block exists between users",
+			})
+			return
+		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Database error",
+			})
+			return
+		}
+
 		u1, u2 := request.SenderID, request.ReceiverID
 
 		if u1 > u2 {
