@@ -49,6 +49,23 @@ func SendFriendRequest(c *gin.Context) {
 		})
 		return
 	}
+	
+	var blockCheck models.Block
+
+	if err := config.DB.Where(
+		"(blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?)",
+		senderID, input.ReceiverID, input.ReceiverID, senderID,
+	).First(&blockCheck).Error; err == nil {
+		c.JSON(http.StatusForbidden, gin.H{
+			"error":"Cannot send friend request to this user",
+		})
+		return
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":"Database error",
+		})
+		return
+	}
 
 	u1, u2 := senderID, input.ReceiverID
 	if u1 > u2 {
