@@ -123,7 +123,7 @@ func GetBlockedList(c *gin.Context) {
 
 	var blocks []models.Block
 
-	if err := config.DB.Where("blocked_id = ?", me).Find(&blocks).Error; err != nil {
+	if err := config.DB.Where("blocker_id = ?", me).Find(&blocks).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":"Failed to fetch blocked users",
 		})
