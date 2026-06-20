@@ -35,7 +35,7 @@ function FriendsTab({ toast }) {
 
     const handleBlock = async (id) => {
 
-        if (!window.confirm(`Block ${id}? This removes them as a friend`)) return
+        // if (!window.confirm(`Block ${id}? This removes them as a friend`)) return
 
         setBlocking(id)
 
