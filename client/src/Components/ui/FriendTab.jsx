@@ -12,12 +12,15 @@ import { Avatar } from "../../Pages/Friends.jsx"
 import LoadingRows from "./LoadingRows.jsx"
 import Empty from "./Empty.jsx"
 
+import ConfirmBlockModal from "./ConfirmBlockModal.jsx"
+
 function FriendsTab({ toast }) {
 
     const [friends, setFriends] = useState([])
     const [loading, setLoading] = useState(false)
     const [query, setQuery] = useState("")
     const [blocking, setBlocking] = useState(null)
+    const [blockTarget, setBlockTarget] = useState(null)
 
     useEffect(() => {
         API.get("/api/friends/list")
@@ -97,7 +100,7 @@ function FriendsTab({ toast }) {
                                     </div>
                                     <div className="flex items-center gap-2 shrink-0" >
                                         <button
-                                            onClick={() => handleBlock(f.userid)}
+                                            onClick={() => setBlockTarget(f.userid)}
                                             disabled={blocking === f.userid}
                                             aria-label="Block"
                                             title="Block"
@@ -111,6 +114,11 @@ function FriendsTab({ toast }) {
                                 </li>
                             ))
                         }
+                        <ConfirmBlockModal
+                            target={blockTarget}
+                            onClose={() => setBlockTarget(null)}
+                            onConfirm={handleBlock}
+                        />
                     </ul>
                 )
             }
