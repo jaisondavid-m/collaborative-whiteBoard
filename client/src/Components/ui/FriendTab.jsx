@@ -5,6 +5,7 @@ import {
     RiSearchLine,
     RiUserForbidLine,
     RiUserLine,
+    RiUserUnfollowLine
 } from "react-icons/ri"
 
 
@@ -13,6 +14,7 @@ import LoadingRows from "./LoadingRows.jsx"
 import Empty from "./Empty.jsx"
 
 import ConfirmBlockModal from "./ConfirmBlockModal.jsx"
+import ConfirmRemoveModal from "./ConfirmRemoveModal.jsx"
 
 function FriendsTab({ toast }) {
 
@@ -21,6 +23,8 @@ function FriendsTab({ toast }) {
     const [query, setQuery] = useState("")
     const [blocking, setBlocking] = useState(null)
     const [blockTarget, setBlockTarget] = useState(null)
+    const [removing, setRemoving] = useState(null)
+    const [removeTarget, setRemoveTarget] = useState(null)
 
     useEffect(() => {
         API.get("/api/friends/list")
@@ -50,6 +54,26 @@ function FriendsTab({ toast }) {
             toast(err.response?.data?.error || "Failed to block user", "error")
         } finally {
             setBlocking(null)
+        }
+
+    }
+
+    const handleRemove = async () => {
+
+        if (!removeTarget) return
+
+        setRemoving(removeTarget.friendship_id)
+
+        try {
+            await API.delete(`/api/friends/${removeTarget.friendship_id}`)
+            setFriends(p => p.filter(f => f.friendship_id !== removeTarget.friendship_id))
+            toast(`${removeTarget.userid} removed`)
+            setRemoveTarget(null)
+        }
+        catch (err) {
+            toast(err.response?.data?.error || "Failed to remove friend", "error")
+        } finally {
+            setRemoving(null)
         }
 
     }
@@ -110,6 +134,20 @@ function FriendsTab({ toast }) {
                                         >
                                             <RiUserForbidLine size={15} />
                                         </button>
+                                        <button
+                                            onClick={() => setRemoveTarget({ friendship_id: f.friendship_id, userid: f.userid})}
+                                            disabled={removing === f.friendship_id}
+                                            aria-label="Remove friend"
+                                            title="Remove friend"
+                                            className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-300
+                                            hover:bg-orange-50 hover:border-orange-200 hover:text-orange-400 transition-colors disabled:opacity-40"
+                                        >
+                                            {
+                                                removing === f.friendship_id
+                                                    ? <span className="w-3 h-3 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" />
+                                                    : <RiUserUnfollowLine size={15} />
+                                            }
+                                        </button>
                                         <div className="w-2 h-2 rounded-full bg-[#4ecdc4] shrink-0" title="Friend" />
                                     </div>
                                 </li>
@@ -123,6 +161,12 @@ function FriendsTab({ toast }) {
                 target={blockTarget}
                 onClose={() => setBlockTarget(null)}
                 onConfirm={handleBlock}
+            />
+            <ConfirmRemoveModal
+                target={removeTarget?.userid}
+                onClose={() => setRemoveTarget(null)}
+                onConfirm={handleRemove}
+                loading={!!removing}
             />
         </div>
     )
