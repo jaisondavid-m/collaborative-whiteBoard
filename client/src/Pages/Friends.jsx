@@ -153,15 +153,19 @@ function Friends() {
                 <div className="max-w-lg mx-auto" >
 
                     {/* Header */}
-                    <div className="mb-6" >
-                        <h1 className="text-xl font-semibold text-gray-900 font-mono">Friends</h1>
+                    <div className="mb-8 text-center" >
+                        <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-[#e6faf8] flex items-center justify-center" >
+                            <RiUserLine size={28} className="text-[#0f6e56]" />
+                        </div>
+                        <h1 className="text-2xl font-bold text-gray-900 font-mono">Friends</h1>
                         <p className="text-sm text-gray-400 font-mono mt-0.5" >Manage your connections</p>
                     </div>
 
                     {/* Card */}
                     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden" >
                         {/* Top bar */}
-                        <div className="flex border-b border-gray-100 bg-gray-50/60" >
+                        {/* <div className="flex border-b border-gray-100 bg-gray-50/60" > */}
+                        <div className="flex p-2 bg-gray-50 gap-1" >
                             {TABS.map(t => {
 
                                 const Icon = t.icon
