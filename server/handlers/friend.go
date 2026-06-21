@@ -308,3 +308,43 @@ func GetFriendsList(c *gin.Context) {
 	})
 
 }
+
+func RemoveFriend(c *gin.Context) {
+
+	me := c.GetString("userid")
+
+	friendshipID := c.Param("friendshipId")
+
+	var friendship models.Friendship
+
+	if err := config.DB.Where(
+		"id = ? AND (user1_id = ? OR user2_id = ?)",
+		friendshipID, me, me,
+	).First(&friendship).Error; err != nil {
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Friendship not found",
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Database error",
+		})
+		return
+
+	}
+
+	if err := config.DB.Delete(&friendship).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to remove friend",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Friend removed",
+	})
+
+}

@@ -90,6 +90,7 @@ func SetupRoutes(r *gin.Engine) {
 		friend.PUT("/request/:requestId", handlers.RespondFriendRequest)
 		friend.GET("/requests",handlers.GetPendingRequests)
 		friend.GET("/list", handlers.GetFriendsList)
+		friend.DELETE("/:friendshipId", handlers.RemoveFriend)
 
 		// -- Block --
 		friend.POST("/block/:userId", handlers.BlockUser)
