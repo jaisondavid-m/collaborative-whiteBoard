@@ -16,7 +16,7 @@ function ConfirmUnblockModal({
 
     useEffect(() => {
 
-        if (!open) return
+        if (!open) return null
 
         const onKey = (e) => {
             if (e.key === "Escape" && !submitting) onClose()
@@ -26,7 +26,7 @@ function ConfirmUnblockModal({
         return () => window.removeEventListener("keydown", onKey)
     },[])
 
-    if (!open) null
+    if (!open) return  null
 
     const toneClasses = confirmTone === "red"
         ? "bg-red-500 text-white hover:bg-red-600 shadow-sm shadow-red-200"
@@ -69,8 +69,73 @@ function ConfirmUnblockModal({
                             </div>
                         )
                     }
+                    <h2 id="confirm-modal-title" className="text-base font-semibold text-gray-900 font-mono" >
+                        {title}
+                    </h2>
+                    {
+                        target && (
+                            <p className="mt-2 text-sm font-mono px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-100
+                            text-gray-700 max-w-full truncate" >  
+                                {target}
+                            </p>
+                        )
+                    }
+                    {
+                        sub && (
+                            <p className="mt-3 text-xs text-gray-400 font-mono leading-relaxed" >
+                                {sub}
+                            </p>
+                        )
+                    }
+                    <div className="mt-5 flex items-center gap-2.5 w-full" >
+                        <button
+                            onClick={() => !submitting && onClose()}
+                            disabled={submitting}
+                            className="flex-1 h-11 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium
+                            font-mono hover:bg-gray-50 transition-colors disabled:opacity-40"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={onConfirm}
+                            disabled={submitting}
+                            className={`flex-1 h-11 rounded-xl text-sm font-medium font-mono opacity-60 ${toneClasses}`}
+                        >
+                            {
+                                submitting ? (
+                                    <span
+                                        className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" 
+                                    />
+                                ) : (
+                                    confirmLabel
+                                )
+                            }
+                        </button>
+                    </div>
                 </div>
             </div>
+            <style>
+                {`
+                    @keyframes fadeIn {
+                        from {
+                            opacity: 0;
+                        }
+                        to {
+                            opacity: 1;
+                        }
+                    }
+                    @keyframes modalIn {
+                        from {
+                            opacity: 0;
+                            transform: scale(0.95) translateY(8px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: scale(1) translateY(0);
+                        }
+                    }
+                `}
+            </style>
         </div>
     )
 }

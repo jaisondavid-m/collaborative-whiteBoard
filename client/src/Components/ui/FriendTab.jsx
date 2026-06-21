@@ -44,9 +44,10 @@ function FriendsTab({ toast }) {
             await API.post(`/api/friends/block/${id}`)
             setFriends(p => p.filter(f => f.userid !== id))
             toast(`${id} blocked`)
+            setBlockTarget(null)
 
         } catch (err) {
-            toast(e.response?.data?.error || "Failed to block user", "error")
+            toast(err.response?.data?.error || "Failed to block user", "error")
         } finally {
             setBlocking(null)
         }
@@ -110,18 +111,19 @@ function FriendsTab({ toast }) {
                                             <RiUserForbidLine size={15} />
                                         </button>
                                         <div className="w-2 h-2 rounded-full bg-[#4ecdc4] shrink-0" title="Friend" />
-                                    </div>                                    
+                                    </div>
                                 </li>
                             ))
                         }
-                        <ConfirmBlockModal
-                            target={blockTarget}
-                            onClose={() => setBlockTarget(null)}
-                            onConfirm={handleBlock}
-                        />
                     </ul>
+                    
                 )
             }
+            <ConfirmBlockModal
+                target={blockTarget}
+                onClose={() => setBlockTarget(null)}
+                onConfirm={handleBlock}
+            />
         </div>
     )
 

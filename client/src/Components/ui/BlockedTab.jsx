@@ -14,6 +14,7 @@ function BlockedTab({ toast }) {
     const [loading, setLoading] = useState(true)
     const [unblocking, setUnblocking] = useState(null)
     const [unblockTarget, setUnblockingTarget] = useState(null)
+    
 
     useEffect(() => {
         API.get("/api/friends/blocked")
@@ -30,6 +31,7 @@ function BlockedTab({ toast }) {
             await API.delete(`/api/friends/block/${userid}`)
             setBlocked(p => p.filter(u => u.userid !== userid))
             toast("User unblocked")
+            setUnblockingTarget(null)
         } catch (err) {
             toast(err.response?.data?.error || "Failed to unblock", "error")
         } finally {
@@ -62,7 +64,7 @@ function BlockedTab({ toast }) {
                                 </p>
                             </div>
                             <button
-                                onClick={() => unblock(u.userid)}
+                                onClick={() => setUnblockingTarget(u.userid)}
                                 disabled={unblocking === u.userid}
                                 className="shrink-0 text-xs font-mono px-3 py-1.5 rounded-lg border border-gray-200
                             text-gray-500 hover:border-[#4ecdc4] hover:text-[#0f6e56] transition-colors disabled:opacity-40"
