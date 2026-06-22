@@ -146,7 +146,7 @@ function Chat() {
                                         {otherId.slice(0, 2).toUpperCase()}
                                     </div>
                                     <span className="text-[13px] font-medium text-gray-900 truncate" >{otherId}</span>
-                                    <p className="text-gray-900" >{selectedConv}</p>
+                                    
                                 </button>
                             )
 
@@ -170,6 +170,7 @@ function Chat() {
                             >
                                 {selectedConv.slice(0, 2).toUpperCase()}
                             </div>
+                            <p className="m-0 text-sm font-medium text-gray-900" >{selectedConv}</p>
                             {/* <p className="m-0 text-sm font-medium text-gray-900" >{selectedConv}</p> */}
                         </div>
 
@@ -196,12 +197,31 @@ function Chat() {
                         </div>
 
                         <div className="flex items-center gap-2 px-3.5 py-2.5 bg-white border-t border-black/[0.07]" >
-                            <input
+                            {/* <input
                                 value={input}
                                 onChange={e => setInput(e.target.value)}
                                 onKeyDown={e => e.key === "Enter" && sendMessage() }
                                 placeholder={`Message ${selectedConv}`}
                                 className="flex-1 border border-black/10 rounded-xl px-3 py-2 text-[13px] font-mono outline-none bg-[#f5f5f2] focus:border-[#4ecdc4]"
+                            /> */}
+                            <textarea
+                                value={input}
+                                onChange={e => {
+                                    setInput(e.target.value)
+                                    e.target.style.height = "auto"
+                                    e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px"
+                                }}
+                                onKeyDown={e => {
+                                    if (e.key === "Enter" && !e.shiftKey) {
+                                        e.preventDefault()
+                                        sendMessage()
+                                    }
+                                }}
+                                placeholder={`Message ${selectedConv}`}
+                                rows={1}
+                                className="flex-1 resize-none focus:border border-black/10 rounded-xl px-3 py-2 text-[13px] font-mono outline-none 
+                                bg-[#f5f5f2] focus:border-[#4ecdc4] min-h-[36px]"
+                                style={{ maxHeight: 120 }}
                             />
                             <button
                                 onClick={sendMessage}
