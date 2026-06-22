@@ -1,24 +1,44 @@
 import React from "react"
 import { formatTime } from "../../Pages/Chat.jsx"
 
-function MessageBubble({ msg, isMe }) {
+function MessageBubble({ msg, isMe, position = "only" }) {
+
+    const radius = isMe
+        ? {
+            only: "16px 16px 4px 16px",
+            first: "16px 16px 4px 16px",
+            mid: "4px 4px 4px 16px",
+            last: "4px 16px 4px 16px",
+        }[position]
+        : {
+            only: "16px 16px 16px 4px",
+            first: "16px 16px 16px 4px",
+            mid: "4px 16px 16px 4px",
+            last: "4px 16px 16px 16px",
+        }[position];
+
     return (
-        <div className={`flex items-end gap-2 mb-1 ${isMe ? "flex-row-reverse" : "flex-row" }`} >
-            <div className={`max-w-[68%] flex flex-col ${isMe ? "items-end" : "items-start" }`} >
+        <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-0.5`} >
+            <div className={`max-w-[62%] flex flex-col ${isMe ? "items-end" : "items-start"}`} >
                 <div
-                    className={`px-3 py-2 text-[13px] font-mono leading-[1.45] break-words
-                            ${
-                                isMe
-                                    ? "bg-[#4ecdc4] text-white rounded-[14px_14px_3px_14px] break-words"
-                                    : "bg-white text-gray-900 border border-black/[0.07] rounded-[14px_14px_14px_3px]"
-                            }
+                    className={`px-3 py-2 text-[12.5px] font-mono leading-relaxed break-words
+                            ${isMe
+                            ? "bg-[#4ecdc4] text-white"
+                            : "bg-white text-gray-900 border border-black/[0.07]"
+                        }
                         `}
+                    style={{ borderRadius: radius }}
                 >
                     {msg.content}
                 </div>
-                <span className="text-[10px] text-gray-400 font-mono mt-0.5" >
-                    {formatTime(msg.CreatedAt)}
-                </span>
+                {
+                    (position === "last" || position === "only") && (
+                        <span className="text-[10px] text-gray-400 mt-1 px-0.5" >
+                            {formatTime(msg.CreatedAt)}
+                        </span>
+                    )
+                }
+
             </div>
         </div>
     )

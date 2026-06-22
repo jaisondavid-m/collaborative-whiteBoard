@@ -1,4 +1,5 @@
 import React , { useEffect , useRef , useState } from "react"
+import { useLocation } from "react-router-dom"
 import API from "../api/axios.js"
 
 import MessageBubble from "../Components/ui/MessageBubble.jsx"
@@ -27,14 +28,28 @@ export const formatTime = (dateStr) => {
 function Chat() {
 
     const myId = localStorage.getItem("userid") || ""
+    const location = useLocation()
 
     const [conversations, setConversations] = useState([])
-    const [selectedConv, setSelectedConv] = useState(null)
+    const [selectedConv, setSelectedConv] = useState(
+        location.state?.userId ?? null
+    )
     const [messages, setMessages] = useState([])
     const [input, setInput] = useState("")
     const [sending, setSending] = useState(false)
 
     const bottomRef = useRef(null)
+
+    const avatarColor = (id) => {
+        const colors = [
+            { bg: "rgba(78,205,196,0.15)" , text: "#0f6e56" },
+            { bg: "rgba(83,74,183,0.12)" , text: "#3c3489" },
+            { bg: "rgba(216,90,48,0.12)" , text: "#993c1d" },
+            { bg: "rgba(212,83,126,0.12)" , text: "#72243e" }
+        ]
+        const i = id.charCodeAt(0) % colors.length
+        return colors[i]
+    }
 
     useEffect(() => {
         API.get("/api/messages/conversations")
@@ -52,7 +67,7 @@ function Chat() {
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-    },[])
+    },[messages])
 
     const sendMessage = async () => {
 
@@ -67,17 +82,36 @@ function Chat() {
                 receiverId: selectedConv,
                 content: text,
             })
-            setMessages(m => [ ...m. res.data.data ])
+            setMessages(m => [...m, res.data.data])
             setInput("")
         } catch {} finally {
             setSending(false)
         }
     }
 
+    const grouped = messages.filter(m => !m.isDeleted).reduce((acc, msg, i, arr) => {
+
+        const prev = arr[i - 1]
+        const next = arr[i + 1]
+        const samePrev = prev?.senderId === msg.senderId
+        const sameNext = next?.senderId === msg.senderId
+        const position = samePrev && sameNext ? "mid"
+            : samePrev ? "last"
+            : sameNext ? "first"
+            : "only";
+        acc.push({ ...msg, position })
+        return acc
+    },[])
+
+    const isNewDay = (curr, prev) => {
+        if (!prev) return true
+        return new Date(curr.CreatedAt).toDateString() !== new Date(prev.CreatedAt).toDateString()
+    }
+
     return (
         <div 
-            className="flex overflow-hidden bg-[#f5f5f2] font-mono"
-            // style={{ height: "calc(100vh-64px)" }} 
+            className="flex overflow-hidden bg-[#f5f5f2] font-mono" style={{ height: "calc(100vh - 56px)" }}
+            // style={{ height: "calc(100vh-64px)" }}  
         >
             {/* Sidebar */}
             <aside className="w-[260px] shrink-0 flex flex-col bg-white border-r border-black/[0.08]" >
@@ -89,6 +123,7 @@ function Chat() {
                         conversations.map(conv => {
 
                             const otherId = conv.user1Id === myId ? conv.user2Id : conv.user1Id
+                            const color = avatarColor(otherId)
                             
                             return (
                                 <button
@@ -101,10 +136,17 @@ function Chat() {
                                             }
                                         `}
                                 >
-                                    <div className="w-9 h-9 rounded-full bg-[#4ecdc4] flex items-center justify-center text-white text-xs font-medium shrink-0" >
+                                    {/* <div className="w-9 h-9 rounded-full bg-[#4ecdc4] flex items-center justify-center text-white text-xs font-medium shrink-0" >
+                                        {otherId.slice(0, 2).toUpperCase()}
+                                    </div> */}
+                                    <div
+                                        style={{ background: color.bg, color: color.text }}
+                                        className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-medium shrink-0"
+                                    >       
                                         {otherId.slice(0, 2).toUpperCase()}
                                     </div>
                                     <span className="text-[13px] font-medium text-gray-900 truncate" >{otherId}</span>
+                                    <p className="text-gray-900" >{selectedConv}</p>
                                 </button>
                             )
 
@@ -121,17 +163,32 @@ function Chat() {
                     </div>
                 ) : (
                     <>
-                        <div className="px-4 py-2.5 bg-white border-b border-black/[0.07] shrink-0" >
-                            <p className="m-0 text-sm font-medium text-gray-900" >{selectedConv}</p>
+                        <div className="px-4 py-3 bg-white border-b border-black/[0.07] flex items-center gap-2.5 shrink-0" >
+                            <div
+                                style={{ background: avatarColor(selectedConv).bg, color: avatarColor(selectedConv).text }}
+                                className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-medium"
+                            >
+                                {selectedConv.slice(0, 2).toUpperCase()}
+                            </div>
+                            {/* <p className="m-0 text-sm font-medium text-gray-900" >{selectedConv}</p> */}
                         </div>
 
                         <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col" >
                             {
-                                messages.filter(m => !m.isDeleted).map(msg => (
-                                    <MessageBubble 
-                                        key={msg.ID} 
+                                // messages.filter(m => !m.isDeleted).map(msg => (
+                                //     <MessageBubble 
+                                //         key={msg.ID} 
+                                //         msg={msg}
+                                //         isMe={msg.senderId ===  myId}
+                                //     />
+                                // ))
+                                grouped.map(msg => (
+                                    <MessageBubble
+                                        key={msg.ID}
                                         msg={msg}
-                                        isMe={msg.senderId ===  myId}
+                                        // msg={msg}
+                                        isMe={msg.senderId === myId}
+                                        position={msg.position}
                                     />
                                 ))
                             }

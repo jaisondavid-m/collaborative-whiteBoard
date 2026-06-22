@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import API from "../../api/axios.js"
 
 import {
     RiSearchLine,
     RiUserForbidLine,
     RiUserLine,
-    RiUserUnfollowLine
+    RiUserUnfollowLine,
+    RiChat1Line,
 } from "react-icons/ri"
 
 
@@ -17,6 +19,8 @@ import ConfirmBlockModal from "./ConfirmBlockModal.jsx"
 import ConfirmRemoveModal from "./ConfirmRemoveModal.jsx"
 
 function FriendsTab({ toast }) {
+
+    const navigate = useNavigate()
 
     const [friends, setFriends] = useState([])
     const [loading, setLoading] = useState(false)
@@ -124,6 +128,15 @@ function FriendsTab({ toast }) {
                                         )}
                                     </div>
                                     <div className="flex items-center gap-2 shrink-0" >
+                                        <button
+                                            onClick={() => navigate("/chat", { state: { userId: f.userid } })}
+                                            aria-label="Message"
+                                            title="Message"
+                                            className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-300
+                                            hover:bg-[#e6faf8] hover:border-[#4ecdc4] hover:text-[#0f6e56] transition-colors"
+                                        >
+                                            <RiChat1Line size={15} />
+                                        </button>
                                         <button
                                             onClick={() => setBlockTarget(f.userid)}
                                             disabled={blocking === f.userid}
