@@ -1,7 +1,10 @@
-import React from "react"
+import React, { useRef, useState } from "react"
 import { formatTime } from "../../Pages/Chat.jsx"
 
-function MessageBubble({ msg, isMe, position = "only" }) {
+function MessageBubble({ msg, isMe, position = "only", onDelete }) {
+
+    const [showModal, setShowModal] = useState(false)
+    const pressTimer = useRef(null)
 
     const radius = isMe
         ? {
@@ -16,6 +19,21 @@ function MessageBubble({ msg, isMe, position = "only" }) {
             mid: "4px 16px 16px 4px",
             last: "4px 16px 16px 16px",
         }[position];
+
+    const handlePressStart = () => {
+        pressTimer.current = setTimeout(() => {
+            setShowModal(true)
+        },600)
+    }
+
+    const handlePressEnd = () => {
+        clearTimeout(pressTimer.current)
+    }
+
+    const handleDelete = () => {
+        setShowModal(false)
+        onDelete(msg.ID)
+    }
 
     return (
         <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-0.5`} >
