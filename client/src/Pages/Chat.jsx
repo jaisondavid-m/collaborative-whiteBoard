@@ -1,6 +1,6 @@
 //My current code
 import React , { useEffect , useRef , useState, useCallback } from "react"
-import { useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import API from "../api/axios.js"
 
 import MessageBubble from "../Components/ui/MessageBubble.jsx"
@@ -30,6 +30,7 @@ function Chat() {
 
     const myId = localStorage.getItem("userid") || ""
     const location = useLocation()
+    const navigate = useNavigate()
 
     const [conversations, setConversations] = useState([])
     const [selectedConv, setSelectedConv] = useState(
@@ -38,6 +39,15 @@ function Chat() {
     const [messages, setMessages] = useState([])
     const [input, setInput] = useState("")
     const [sending, setSending] = useState(false)
+    const [loadingMsgs, setLoadingMsgs] = useState(false)
+    const [sidebarSearch, setSidebarSearch] = useState("")
+    const [showNewChat, setShowNewChat] = useState(false)
+    const [newChatUser, setNewChatUser] = useState("")
+    const [unreadCount, setUnreadCount] = useState(0)
+    const [friendStatus, setFriendStatus] = useState(null)
+    const [friendshipId, setFriendshipId] = useState(null)
+    const [incomingReq, setIncomingReq] = useState(null)
+
 
     const bottomRef = useRef(null)
 
@@ -52,11 +62,42 @@ function Chat() {
         return colors[i]
     }
 
-    useEffect(() => {
+    const fetchConversations = useCallback(() => {
         API.get("/api/messages/conversations")
             .then(res => setConversations(res.data.data ?? []))
             .catch(() => {})
     },[])
+
+    const fetchUnread = useCallback(() => {
+        API.get("/api/messages/conversations")
+        .then(res => setUnreadCount(res.data.unreadCount ?? 0))
+        .catch(() => {})
+    },[])
+
+    const loadFriendStatus = useCallback(async (userId) => {
+
+        if (!userId) {
+            setFriendStatus(null)
+            setFriendshipId(null)
+            setIncomingReq(null)
+            return
+        }
+
+        try {
+            const [friendsRes, reqRes, blockedRes] = await Promise.all([
+                API.get("/api/friends/list"),
+                API.get("/api/friends/requests"),
+                API.get("/api/friends/blocked")
+            ])
+            const friends = friendsRes.data.data ?? []
+        }
+
+    })
+
+    useEffect(() => {
+        fetchConversations()
+        fetchUnread()
+    },[fetchConversations, fetchUnread])
 
     useEffect(() => {
         if (!selectedConv) return
