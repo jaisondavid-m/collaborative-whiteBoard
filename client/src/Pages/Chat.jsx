@@ -1,3 +1,4 @@
+//My current code
 import React , { useEffect , useRef , useState } from "react"
 import { useLocation } from "react-router-dom"
 import API from "../api/axios.js"
@@ -108,6 +109,13 @@ function Chat() {
         return new Date(curr.CreatedAt).toDateString() !== new Date(prev.CreatedAt).toDateString()
     }
 
+    const deleteMessage = async (msgId) => {
+        try {
+            await API.delete(`/api/messages/${msgId}`)
+            setMessages(m => m.filter(x => x.ID !== msgId))
+        } catch {}
+    }
+
     return (
         <div 
             className="flex overflow-hidden bg-[#f5f5f2] font-mono" style={{ height: "calc(100vh - 56px)" }}
@@ -190,6 +198,7 @@ function Chat() {
                                         // msg={msg}
                                         isMe={msg.senderId === myId}
                                         position={msg.position}
+                                        onDelete={deleteMessage}
                                     />
                                 ))
                             }
