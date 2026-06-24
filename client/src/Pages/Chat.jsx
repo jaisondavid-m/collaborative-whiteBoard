@@ -268,6 +268,41 @@ function Chat() {
 
     }
 
+    const sendFriendRequest = async () => {
+        try {
+            await API.post("/api/friends/request", {
+                receiverId: selectedConv
+            })
+            loadFriendStatus(selectedConv)
+        } catch (_) {}
+    }
+
+    const removeFriend = async () => {
+        try {
+            await API.delete(`/api/friends/${friendshipId}`)
+            loadFriendStatus(selectedConv)
+        } catch(_) {}
+    }
+
+    const blockUser = async () => {
+        try {
+            await API.post(`/api/friends/block/${selectedConv}`)
+            loadFriendStatus(selectedConv)
+        }
+        catch (_) {}
+    }
+
+    const respondRequest = async (status) => {
+
+        if (!incomingReq) return
+
+        try {
+            await API.put(`/api/friends/request/${incomingReq.ID}`, { status })
+            loadFriendStatus(selectedConv)
+        }
+        catch (_) {}
+
+    }
 
     return (
         <div 
