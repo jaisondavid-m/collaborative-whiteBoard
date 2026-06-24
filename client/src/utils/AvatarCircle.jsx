@@ -3,7 +3,7 @@ import AvatarColor from "./AvatarColor.js"
 
 function AvatarCircle({ userId, size = 32 }) {
 
-    const c = AvatarCircle(userId)
+    const c = AvatarColor(userId)
 
     return (
         <div

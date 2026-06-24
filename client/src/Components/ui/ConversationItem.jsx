@@ -25,9 +25,9 @@ function ConversationItem({ conv, myId, selected, onClick }) {
                     <span>
                         {timeAgo(conv.UpdatedAt)}
                     </span>
-                    <p className="text-xs text-gray-400 truncate m-0" >
+                    {/* <p className="text-xs text-gray-400 truncate m-0" >
                         {conv.lastSender === myId ? "You" : ""}{conv.lastMessage || "..."}
-                    </p>
+                    </p> */}
                 </div>
             </div>
         </button>
