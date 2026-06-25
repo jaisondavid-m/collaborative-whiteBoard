@@ -96,6 +96,7 @@ func SetupRoutes(r *gin.Engine) {
 		friend.POST("/block/:userId", handlers.BlockUser)
 		friend.DELETE("/block/:userId", handlers.UnblockUser)
 		friend.GET("/blocked", handlers.GetBlockedList)
+		friend.GET("/blocked-by/:userId", handlers.IsBlockedByUser)
 
 	}
 }

@@ -152,3 +152,23 @@ func GetBlockedList(c *gin.Context) {
 	})
 
 }
+
+func IsBlockedByUser(c *gin.Context) {
+
+	me := c.GetString("userid")
+	targetID := c.Param("userId")
+
+	var block models.Block
+	err := config.DB.Where("blocker_id = ? AND blocked_id = ?", targetID, me).First(&block).Error;
+
+	if err == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"blocked": true,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"blocked": false,
+	})
+}
