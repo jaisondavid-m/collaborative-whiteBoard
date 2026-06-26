@@ -16,7 +16,7 @@ function ConfirmUnblockModal({
 
     useEffect(() => {
 
-        if (!open) return null
+        if (!open) return;
 
         const onKey = (e) => {
             if (e.key === "Escape" && !submitting) onClose()
@@ -24,7 +24,7 @@ function ConfirmUnblockModal({
 
         window.addEventListener("keydown", onKey)
         return () => window.removeEventListener("keydown", onKey)
-    },[])
+    },[open, submitting, onClose])
 
     if (!open) return  null
 

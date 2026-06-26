@@ -35,18 +35,29 @@ func newHub() *hub {
 
 func (h *hub) Register(c *Client) {
 	h.mu.Lock()
-	defer h.mu.Unlock()
-	h.clients[c.UserID] = c
+	// defer h.mu.Unlock()
+	h.clients[c.UserID]  = c
+	h.mu.Unlock()
+	// h.clients[c.UserID] = c
 	log.Printf("[privatechat] %s connected.",c.UserID)
+	h.BroadcastPresence(c.UserID, true)
 }
 
 func (h *hub) Unregister(c *Client) {
+
 	h.mu.Lock()
-	defer h.mu.Unlock()
-	if existing, ok := h.clients[c.UserID]; ok && existing == c {
-		delete(h.clients,c.UserID)
-		close(c.Send)
+	// defer h.mu.Unlock()
+	_, existed := h.clients[c.UserID]
+	if existed {
+		if existing, ok := h.clients[c.UserID]; ok && existing == c {
+			delete(h.clients,c.UserID)
+			close(c.Send)
+		}
+	}
+	h.mu.Unlock()
+	if existed {
 		log.Printf("[privatechat] %s disconnected",c.UserID)
+		h.BroadcastPresence(c.UserID, false)
 	}
 }
 
@@ -96,9 +107,24 @@ func (c *Client) ReadPump() {
 	defer Hub.Unregister(c)
 
 	for {
-		_, _, err := c.Conn.ReadMessage()
+		_, data, err := c.Conn.ReadMessage()
 		if err != nil {
 			break
+		}
+		var event PrivateEvent
+		if err := json.Unmarshal(data, &event); err != nil {
+			continue
+		}
+		if event.Type == "typing" {
+			payload, ok := event.Payload.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			receiverID, _ := payload["receiverId"].(string)
+			typing, _ := payload["typing"].(bool)
+			if receiverID != "" {
+				Hub.SendTyping(receiverID, c.UserID, typing)
+			}
 		}
 	}
 
@@ -115,4 +141,62 @@ func (c *Client) WritePump() {
 		}
 	}
 
+}
+
+
+func (h *hub) SendTyping(receiverID, senderID string, typing bool) {
+
+	h.mu.RLock()
+	client, online := h.clients[receiverID]
+	h.mu.Unlock()
+
+	if !online {
+		return
+	}
+
+	data, err := json.Marshal(PrivateEvent{
+		Type: "typing",
+		Payload: map[string]interface{}{
+			"senderId": senderID,
+			"typing": typing,
+		},
+	})
+
+	if err != nil {
+		return
+	}
+
+	select {
+	case client.Send <- data:
+	default:
+	}
+
+}
+
+func (h *hub) BroadcastPresence(userID string, online bool) {
+
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+
+	data, err := json.Marshal(PrivateEvent{
+		Type: "presence",
+		Payload: map[string]interface{}{
+			"userId": userID,
+			"online": online,
+		},
+	})
+
+	if err != nil {
+		return
+	}
+
+	for id, client := range h.clients {
+		if id == userID {
+			continue
+		}
+		select {
+		case client.Send <- data:
+		default:
+		}
+	}
 }
