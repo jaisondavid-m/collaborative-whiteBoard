@@ -148,7 +148,7 @@ func (h *hub) SendTyping(receiverID, senderID string, typing bool) {
 
 	h.mu.RLock()
 	client, online := h.clients[receiverID]
-	h.mu.Unlock()
+	h.mu.RUnlock()
 
 	if !online {
 		return

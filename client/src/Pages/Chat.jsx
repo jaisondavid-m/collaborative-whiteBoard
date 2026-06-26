@@ -49,12 +49,16 @@ function Chat() {
     const [friendStatus, setFriendStatus] = useState(null)
     const [friendshipId, setFriendshipId] = useState(null)
     const [incomingReq, setIncomingReq] = useState(null)
+    const [onlineUsers, setOnlineUsers] = useState(new Set())
+    const [typingUsers, setTypingUsers] = useState(new Set())
 
 
     const bottomRef = useRef(null)
     const wsRef = useRef(null)
     const inputRef = useRef(null)
     const textareaRef = useRef(null)
+    const typingTimerRef = useRef(null)
+    const selectedConvRef = useRef(selectedConv)
 
     const avatarColor = (id) => {
         const colors = [
@@ -151,6 +155,19 @@ function Chat() {
 
     }, [myId])
 
+    const emitTyping = useCallback((isTyping) => {
+
+        if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return
+
+        if (!selectedConvRef.current) return
+
+        wsRef.current.send(JSON.stringify({
+            type: "typing",
+            payload: { receiverId: selectedConvRef.current, typing: isTyping }
+        }))
+
+    }, [])
+
     useEffect(() => {
         fetchConversations()
         fetchUnread()
@@ -161,25 +178,65 @@ function Chat() {
     }, [selectedConv, loadFriendStatus])
 
     useEffect(() => {
+        selectedConvRef.current = selectedConv
+    },[selectedConv])
+
+    useEffect(() => {
         const token = localStorage.getItem("token") || ""
         const ws = new WebSocket(`ws://localhost:8000/ws/private?token=${token}`)
         wsRef.current = ws
         ws.onmessage = (e) => {
+
             try {
+
                 const event = JSON.parse(e.data)
+
                 if (event.type === "message") {
+
                     const msg = event.payload
                     setSelectedConv(prev => {
                         if (prev === msg.senderId) {
-                            setMessages(m => [...m, msg])
+                            // setMessages(m => [...m, msg])
                             API.put(`/api/messages/${msg.ID}/read`).catch(() => { })
                         } else {
                             setUnreadCount(c => c + 1)
                         }
                         return prev
                     })
+
+                    setTypingUsers(prev => {
+                        const next = new Set(prev)
+                        next.delete(event.payload.senderId)
+                        return next
+                    })
                     fetchConversations()
+
                 }
+
+                if (event.type === "presence") {
+
+                    const { userId, online } = event.payload
+
+                    setOnlineUsers(prev => {
+                        const next = new Set(prev)
+                        online ? next.add(userId) : next.delete(userId)
+                        return next
+                    })
+
+                }
+
+                if (event.type === "typing") {
+
+                    const { senderId, typing } = event.payload
+
+                    setTypingUsers(prev => {
+                        const next = new Set(prev)
+                        typing ? next.add(senderId) : next.delete(senderId)
+                        return next
+                    })
+
+                }
+
             } catch (_) { }
         }
         ws.onerror = () => { }
@@ -211,6 +268,8 @@ function Chat() {
 
         if (!text || !selectedConv || sending) return
 
+        emitTyping(false)
+        clearTimeout(typingTimerRef.current)
         setSending(true)
 
         try {
@@ -255,10 +314,10 @@ function Chat() {
         return other.toLowerCase().includes(sidebarSearch.toLowerCase())
     })
 
-    const isNewDay = (curr, prev) => {
-        if (!prev) return true
-        return new Date(curr.CreatedAt).toDateString() !== new Date(prev.CreatedAt).toDateString()
-    }
+    // const isNewDay = (curr, prev) => {
+    //     if (!prev) return true
+    //     return new Date(curr.CreatedAt).toDateString() !== new Date(prev.CreatedAt).toDateString()
+    // }
 
     const deleteMessage = async (msgId) => {
         try {
@@ -395,6 +454,7 @@ function Chat() {
                                 onClick={() =>
                                     setSelectedConv(conv.user1Id === myId ? conv.user2Id : conv.user1Id)
                                 }
+                                online={onlineUsers.has(conv.user1Id === myId ? conv.user2Id : conv.user1Id)}
                             />
 
                             // const otherId = conv.user1Id === myId ? conv.user2Id : conv.user1Id
@@ -451,18 +511,30 @@ function Chat() {
                         <div className="px-4 py-2.5 bg-white border-b border-black/[0.07] flex items-center gap-2.5 shrink-0" >
                             <AvatarCircle userId={selectedConv} size={32} />
                             <div className="flex-1 min-w-0" >
-                                <p className="m-0 text-sm font-medium text-gray-900 truncate" >{selectedConv}</p>
-                                {isFriend && (
-                                    <span
-                                        className="text-[9px] text-[#0f6e56] bg-[rgba(78,205,196,0.12)] px-1.5 py-px rounded-full font-mono"
-                                    >
-                                        Friend
-                                    </span>
-                                )}
-                                {isBlocked && (
-                                    <span className="text-[9px] text-[#993c1d] bg-[rgba(216,90,48,0.1)] px-1.5 py-px rounded-full font-mono" >
-                                        Blocked
-                                    </span>
+                                <div className="flex items-center gap-1.5" >
+                                    <p className="m-0 text-sm font-medium text-gray-900 truncate" >{selectedConv}</p>
+                                    {onlineUsers.has(selectedConv) && (
+                                        <span className="w-1.5 h-1.5 rounded-full bg-[#4ecdc4] shrink-0" />
+                                    )}
+                                </div>
+
+                                {typingUsers.has(selectedConv) ? (
+                                    <span className="text-[10px] text-[#4ecdc4] font-mono" >typing...</span>
+                                ) : (
+                                    <>
+                                        {isFriend && (
+                                            <span
+                                                className="text-[9px] text-[#0f6e56] bg-[rgba(78,205,196,0.12)] px-1.5 py-px rounded-full font-mono"
+                                            >
+                                                Friend
+                                            </span>
+                                        )}
+                                        {isBlocked && (
+                                            <span className="text-[9px] text-[#993c1d] bg-[rgba(216,90,48,0.1)] px-1.5 py-px rounded-full font-mono" >
+                                                Blocked
+                                            </span>
+                                        )}
+                                    </>
                                 )}
                             </div>
                             <div className="flex items-center gap-1.5 shrink-0" >
@@ -604,6 +676,9 @@ function Chat() {
                                     setInput(e.target.value)
                                     e.target.style.height = "auto"
                                     e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px"
+                                    emitTyping(true)
+                                    clearTimeout(typingTimerRef.current)
+                                    typingTimerRef.current = setTimeout(() => emitTyping(false), 2000)
                                 }}
                                 onKeyDown={e => {
                                     if (e.key === "Enter" && !e.shiftKey) {

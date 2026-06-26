@@ -38,7 +38,10 @@ function MessageBubble({ msg, isMe, position = "only", onDelete }) {
 
     return (
         <>
-            <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-0.5`} >
+            <div className={
+                `flex ${isMe ? "justify-end" : "justify-start"} mb-0.5
+                ${position === "only" || position === "last" ? "mb-3" : "mb-0.5"}`
+            } >
                 <div className={`max-w-[62%] flex flex-col ${isMe ? "items-end" : "items-start"}`} >
                     <div
                         className={`px-3 py-2 text-[12.5px] font-mono leading-relaxed break-words
@@ -58,8 +61,13 @@ function MessageBubble({ msg, isMe, position = "only", onDelete }) {
                     </div>
                     {
                         (position === "last" || position === "only") && (
-                            <span className="text-[10px] text-gray-400 mt-1 px-0.5" >
+                            <span className="text-[10px] text-gray-400 mt-1 px-0.5 flex items-center gap-0.5" >
                                 {formatTime(msg.CreatedAt)}
+                                {isMe && (
+                                    <span className={`text-[10px] ${msg.isRead ? "text-[#4ecdc4]" : "text-gray-300"}`} >
+                                        { msg.isRead ? "✓✓" : "✓" }
+                                    </span>
+                                )}
                             </span>
                         )
                     }
