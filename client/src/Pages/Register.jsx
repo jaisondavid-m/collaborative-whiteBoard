@@ -6,6 +6,7 @@ import AuthForm from "../Components/auth/AuthForm"
 
 import ToastContainer from "../Components/ui/Toast.jsx"
 import { useToast } from "../hooks/useToast.js"
+import { useAuth } from "../context/AuthContext.jsx"
 
 function Register() {
 
@@ -13,38 +14,57 @@ function Register() {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const { toasts, toast } = useToast()
+    const { login } = useAuth()
 
-    const handleRegister = async (data) => {
+    const handleRegisterV2 = async (data) => {
         try {
             setLoading(true)
-            const response = await API.post(
-                "/auth/register",
-                data
+            const response = await API.post("/auth/register", data)
+            login(
+                response.data.token,
+                response.data.userid,
+                response.data.role
             )
-            localStorage.setItem(
-                "token",
-                response.data.token
-            )
-            localStorage.setItem("userid",response.data.userid)
-            localStorage.setItem("role",response.data.role)
             toast("Account Created Successfully")
-            setTimeout(() => {
-                navigate("/home")
-            }, 500);
-            // alert("Registration successfull")
-            // navigate("/home")
-            // console.log(response.data)
+            navigate("/home")
         } catch (error) {
-            // console.error(error)
-            // alert(
-            //     error.response?.data?.error ||
-            //     "Registration Failed"
-            // )
             toast(error.response?.data?.error || "Registration Failed", "error")
         } finally {
             setLoading(false)
         }
     }
+
+    // const handleRegister = async (data) => {
+    //     try {
+    //         setLoading(true)
+    //         const response = await API.post(
+    //             "/auth/register",
+    //             data
+    //         )
+    //         localStorage.setItem(
+    //             "token",
+    //             response.data.token
+    //         )
+    //         localStorage.setItem("userid",response.data.userid)
+    //         localStorage.setItem("role",response.data.role)
+    //         toast("Account Created Successfully")
+    //         setTimeout(() => {
+    //             navigate("/home")
+    //         }, 500);
+    //         // alert("Registration successfull")
+    //         // navigate("/home")
+    //         // console.log(response.data)
+    //     } catch (error) {
+    //         // console.error(error)
+    //         // alert(
+    //         //     error.response?.data?.error ||
+    //         //     "Registration Failed"
+    //         // )
+    //         toast(error.response?.data?.error || "Registration Failed", "error")
+    //     } finally {
+    //         setLoading(false)
+    //     }
+    // }
 
     return (
         <div>
@@ -52,7 +72,7 @@ function Register() {
                 <AuthForm
                     title="Create Account"
                     buttonText={loading ? "Registering..." : "Register"}
-                    onSubmit={handleRegister}
+                    onSubmit={handleRegisterV2}
                     toast={toast}
                     setLoading={setLoading}
                     isRegister={true}

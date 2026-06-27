@@ -6,40 +6,57 @@ import AuthForm from "../Components/auth/AuthForm.jsx"
 
 import ToastContainer from "../Components/ui/Toast.jsx"
 import { useToast } from "../hooks/useToast.js"
+import { useAuth } from "../context/AuthContext.jsx"
 
 function Login() {
 
+    const { login } = useAuth()
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const { toasts, toast } = useToast()
 
-    const handleLogin = async (data) => {
+    const handleLoginV2 = async (data) => {
         try {
-            setLoading(true)
-            const response = await API.post(
-                "/auth/login",
-                data
+            const response = await API.post("/auth/login", data)
+            login(
+                response.data.token,
+                response.data.userid,
+                response.data.role
             )
-            localStorage.setItem(
-                "token",
-                response.data.token
-            )
-            localStorage.setItem("userid",response.data.userid)
-            localStorage.setItem("role",response.data.role)
-            // alert("Login SuccessFull")
-            // navigate("/home")
-            // console.log(response.data)
             toast("Login Successful")
-            setTimeout(() => navigate("/home"), 500)
-            
+            navigate("/home")
         } catch (error) {
-            // console.error(error)
-            // alert(error.response?.data?.error || "Login Failed")
             toast(error.response?.data?.error || "Login failed", "error")
-        } finally {
-            setLoading(false)
         }
     }
+
+    // const handleLogin = async (data) => {
+    //     try {
+    //         setLoading(true)
+    //         const response = await API.post(
+    //             "/auth/login",
+    //             data
+    //         )
+    //         localStorage.setItem(
+    //             "token",
+    //             response.data.token
+    //         )
+    //         localStorage.setItem("userid",response.data.userid)
+    //         localStorage.setItem("role",response.data.role)
+    //         // alert("Login SuccessFull")
+    //         // navigate("/home")
+    //         // console.log(response.data)
+    //         toast("Login Successful")
+    //         setTimeout(() => navigate("/home"), 500)
+            
+    //     } catch (error) {
+    //         // console.error(error)
+    //         // alert(error.response?.data?.error || "Login Failed")
+    //         toast(error.response?.data?.error || "Login failed", "error")
+    //     } finally {
+    //         setLoading(false)
+    //     }
+    // }
 
     return (
         <div>
@@ -47,7 +64,7 @@ function Login() {
                 <AuthForm
                     title="Login"
                     buttonText={loading ? "Logging in..." : "Login"}
-                    onSubmit={handleLogin}
+                    onSubmit={handleLoginV2}
                     toast={toast}
                     setLoading={setLoading}
                 />
