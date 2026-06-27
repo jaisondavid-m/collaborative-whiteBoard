@@ -112,3 +112,52 @@ CREATE TABLE converstations (
     INDEX idx_converstations_user2_id (user2_id)
 
 );
+
+CREATE TABLE friend_requests (
+
+    id              BIGINT          UNSIGNED                AUTO_INCREMENT      PRIMARY KEY,
+    created_at      DATETIME(3)     NULL,
+    updated_at      DATETIME(3)     NULL,
+    deleted_at      DATETIME(3)     NULL,
+
+    sender_id       VARCHAR(255)    NOT NULL,
+    receiver_id     VARCHAR(255)    NOT NULL,
+    status          VARCHAR(255)    DEFAULT 'pending',
+
+    INDEX idx_friend_requests_deleted_at    (deleted_at),
+    INDEX idx_friend_requests_sender_id     (sender_id),
+    INDEX idx_friend_requests_receiver_id   (receiver_id)
+
+);
+
+CREATE TABLE friendships (
+
+    id              BIGINT          UNSIGNED        AUTO_INCREMENT      PRIMARY KEY,
+    created_at      DATETIME(3)     NULL,
+    updated_at      DATETIME(3)     NULL,
+    deleted_at      DATETIME(3)     NULL,
+
+    user1_id        VARCHAR(255)    NOT NULL,
+    user2_id        VARCHAR(255)    NOT NULL,
+
+    INDEX idx_friendships_deleted_at    (deleted_at),
+    INDEX idx_friendships_user1_id      (user1_id),
+    INDEX idx_friendships_user2_id      (user2_id)
+
+);
+
+CREATE TABLE blocks (
+
+    id              BIGINT          UNSIGNED        AUTO_INCREMENT      PRIMARY KEY,
+    created_at      DATETIME(3)     NULL,
+    updated_at      DATETIME(3)     NULL,
+    deleted_at      DATETIME(3)     NULL,
+
+    blocker_id      VARCHAR(255)    NOT NULL,
+    blocked_id      VARCHAR(255)    NOT NULL,
+
+    INDEX idx_blocks_deleted_at (deleted_at),
+    INDEX idx_blocks_blocker_id (blocker_id),
+    INDEX idx_blocks_blocked_id (blocked_id)
+
+);
