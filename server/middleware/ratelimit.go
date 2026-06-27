@@ -1,13 +1,12 @@
 package middleware
 
 import (
-
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
-
 )
 
 type visitor struct {
@@ -34,6 +33,11 @@ var (
 func RateLimit(cfg RateLimitConfig) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
+
+		if os.Getenv("RATE_LIMIT_ENABLED") != "true" {
+			c.Next()
+			return
+		}
 
 		role, exists := c.Get("role")
 
