@@ -74,11 +74,11 @@ function NavbarV2() {
             path: "/about",
             icon: HiOutlineInformationCircle,
         },
-        {
-            label: "Settings",
-            path: "/setting",
-            icon: HiOutlineInformationCircle,
-        }
+        // {
+        //     label: "Settings",
+        //     path: "/setting",
+        //     icon: HiOutlineInformationCircle,
+        // }
     ]
 
     if (isPrivileged) {
@@ -131,6 +131,12 @@ function NavbarV2() {
 
     },[])
 
+    useEffect(() => {
+        const handleScroll = () => setProfileOpen(false)
+        window.addEventListener("scroll", handleScroll)
+        return () => window.removeEventListener("scroll", handleScroll)
+    },[])
+
     const logout = () => {
         localStorage.removeItem("token")
         localStorage.removeItem("userid")
@@ -140,7 +146,7 @@ function NavbarV2() {
 
     return (
         <div>
-            <nav className="sticky top-0 z-50 bg-white border-b border-gray-200" >
+            <nav className="fixed top-0 z-50 bg-white border-b border-gray-200 w-full" >
                 <div className="max-w-7xl mx-auto px-4" >
                     <div className="h-16 flex items-center justify-between" >
                         {/* Logo */}
@@ -220,7 +226,7 @@ function NavbarV2() {
                                 </button>
                                 {
                                     profileOpen && (
-                                        <div className="absolute right-0 mt-2 w-44 bg-white border rounded-xl shadow-lg" >
+                                        <div className="absolute right-0 mt-2 w-44 bg-white border rounded-xl shadow-lg overflow-hidden" >
                                             <button
                                                 onClick={() => navigate("/profile")}
                                                 className="w-full flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
@@ -229,11 +235,19 @@ function NavbarV2() {
                                                 <span>Profile</span>
                                             </button>
                                             <button
+                                                onClick={() => navigate("/setting")}
+                                                className="w-full flex items-center gap-2 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                                            >
+                                                <RiSettings3Line size={16} />
+                                                <span className="text-sm" >Settings</span>
+                                            </button>
+                                            <div className="border-t border-gray-100" />
+                                            <button
                                                 onClick={logout}
                                                 className="w-full flex items-center px-4 py-3 text-red-500 hover:bg-red-50 transition-colors"
                                             >
                                                 <RiDoorOpenLine size={18} />
-                                                <span>Logout</span>
+                                                <span className="text-sm" >Logout</span>
                                             </button>
                                         </div>
                                     )
