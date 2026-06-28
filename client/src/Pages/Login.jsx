@@ -69,7 +69,7 @@ function Login() {
                     setLoading={setLoading}
                 />
                 <p className="text-sm text-center mt-5 text-gray-500">
-                    Don't have and account?{" "}
+                    Don't have an account?{" "}
                     <Link
                         to="/register"
                         className="text-black font-semibold"

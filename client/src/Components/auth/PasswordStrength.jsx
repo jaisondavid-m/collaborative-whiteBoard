@@ -38,16 +38,23 @@ function PasswordStrength({ password }) {
     }
 
     return (
-        <div className="mt-3">
-            <div className="flex justify-between text-sm mb-1">
-                <span>Password Strength</span>
-                <span>{label}</span>
+        <div className="rounded-lg border border-gray-100 bg-gray-50 p-2.5 h-full">
+            <div className="flex justify-between text-xs mb-2">
+                <span className="text-gray-500 font-medium" >Password Strength</span>
+                <span
+                    className="font-medium" 
+                    style={{
+                        color: score >=5 ? "#16a34a" : score >= 3 ? "#d97706" : "#dc2626"
+                    }}
+                >
+                    {label}
+                </span>
             </div>
-            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
                 <div
                     className={`${color} h-full transition-all duration-300`}
                     style={{
-                        width: `${(score/5)*100}` ,
+                        width: `${(score/5)*100}%` ,
                     }}
                 />
             </div>

@@ -12,7 +12,7 @@ function PasswordRequirements({ password }) {
 
     const Requirement = ({ valid , text }) => (
         <div
-            className={`flex items-center gap-2 text-sm transition-colors ${
+            className={`flex items-center gap-1.5 text-xs transition-colors ${
                 valid 
                     ? "text-green-600"
                     : "text-gray-400"
@@ -26,30 +26,30 @@ function PasswordRequirements({ password }) {
     )
 
     return (
-        <div className="mt-2 rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <p className="text-sm font-medium text-gray-700 mb-3">
-                Password Requirements
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+            <p className="text-sm font-medium text-gray-500 mb-1.5">
+                Requirements
             </p>
-            <div className="space-y-2">
+            <div className="space-y-0.5">
                 <Requirement
                     valid={checks.length}
-                    text="At Least 8 characters"
+                    text="8+ characters"
                 />
                 <Requirement
                     valid={checks.uppercase}
-                    text="One uppercase letter"
+                    text="Uppercase letter"
                 />
                 <Requirement
                     valid={checks.lowercase}
-                    text="One lowercase letter"
+                    text="Lowercase letter"
                 />
                 <Requirement
                     valid={checks.number}
-                    text="One number"
+                    text="Number"
                 />
                 <Requirement
                     valid={checks.special}
-                    text="One Special character"
+                    text="Special character"
                 />
             </div>
         </div>
