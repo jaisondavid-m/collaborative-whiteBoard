@@ -6,6 +6,7 @@ import { SiGo } from "react-icons/si"
 import { HiOutlineSparkles } from "react-icons/hi2"
 
 import FriendsFeatureSection from "../Components/about/FriendsFeatureSection.jsx"
+import ChatFeatureSection from "../Components/about/ChatFeatureSection.jsx"
 
 function useFadeIn() {
     const ref = useRef(null)
@@ -206,6 +207,7 @@ function About() {
                     ))}
                 </div>
             </section>
+            <ChatFeatureSection/>
             <FriendsFeatureSection/>
             <section className="border-t border-black/[0.07] bg-white">
                 <div className="max-w-3xl mx-auto px-6 py-16">
