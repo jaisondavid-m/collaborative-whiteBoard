@@ -7,6 +7,8 @@ import GoogleLoginButton from "../ui/GoogleLoginButton.jsx"
 import PasswordRequirements from "./PasswordRequirements.jsx"
 import PasswordStrength from "./PasswordStrength.jsx"
 
+import { RiEyeLine, RiEyeOffLine } from "react-icons/ri"
+
 function AuthForm({
     title,
     buttonText,
@@ -20,6 +22,8 @@ function AuthForm({
         userid: "",
         password: "",
     })
+
+    const [showPassword, setShowPassword] = useState(false)
 
     const handleChange = (e) => {
         setFormData({
@@ -78,14 +82,33 @@ function AuthForm({
                         onChange={handleChange}
                         name="userid"
                     />
-                    <Input
-                        label="Password"
-                        placeholder="Enter your Password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        type="password"
-                        name="password"
-                    />
+                    <div className="flex flex-col gap-1" >
+                        <label className="text-sm font-medium text-gray-700" >Password</label>
+                        <div className="relative" >
+                            <input
+                                name="password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Enter your Password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm
+                                outline-none focus:border-[#4ecdc4] transition-colors pr-10 bg-white"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword( v => !v)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400
+                                hover:text-gray-600 transition-colors"
+                            >
+                                {
+                                    showPassword
+                                        ? <RiEyeOffLine size={16} />
+                                        : <RiEyeLine size={16} />
+                                }
+                            </button>
+                        </div>
+                    </div>
+
                     {isRegister && (
                         <div className="grid grid-cols-2 gap-2 items-stretch" >
                             <div className="flex-1" >
@@ -98,7 +121,7 @@ function AuthForm({
                                     password={formData.password}
                                 />
                             </div>
-                            
+
                         </div>
                     )}
                     <button
