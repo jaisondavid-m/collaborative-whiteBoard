@@ -11,6 +11,8 @@ func SetupRoutes(r *gin.Engine) {
 
 	r.Use(middleware.AuditMiddleware())
 
+	r.GET("/health", handlers.HealthCheck)
+
 	auth := r.Group("/auth")
 	auth.Use(middleware.RateLimit(middleware.AuthLimit))
 	{
@@ -39,6 +41,7 @@ func SetupRoutes(r *gin.Engine) {
 			msg.DELETE("/:messageId", handlers.DeleteMessage)
 			msg.PUT("/:messageId/read",handlers.MarkMessageRead)
 			msg.GET("/unread-count",handlers.UnreadMessageCount)
+			msg.PUT("/:messageId/edit", handlers.EditMessage) // Edit message
 		}
 	}
 

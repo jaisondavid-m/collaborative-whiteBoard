@@ -284,3 +284,56 @@ func upsertConversation(senderID, receiverID, lastMsg string) error {
 	// }
 	return nil
 }
+
+
+func EditMessage(c *gin.Context) {
+
+	me := c.GetString("userid")
+	msgID := c.Param("messageId")
+
+	var input struct {
+		Content string `json:"content" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Content is required",
+		})
+		return
+	}
+
+	var msg models.Message
+
+	if err := config.DB.Where("id = ? AND sender_id = ?", msgID, me).First(&msg).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Message not found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Database error",
+		})
+		return
+	}
+
+	if msg.IsDeleted {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Cannot edit a deleted message",
+		})
+		return
+	}
+
+	if err := config.DB.Model(&msg).Update("content", input.Content).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to edit message",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Message updated",
+		"data": msg,
+	})
+
+}
