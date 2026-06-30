@@ -124,24 +124,31 @@ function NavbarV2() {
             }
         }
 
-        document.addEventListener("mousedown",handleClick)
+        document.addEventListener("mousedown", handleClick)
 
         return () =>
-            document.removeEventListener("mousedown",handleClick)
+            document.removeEventListener("mousedown", handleClick)
 
-    },[])
+    }, [])
 
     useEffect(() => {
         const handleScroll = () => setProfileOpen(false)
         window.addEventListener("scroll", handleScroll)
         return () => window.removeEventListener("scroll", handleScroll)
-    },[])
+    }, [])
 
-    const logout = () => {
-        localStorage.removeItem("token")
-        localStorage.removeItem("userid")
-        localStorage.removeItem("role")
-        navigate("/login", { replace: true })
+    const logout = async () => {
+        try {
+            await API.post("/api/logout")
+        } catch {
+            // no need
+        } finally {
+            localStorage.removeItem("token")
+            localStorage.removeItem("userid")
+            localStorage.removeItem("role")
+            navigate("/login", { replace: true })
+        }
+
     }
 
     return (

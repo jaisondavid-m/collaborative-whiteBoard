@@ -121,11 +121,22 @@ function Profile() {
     const shortToken = token ? token.slice(0, 36) + "…" : "No Active session"
     const joinedDate = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })
 
-    const handleLogout = () => {
-        localStorage.removeItem("token")
-        localStorage.removeItem("userid")
-        localStorage.removeItem("role")
-        navigate("/login")
+    const handleLogout = async () => {
+
+        try {
+            await fetch("/api/logout", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` }
+            })
+        } catch {
+            // not needed
+        } finally {
+            localStorage.removeItem("token")
+            localStorage.removeItem("userid")
+            localStorage.removeItem("role")
+            navigate("/login")
+        }
+
     }
 
     const handleDeleteAccount = async () => {
