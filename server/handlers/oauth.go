@@ -65,6 +65,13 @@ func GoogleLogin(c *gin.Context) {
 		return
 	}
 
+	if err := config.DB.Model(&user).Update("current_token", token).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to update session",
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK,gin.H{
 		"message":"Login Successfully",
 		"token":token,

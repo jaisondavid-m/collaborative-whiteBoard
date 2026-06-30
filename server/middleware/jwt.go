@@ -67,6 +67,22 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		if user.IsBlocked {
+			c.JSON(http.StatusForbidden, gin.H{
+				"error": "Account has been blocked by admin",
+			})
+			c.Abort()
+			return
+		}
+
+		if user.CurrentToken == "" || user.CurrentToken != tokenString {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Session expired: logged in from another device",
+			})
+			c.Abort()
+			return
+		}
+
 		c.Next()
 
 	}

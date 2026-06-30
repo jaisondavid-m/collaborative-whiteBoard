@@ -70,6 +70,8 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	config.DB.Model(&user).Update("current_token", token)
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "User Registered Successfully",
 		"token":   token,
@@ -134,6 +136,13 @@ func Login(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Token Generation Failed",
+		})
+		return
+	}
+
+	if err := config.DB.Model(&user).Update("current_token", token).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to update session",
 		})
 		return
 	}
