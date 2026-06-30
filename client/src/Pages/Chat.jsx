@@ -1,4 +1,3 @@
-//My current code
 import React, { useEffect, useRef, useState, useCallback } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import API from "../api/axios.js"
@@ -323,6 +322,17 @@ function Chat() {
         try {
             await API.delete(`/api/messages/${msgId}`)
             setMessages(m => m.filter(x => x.ID !== msgId))
+        } catch { }
+    }
+
+    const editMessage = async (msgId, newContent) => {
+        try {
+            const res = await API.put(`/api/messages/${msgId}/edit`, {
+                content: newContent,
+            })
+            setMessages(m =>
+                m.map(x => (x.ID === msgId ? { ...x, content: res.data.data.content } : x))
+            )
         } catch { }
     }
 
@@ -656,6 +666,7 @@ function Chat() {
                                         isMe={msg.senderId === myId}
                                         position={msg.position}
                                         onDelete={deleteMessage}
+                                        onEdit={editMessage}
                                     />
                                 ))
                             }

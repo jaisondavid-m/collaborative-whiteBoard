@@ -1,9 +1,11 @@
 import React, { useRef, useState } from "react"
 import { formatTime } from "../../Pages/Chat.jsx"
 
-function MessageBubble({ msg, isMe, position = "only", onDelete }) {
+function MessageBubble({ msg, isMe, position = "only", onDelete, onEdit }) {
 
     const [showModal, setShowModal] = useState(false)
+    const [isEditing, setIsEditing] = useState(false)
+    const [editText, setEditText] = useState(msg.content)
     const pressTimer = useRef(null)
 
     const radius = isMe
@@ -36,9 +38,114 @@ function MessageBubble({ msg, isMe, position = "only", onDelete }) {
         onDelete(msg.ID)
     }
 
+    const handleEditClick = () => {
+        setEditText(msg.content)
+        setShowModal(false)
+        setIsEditing(true)
+    }
+
+    const handleSaveEdit = () => {
+
+        const trimmed = editText.trim()
+
+        if (!trimmed || trimmed === msg.content) {
+            setIsEditing(false)
+            return
+        }
+
+        onEdit(msg.ID, trimmed)
+        setIsEditing(false)
+
+    }
+
+    const handleCancelEdit = () => {
+        setEditText(msg.content)
+        setIsEditing(false)
+    }
+
     return (
         <>
-            <div className={
+            <div
+                className={`flex ${isMe ? "justify-end" : "justify-start"} mb-0.5
+                ${position === "only" || position === "last" ? "mb-3" : "mb-0.5"}` }
+            >
+                <div className={`max-w-[62%] flex flex-col ${isMe ? "items-end" : "items-start"}`} >
+                    {
+                        isEditing ? (
+                            <div className="flex flex-col gap-1.5 w-full" >
+                                <textarea
+                                    autoFocus
+                                    value={editText}
+                                    onChange={e => setEditText(e.target.value)}
+                                    onKeyDown={e => {
+                                        if (e.key === "Enter" && !e.shiftKey) {
+                                            e.preventDefault()
+                                            handleSaveEdit()
+                                        }
+                                        if (e.key === "Escape") {
+                                            handleCancelEdit()
+                                        }
+                                    }}
+                                    rows={2}
+                                    className="px-3 py-2 text-[12.5px] font-mono leading-relaxed border border-[#4ecdc4] rounded-2xl
+                                    outline-none resize-none bg-white text-gray-900 w-full"
+                                />
+                                <div className="flex items-center gap-2 justify-end" >
+                                    <button
+                                        onClick={handleCancelEdit}
+                                        className="text-[10px] px-2 py-1 rounded-md border border-black/10
+                                        text-gray-400 bg-transparent cursor-pointer font-mono"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleSaveEdit}
+                                        className="text-[10px] px-2 py-1 rounded-md bg-[#4ecdc4] text-white
+                                        border-none cursor-pointer font-mono"
+                                    >
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div
+                                className={`px-3 py-2 text-[12.5px] font-mono leading-relaxed break-words
+                                        ${
+                                            isMe
+                                                ? "bg-[#4ecdc4] text-white"
+                                                : "bg-white text-gray-900 border border-black/[0.07]"
+                                        }
+                                    `}
+                                style={{
+                                    borderRadius: radius
+                                }}
+                                onMouseDown={handlePressStart}
+                                onMouseUp={handlePressEnd}
+                                onMouseLeave={handlePressEnd}
+                                onTouchStart={handlePressStart}
+                                onTouchEnd={handlePressEnd}
+                            >
+                                {msg.content}
+                            </div>
+                        )
+                    }
+
+                    {
+                        !isEditing && (position === "last" || position === "only") && (
+                            <span className="text-[10px] text-gray-400 mt-1 px-0.5 flex items-center gap-0.5" >
+                                {formatTime(msg.CreatedAt)}
+                                {isMe && (
+                                    <span>
+                                        { msg.isRead ? "✓✓" : "✓" }
+                                    </span>
+                                )}
+                            </span>
+                        )
+                    }
+
+                </div>
+            </div>
+            {/* <div className={
                 `flex ${isMe ? "justify-end" : "justify-start"} mb-0.5
                 ${position === "only" || position === "last" ? "mb-3" : "mb-0.5"}`
             } >
@@ -71,9 +178,8 @@ function MessageBubble({ msg, isMe, position = "only", onDelete }) {
                             </span>
                         )
                     }
-
                 </div>
-            </div>
+            </div> */}
 
             {/* Modal */}
             {
@@ -94,6 +200,13 @@ function MessageBubble({ msg, isMe, position = "only", onDelete }) {
                                     {msg.content}
                                 </p>
                             </div>
+                            <button
+                                onClick={handleEditClick}
+                                className="w-full text-left px-4 py-3 text-[13px] font-mono text-[#e07b5e] hover:bg-[#e07b5e]/10
+                                transition-colors border-none bg-transparent cursor-pointer"
+                            >
+                                Edit Message
+                            </button>
                             <button
                                 onClick={handleDelete}
                                 className="w-full text-left px-4 py-3 text-[13px] font-mono text-[#e07b5e] hover:bg-[#e07b5e]/10
