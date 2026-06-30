@@ -160,3 +160,23 @@ func Profile(c *gin.Context) {
 		"message": "Protected route accessed",
 	})
 }
+
+
+func Logout(c *gin.Context) {
+
+	userid := c.GetString("userid")
+
+	if err := config.DB.Model(&models.User{}).
+		Where("user_id = ?", userid).
+		Update("current_token", "").Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to logout",
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Logged out successfully",
+		})
+
+}
