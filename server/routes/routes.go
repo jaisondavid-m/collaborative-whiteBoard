@@ -1,10 +1,13 @@
 package routes
 
 import (
+
+	// "server/utils"
 	"server/handlers"
 	"server/middleware"
 
 	"github.com/gin-gonic/gin"
+
 )
 
 func SetupRoutes(r *gin.Engine) {
@@ -12,6 +15,8 @@ func SetupRoutes(r *gin.Engine) {
 	r.Use(middleware.AuditMiddleware())
 
 	r.GET("/health", handlers.HealthCheck)
+
+	r.Static("/uploads", "./uploads")
 
 	auth := r.Group("/auth")
 	auth.Use(middleware.RateLimit(middleware.AuthLimit))
@@ -38,6 +43,7 @@ func SetupRoutes(r *gin.Engine) {
 		msg := protected.Group("/messages")
 		{
 			msg.POST("/send", handlers.SendMessage)
+			msg.POST("/send-image", handlers.SendImageMessage)
 			msg.GET("/conversations", handlers.GetConversations) // inbox list
 			msg.GET("/:userId", handlers.GetConversation)
 			msg.DELETE("/:messageId", handlers.DeleteMessage)

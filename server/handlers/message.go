@@ -1,17 +1,16 @@
 package handlers
 
 import (
-
 	"errors"
 	"net/http"
 
 	"server/config"
 	"server/models"
 	"server/privatechat"
+	"server/utils"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-
 )
 
 func SendMessage(c *gin.Context) {
@@ -333,6 +332,75 @@ func EditMessage(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Message updated",
+		"data": msg,
+	})
+
+}
+
+func SendImageMessage(c *gin.Context) {
+
+	senderID := c.GetString("userid")
+
+	receiverID := c.PostForm("receiverId")
+
+	if receiverID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "receiverId is required",
+		})
+		return
+	}
+
+	fileHeader, err := c.FormFile("image")
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Image file is required",
+		})
+		return
+	}
+
+	var receiver models.User
+
+	if err := config.DB.Where("user_id = ? AND is_deleted = ? AND is_blocked = ?", receiverID, false, false).First(&receiver).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Receiver not found",
+			})
+			return 
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Database error",
+		})
+		return
+	}
+
+	imagePath, err := utils.SaveImageFile(fileHeader)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	msg := models.Message{
+		SenderID: senderID,
+		ReceiverID: receiverID,
+		Content: imagePath,
+		MessageType: "image",
+	}
+
+	if err := config.DB.Create(&msg).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to send message",
+		})
+		return
+	}
+
+	privatechat.Hub.DeliverMessage(receiverID, msg)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Image sent",
 		"data": msg,
 	})
 
