@@ -1,13 +1,16 @@
 package middleware
 
 import (
+	"errors"
 	"net/http"
 	"server/config"
 	"server/models"
 	"server/utils"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
@@ -81,6 +84,19 @@ func AuthMiddleware() gin.HandlerFunc {
 			})
 			c.Abort()
 			return
+		}
+
+		today := time.Now().Format("2006-01-02")
+
+		var existing models.UserVisit
+
+		if err := config.DB.Where("user_id = ? AND visit_date = ?", userid, today).First(&existing).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				config.DB.Create(&models.UserVisit{
+					UserID: userid,
+					VisitDate: today,
+				})
+			}
 		}
 
 		c.Next()

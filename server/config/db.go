@@ -45,6 +45,7 @@ func ConnectDB() {
 		&models.FriendRequest{},
 		&models.Friendship{},
 		&models.Block{},
+		&models.UserVisit{},
 	)
 	if err != nil {
 		log.Fatal("Migration Failed")
