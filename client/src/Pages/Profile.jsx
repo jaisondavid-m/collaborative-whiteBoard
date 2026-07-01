@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom"
 import ToastContainer from "../Components/ui/Toast.jsx"
 import { useToast } from "../hooks/useToast.js"
 
+import { useAuthStore } from "../store/authStore.js"
+
 const PERM_LIST = [
     { key: "view_rooms", label: "View Rooms", icon: "🏠", roles: ["user", "admin", "superadmin"] },
     { key: "create_room", label: "Create Room", icon: "➕", roles: ["user", "admin", "superadmin"] },
@@ -104,20 +106,21 @@ function Profile() {
 
     const navigate = useNavigate()
     const { toasts, toast } = useToast()
-    const [userid, setUserid] = useState("")
-    const [role, setRole] = useState("user")
-    const [token, setToken] = useState("")
+    // const [userid, setUserid] = useState("")
+    // const [role, setRole] = useState("user")
+    // const [token, setToken] = useState("")
+    const { userid, role, token, logout: clearAuth } = useAuthStore()
     const [showDeleteModal, setShowModal] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
 
-    useEffect(() => {
-        setUserid(localStorage.getItem("userid") || "guest")
-        setRole(localStorage.getItem("role") || "user")
-        setToken(localStorage.getItem("token") || "")
-    }, [])
+    // useEffect(() => {
+    //     setUserid(localStorage.getItem("userid") || "guest")
+    //     setRole(localStorage.getItem("role") || "user")
+    //     setToken(localStorage.getItem("token") || "")
+    // }, [])
 
     const styles = ROLE_STYLES[role] || ROLE_STYLES.user
-    const initials = userid.slice(0, 2).toUpperCase()
+    const initials = (userid || "guest").slice(0, 2).toUpperCase()
     const shortToken = token ? token.slice(0, 36) + "…" : "No Active session"
     const joinedDate = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })
 
@@ -131,9 +134,10 @@ function Profile() {
         } catch {
             // not needed
         } finally {
-            localStorage.removeItem("token")
-            localStorage.removeItem("userid")
-            localStorage.removeItem("role")
+            // localStorage.removeItem("token")
+            // localStorage.removeItem("userid")
+            // localStorage.removeItem("role")
+            clearAuth()
             navigate("/login")
         }
 
@@ -155,9 +159,10 @@ function Profile() {
                 setIsDeleting(false)
                 return
             }
-            localStorage.removeItem("token")
-            localStorage.removeItem("userid")
-            localStorage.removeItem("role")
+            // localStorage.removeItem("token")
+            // localStorage.removeItem("userid")
+            // localStorage.removeItem("role")
+            clearAuth()
             navigate("/login")
         } catch {
             // alert("Something went wrong. Please try again later.")
@@ -189,7 +194,7 @@ function Profile() {
                                     {role}
                                 </span>
                             </div>
-                            <h1 className="text-xl font-semibold text-gray-900">{userid}</h1>
+                            <h1 className="text-xl font-semibold text-gray-900">{userid || "guest"}</h1>
                             <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
                                 <span>📅</span>Member since {joinedDate}
                             </p>
@@ -198,7 +203,7 @@ function Profile() {
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="bg-gray-50 rounded-xl p-3">
                                     <p className="text-[11px] text-gray-400 mb-1">User ID</p>
-                                    <p className="text-sm font-medium text-gray-900 break-all">{userid}</p>
+                                    <p className="text-sm font-medium text-gray-900 break-all">{userid || "guest"}</p>
                                 </div>
                                 <div className="bg-gray-50 rounded-xl p-3">
                                     <p className="text-[11px] text-gray-400 mb-1">Role</p>

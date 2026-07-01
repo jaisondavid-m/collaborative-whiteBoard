@@ -6,11 +6,12 @@ import AuthForm from "../Components/auth/AuthForm.jsx"
 
 import ToastContainer from "../Components/ui/Toast.jsx"
 import { useToast } from "../hooks/useToast.js"
-import { useAuth } from "../context/AuthContext.jsx"
+// import { useAuth } from "../context/AuthContext.jsx"
+import { useAuthStore } from "../store/authStore.js"
 
 function Login() {
 
-    const { login } = useAuth()
+    const { login } = useAuthStore()
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const { toasts, toast } = useToast()

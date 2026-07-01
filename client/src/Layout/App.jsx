@@ -34,7 +34,7 @@ function App() {
   const cursorStyle = useCursor()
 
   return (
-    <AuthProvider>
+    // <AuthProvider>
       <BrowserRouter>
         {cursorStyle === "cursor1" && <Cursor1 />}
         {cursorStyle === "cursor2" && <Cursor2 />}
@@ -100,7 +100,6 @@ function App() {
         /> */}
         </Routes>
       </BrowserRouter>
-    </AuthProvider>
 
   )
 }
