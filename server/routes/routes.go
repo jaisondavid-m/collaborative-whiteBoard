@@ -7,7 +7,6 @@ import (
 	"server/middleware"
 
 	"github.com/gin-gonic/gin"
-
 )
 
 func SetupRoutes(r *gin.Engine) {
@@ -82,6 +81,11 @@ func SetupRoutes(r *gin.Engine) {
 		admin.GET("/audit-logs", handlers.ListAuditLogs)
 		admin.GET("/audit-logs/stats", handlers.GetAuditStats)
 		admin.POST("/notifications/send", handlers.SendNotification)
+
+		admin.GET("/stats/online", handlers.OnlineUserStats)
+		admin.GET("/stats/today", handlers.TodayVisitStats)
+		admin.GET("/stats/month", handlers.MonthlyVisitGraph)
+		
 	}
 
 	superadmin := r.Group("/superadmin")

@@ -200,3 +200,25 @@ func (h *hub) BroadcastPresence(userID string, online bool) {
 		}
 	}
 }
+
+func (h *hub) OnlineCount() int {
+
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	return len(h.clients)
+
+}
+
+func (h *hub) OnlineUserIDs() []string {
+
+	h.mu.Lock()
+	defer h.mu.RUnlock()
+	ids := make([]string, 0, len(h.clients))
+
+	for id := range h.clients {
+		ids = append(ids, id)
+	}
+
+	return ids
+
+}

@@ -16,3 +16,8 @@ type AuditLog struct {
 	Status 		string		`json:"status"`
 	
 }
+
+type Row struct {
+	VisitDate 	string 		`json:"date"`
+	Count 		int64 		`json:"count"`
+}
