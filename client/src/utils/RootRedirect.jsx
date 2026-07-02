@@ -1,10 +1,10 @@
 import React from "react"
 import { Navigate } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
+import { useAuthStore } from "../store/authStore.js"
 
 function RootRedirect() {
 
-    const { token } = useAuth()
+    const { token } = useAuthStore()
 
     return <Navigate to={token ? "/home" : "/login"} />
 

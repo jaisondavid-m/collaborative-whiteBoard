@@ -82,10 +82,10 @@ func SetupRoutes(r *gin.Engine) {
 		admin.GET("/audit-logs/stats", handlers.GetAuditStats)
 		admin.POST("/notifications/send", handlers.SendNotification)
 
-		admin.GET("/stats/online", handlers.OnlineUserStats)
+		admin.GET("/stats/online", handlers.OnlineUsersStats)
 		admin.GET("/stats/today", handlers.TodayVisitStats)
 		admin.GET("/stats/month", handlers.MonthlyVisitGraph)
-		
+
 	}
 
 	superadmin := r.Group("/superadmin")

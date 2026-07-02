@@ -211,7 +211,7 @@ func (h *hub) OnlineCount() int {
 
 func (h *hub) OnlineUserIDs() []string {
 
-	h.mu.Lock()
+	h.mu.RLock()
 	defer h.mu.RUnlock()
 	ids := make([]string, 0, len(h.clients))
 

@@ -7,6 +7,8 @@ import SendNotificationModal from "../Components/ui/notification/SendNotificatio
 import { useToast } from "../hooks/useToast.js"
 import { RiBellLine } from "react-icons/ri"
 
+import StatsOverview from "../Components/ui/admin/stats/StatsOverview.jsx"
+
 function AdminPage() {
 
     const navigate = useNavigate()
@@ -227,6 +229,10 @@ function AdminPage() {
                     </button>
                 </div>
             </div>
+
+            {/* Stats overview */}
+            <StatsOverview />
+
             <div className="max-w-7xl mx-auto mb-4" >
                 <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm" >
                     <input

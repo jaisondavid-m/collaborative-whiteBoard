@@ -13,7 +13,7 @@ import (
 
 )
 
-func OnlineUserStats(c *gin.Context) {
+func OnlineUsersStats(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"onlineCount": privatechat.Hub.OnlineCount(),
