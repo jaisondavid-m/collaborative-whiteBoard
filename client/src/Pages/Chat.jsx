@@ -52,6 +52,8 @@ function Chat() {
     const [incomingReq, setIncomingReq] = useState(null)
     const [onlineUsers, setOnlineUsers] = useState(new Set())
     const [typingUsers, setTypingUsers] = useState(new Set())
+    const [hasMoreMsgs, setHasMoreMsgs] = useState(true)
+    const [loadingMore, setLoadingMore] = useState(false)
 
 
     const bottomRef = useRef(null)
@@ -60,6 +62,9 @@ function Chat() {
     const textareaRef = useRef(null)
     const typingTimerRef = useRef(null)
     const selectedConvRef = useRef(selectedConv)
+    const messagesContainerRef = useRef(null)
+    const prevScrollHeightRef = useRef(0)
+    const justPrependedRef = useRef(false)
 
     const avatarColor = (id) => {
         const colors = [
@@ -249,8 +254,12 @@ function Chat() {
         if (!selectedConv) return
         setLoadingMsgs(true)
         setMessages([])
-        API.get(`/api/messages/${selectedConv}`)
-            .then(res => setMessages(res.data.data ?? []))
+        setHasMoreMsgs(true)
+        API.get(`/api/messages/${selectedConv}`, { params: { limit: 30 } })
+            .then(res => {
+                setMessages(res.data.data ?? [])
+                setHasMoreMsgs(res.data.hasMore ?? false)
+            })
             .catch(() => { })
             .finally(() => setLoadingMsgs(false))
         fetchUnread()
@@ -260,8 +269,60 @@ function Chat() {
     }, [selectedConv, fetchUnread])
 
     useEffect(() => {
+        if (justPrependedRef.current) {
+            justPrependedRef.current = false
+            const container = messagesContainerRef.current
+            if (container) {
+                container.scrollTop = container.scrollHeight - prevScrollHeightRef.current
+            }
+            return 
+        }
         bottomRef.current?.scrollIntoView({ behavior: "smooth" })
     }, [messages])
+
+    const loadOlderMessages = useCallback(async () => {
+
+        if (!selectedConv || loadingMore || !hasMoreMsgs || messages.length === 0) return 
+
+        const oldestId = messages[0]?.ID
+
+        if (!oldestId) return 
+
+        setLoadingMore(true)
+
+        const container = messagesContainerRef.current
+
+        prevScrollHeightRef.current = container ? container.scrollHeight : 0
+
+        try {
+            const res = await API.get(`/api/messages/${selectedConv}`, {
+                params: { limit: 30, beforeId: oldestId }
+            })
+            const older = res.data.data ?? []
+            setHasMoreMsgs(res.data.hasMore ?? false)
+
+            if (older.length > 0) {
+                justPrependedRef.current = true
+                setMessages(m => [...older, ...m])
+            }
+        } catch {}
+        finally {
+            setLoadingMore(false)
+        }
+
+    }, [selectedConv, loadingMore, hasMoreMsgs, messages])
+
+    const handleMessagesScroll = () => {
+
+        const container = messagesContainerRef.current
+
+        if (!container) return 
+
+        if (container.scrollTop < 60 && hasMoreMsgs && !loadingMore) {
+            loadOlderMessages()
+        }
+
+    }
 
     const sendMessage = async () => {
 
@@ -674,7 +735,16 @@ function Chat() {
                             </div>
                         )}
 
-                        <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col" >
+                        <div
+                            ref={messagesContainerRef}
+                            className="flex-1 overflow-y-auto px-4 py-4 flex flex-col"
+                            onScroll={handleMessagesScroll}
+                        >
+                            {loadingMore && (
+                                <p className="text-[10px] text-gray-300 text-center font-mono mb-2" >
+                                    Loading earlier messages.
+                                </p>
+                            )}
                             {loadingMsgs && (
                                 <p className="text-xs text-gray-300 text-center m-auto" >
                                     Loading...

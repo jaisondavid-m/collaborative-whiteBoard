@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"server/config"
 	"server/models"
@@ -36,7 +37,7 @@ func SendMessage(c *gin.Context) {
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{
-				"error":"Receiver not found",
+				"error": "Receiver not found",
 			})
 			return
 		}
@@ -77,7 +78,7 @@ func SendMessage(c *gin.Context) {
 
 	if err := upsertConversation(senderID, input.ReceiverID, input.Content); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":"Failed to update conversation",
+			"error": "Failed to update conversation",
 		})
 		return
 	}
@@ -97,13 +98,29 @@ func GetConversation(c *gin.Context) {
 
 	other := c.Param("userId")
 
-	var messages []models.Message
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "30"))
 
-	if err := config.DB.Where(
+	if err != nil || limit <= 0 || limit > 100 {
+		limit = 30
+	}
+
+	beforeIDStr := c.Query("beforeId")
+
+	query := config.DB.Where(
 		"((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) AND is_deleted = ?",
 		me, other, other, me, false,
-	).
-		Order("created_at ASC").
+	)
+
+	if beforeIDStr != "" {
+		beforeID, err := strconv.Atoi(beforeIDStr)
+		if err == nil {
+			query = query.Where("id < ?", beforeID)
+		}	
+	}
+
+	var messages []models.Message
+
+	if err := query.Order("id DESC").Limit(limit + 1).
 		Find(&messages).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to fetch messages",
@@ -111,20 +128,34 @@ func GetConversation(c *gin.Context) {
 		return
 	}
 
-	if err := config.DB.Model(&models.Message{}).
-		Where("sender_id = ? AND receiver_id = ? AND is_read = ?",
-			other,
-			me,
-			false,
-		).Update("is_read", true).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to update messages",
-		})
-		return
+	hasMore := false
+
+	if len(messages) > limit {
+		hasMore = true
+		messages = messages[:limit]
+	}
+
+	for i, j := 0, len(messages)-1; i < j; i, j = i+1, j-1 {
+		messages[i], messages[j] = messages[j], messages[i]
+	}
+
+	if beforeIDStr == "" {
+		if err := config.DB.Model(&models.Message{}).
+			Where("sender_id = ? AND receiver_id = ? AND is_read = ?",
+				other,
+				me,
+				false,
+			).Update("is_read", true).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to update messages",
+			})
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": messages,
+		"hasMore": hasMore,
 	})
 }
 
@@ -138,11 +169,11 @@ func GetConversations(c *gin.Context) {
 		Where("user1_id = ? OR user2_id = ?", me, me).
 		Order("updated_at DESC").
 		Find(&conversations).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error":"Failed to fetch conversations",
-			})
-			return
-		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to fetch conversations",
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": conversations,
@@ -159,7 +190,7 @@ func DeleteMessage(c *gin.Context) {
 
 	if err := config.DB.Where("id = ? AND sender_id = ?", msgID, me).First(&msg).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":"Message not found",
+			"error": "Message not found",
 		})
 		return
 	}
@@ -171,12 +202,12 @@ func DeleteMessage(c *gin.Context) {
 	// 	return
 	// }
 
-if err := config.DB.Model(&msg).Update("is_deleted", true).Error; err != nil {
-	c.JSON(http.StatusInternalServerError, gin.H{
-		"error":"Failed to delete message",
-	})
-	return
-}
+	if err := config.DB.Model(&msg).Update("is_deleted", true).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to delete message",
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Message Deleted",
@@ -194,7 +225,7 @@ func MarkMessageRead(c *gin.Context) {
 
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":"Failed to update message",
+			"error": "Failed to update message",
 		})
 		return
 	}
@@ -221,11 +252,11 @@ func UnreadMessageCount(c *gin.Context) {
 	if err := config.DB.Model(&models.Message{}).
 		Where("receiver_id = ? AND is_read = ? AND is_deleted = ?", me, false, false).
 		Count(&count).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error":"Failed to get unread count",
-			})
-			return
-		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to get unread count",
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"unreadCount": count,
@@ -247,10 +278,10 @@ func upsertConversation(senderID, receiverID, lastMsg string) error {
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			conv = models.Conversation{
-				User1ID: u1,
-				User2ID: u2,
+				User1ID:     u1,
+				User2ID:     u2,
 				LastMessage: lastMsg,
-				LastSender: senderID,
+				LastSender:  senderID,
 			}
 			if err := config.DB.Create(&conv).Error; err != nil {
 				return err
@@ -260,8 +291,8 @@ func upsertConversation(senderID, receiverID, lastMsg string) error {
 		}
 	} else {
 		if err := config.DB.Model(&conv).Updates(map[string]interface{}{
-			"last_message":lastMsg,
-			"last_sender":senderID,
+			"last_message": lastMsg,
+			"last_sender":  senderID,
 		}).Error; err != nil {
 			return err
 		}
@@ -283,7 +314,6 @@ func upsertConversation(senderID, receiverID, lastMsg string) error {
 	// }
 	return nil
 }
-
 
 func EditMessage(c *gin.Context) {
 
@@ -332,7 +362,7 @@ func EditMessage(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Message updated",
-		"data": msg,
+		"data":    msg,
 	})
 
 }
@@ -366,7 +396,7 @@ func SendImageMessage(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{
 				"error": "Receiver not found",
 			})
-			return 
+			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Database error",
@@ -384,9 +414,9 @@ func SendImageMessage(c *gin.Context) {
 	}
 
 	msg := models.Message{
-		SenderID: senderID,
-		ReceiverID: receiverID,
-		Content: imagePath,
+		SenderID:    senderID,
+		ReceiverID:  receiverID,
+		Content:     imagePath,
 		MessageType: "image",
 	}
 
@@ -401,7 +431,7 @@ func SendImageMessage(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Image sent",
-		"data": msg,
+		"data":    msg,
 	})
 
 }
