@@ -7,6 +7,8 @@ import ShowNewChat from "../Components/ui/ShowNewChat.jsx"
 import ConversationItem from "../Components/ui/ConversationItem.jsx"
 import AvatarCircle from "../utils/AvatarCircle.jsx"
 
+import { Image as ImageIcon, Loader2 } from "lucide-react"
+ 
 export const formatTime = (dateStr) => {
 
     if (!dateStr) return ""
@@ -318,6 +320,9 @@ function Chat() {
     //     return new Date(curr.CreatedAt).toDateString() !== new Date(prev.CreatedAt).toDateString()
     // }
 
+    const fileInputRef = useRef(null)
+    const [uploadingImage, setUploadingImage] = useState(false)
+
     const deleteMessage = async (msgId) => {
         try {
             await API.delete(`/api/messages/${msgId}`)
@@ -334,6 +339,37 @@ function Chat() {
                 m.map(x => (x.ID === msgId ? { ...x, content: res.data.data.content } : x))
             )
         } catch { }
+    }
+
+    const sendImageMessage = async (file) => {
+
+        if (!file || !selectedConv || uploadingImage) return 
+
+        const formData = new FormData()
+
+        formData.append("receiverId", selectedConv)
+        formData.append("image", file)
+
+        setUploadingImage(true)
+
+        try {
+            const res = await API.post("/api/messages/send-image", formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            })
+            setMessages(m => [...m, res.data.data])
+            fetchConversations()
+        } catch {
+            //
+        } finally {
+            setUploadingImage(false)
+            if (fileInputRef.current) fileInputRef.current.value = ""
+        }
+
+    }
+
+    const handleImageChange = (e) => {
+        const file = e.target.files?.[0]
+        if (file) sendImageMessage(file)
     }
 
     const startChat = (userId) => {
@@ -681,6 +717,34 @@ function Chat() {
                                 placeholder={`Message ${selectedConv}`}
                                 className="flex-1 border border-black/10 rounded-xl px-3 py-2 text-[13px] font-mono outline-none bg-[#f5f5f2] focus:border-[#4ecdc4]"
                             /> */}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                ref={fileInputRef}
+                                onChange={handleImageChange}
+                                className="hidden"
+                            />
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isBlocked || isBlockedByThem || uploadingImage}
+                                className={`h-9 w-9 flex items-center justify-center rounded-xl border border-black/10 shrink-0 text-base
+                                        ${
+                                            isBlocked || isBlockedByThem
+                                                ? "text-gray-200 cursor-not-allowed bg-black/[0.03]"
+                                                : "text-gray-500 bg-[#f5f5f2] hover:bg-black/[0.05] cursor-pointer"
+                                        }
+                                    `}
+                                title="Send image"
+                            >
+                                {
+                                    uploadingImage
+                                        ? (
+                                            <Loader2 size={17} className="animate-spin" />
+                                        ) : (
+                                            <ImageIcon size={18} strokeWidth={1.8} />
+                                        )
+                                }
+                            </button>
                             <textarea
                                 value={input}
                                 onChange={e => {

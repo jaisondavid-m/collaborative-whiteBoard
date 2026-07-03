@@ -1,6 +1,18 @@
 import React, { useRef, useState } from "react"
 import { formatTime } from "../../Pages/Chat.jsx"
 
+const API_ORIGIN = import.meta.env.API_URL || "http://localhost:8000"
+
+const resolveImageUrl = (path) => {
+
+    if (!path) return ""
+
+    if (/^https?:\/\//i.test(path)) return path
+
+    return `${API_ORIGIN}${path.startsWith("/") ? "" : "/"}${path}`
+
+}
+
 function MessageBubble({ msg, isMe, position = "only", onDelete, onEdit }) {
 
     const [showModal, setShowModal] = useState(false)
@@ -107,6 +119,28 @@ function MessageBubble({ msg, isMe, position = "only", onDelete, onEdit }) {
                                     </button>
                                 </div>
                             </div>
+                        ) : msg.messageType === "image" ? (
+                            <a 
+                                href={resolveImageUrl(msg.content)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block overflow-hidden"
+                                style={{
+                                    borderRadius: radius
+                                }}
+                            >
+                                <img
+                                    src={resolveImageUrl(msg.content)}
+                                    alt="sent attachment" 
+                                    loading="lazy"
+                                    className="max-w-220px max-h-[280px] w-full object-cover"
+                                    onMouseDown={handlePressStart}
+                                    onMouseUp={handlePressEnd}
+                                    onMouseLeave={handlePressEnd}
+                                    onTouchStart={handlePressStart}
+                                    onTouchEnd={handlePressEnd}
+                                />
+                            </a>
                         ) : (
                             <div
                                 className={`px-3 py-2 text-[12.5px] font-mono leading-relaxed break-words
