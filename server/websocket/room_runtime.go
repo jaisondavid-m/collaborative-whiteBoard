@@ -42,23 +42,22 @@ func NewRuntimeRoom(roomID string) *RuntimeRoom {
 func (r *RuntimeRoom) Run() {
 
 	for raw := range r.Broadcast {
-
-		var event DrawEvent
-		if err := json.Unmarshal(raw, &event); err == nil {
-			r.mu.Lock()
-			switch event.Type {
-			case EventClear:
-				r.History = []DrawEvent{}
-			case EventDraw, EventBegin:
-				r.History = append(r.History, event)
-			}
-			// if event.Type == EventClear {
-			// 	r.History = []DrawEvent{}
-			// } else if event.Type == EventDraw || event.Type == EventBegin {
-			// 	r.History = append(r.History, event)
-			// }
-			r.mu.Unlock()
-		}
+		// var event DrawEvent
+		// if err := json.Unmarshal(raw, &event); err == nil {
+		// 	r.mu.Lock()
+		// 	switch event.Type {
+		// 	case EventClear:
+		// 		r.History = []DrawEvent{}
+		// 	case EventDraw, EventBegin:
+		// 		r.History = append(r.History, event)
+		// 	}
+		// 	// if event.Type == EventClear {
+		// 	// 	r.History = []DrawEvent{}
+		// 	// } else if event.Type == EventDraw || event.Type == EventBegin {
+		// 	// 	r.History = append(r.History, event)
+		// 	// }
+		// 	r.mu.Unlock()
+		// }
 		r.mu.Lock()
 		for client := range r.Clients {
 			if err := client.Conn.WriteMessage(1,raw); err != nil {
@@ -133,7 +132,8 @@ func (r *RuntimeRoom) CleanupIfEmpty() {
 	r.mu.Unlock()
 
 	if empty {
-		delete(ActiveRooms,r.RoomID)
+		DeleteRoom(r.RoomID)
+		// delete(ActiveRooms,r.RoomID)
 		close(r.Broadcast)
 		log.Printf("Room %s deleted (no user)", r.RoomID)
 	}

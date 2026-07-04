@@ -115,11 +115,12 @@ func JoinRoom(c *gin.Context) {
 		}
 	}
 
-	runtimeRoom, exists := websocket.ActiveRooms[roomID]
-	if !exists {
-		runtimeRoom = websocket.NewRuntimeRoom(roomID)
-		websocket.ActiveRooms[roomID] = runtimeRoom
-	}
+	runtimeRoom := websocket.GetOrCreateRoom(roomID)
+
+	// if !exists {
+	// 	runtimeRoom = websocket.NewRuntimeRoom(roomID)
+	// 	websocket.ActiveRooms[roomID] = runtimeRoom
+	// }
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -174,7 +175,7 @@ func ListRooms(c *gin.Context) {
 	result := make([]RoomResponse, len(rooms))
 	for i, r := range rooms {
 		rr := RoomResponse{Room: r}
-		if active, ok := websocket.ActiveRooms[r.RoomID]; ok {
+		if active, ok := websocket.GetRoom(r.RoomID); ok {
 			rr.Live = true
 			rr.Users = len(active.Clients)
 		}

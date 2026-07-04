@@ -1,28 +1,31 @@
-import React , { useEffect , useRef , useState , useCallback } from "react"
+import React, { useEffect, useRef, useState, useCallback } from "react"
 
-import { useParams , useNavigate , useLocation } from "react-router-dom"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 
 import { joinRoomSocket } from "../api/room.api.js"
 
+import { useAuthStore } from "../store/authStore.js"
+
 const TOOLS = {
-    pen:    { label: "Pen", icon: "✏️", cursor: "crosshair" },
+    pen: { label: "Pen", icon: "✏️", cursor: "crosshair" },
     eraser: { label: "Eraser", icon: "⬜", cursor: "cell" },
 
     rectangle: { label: "Rectangle", icon: "▭", cursor: "crosshair" },
-    circle: { label : "Circle", icon: "◯", cursor: "crosshair" },
-    line: {label: "Line" , icon: "/" , cursor: "crosshair"}
+    circle: { label: "Circle", icon: "◯", cursor: "crosshair" },
+    line: { label: "Line", icon: "/", cursor: "crosshair" }
 }
 
 const COLORS = [
-    "#1a1a2e","#e94560","#0f3460","#533483",
-    "#f5a623","#7ed321","#ffffff","#ff6b6b",
-    "#4ecdc4","#45b7d1"
+    "#1a1a2e", "#e94560", "#0f3460", "#533483",
+    "#f5a623", "#7ed321", "#ffffff", "#ff6b6b",
+    "#4ecdc4", "#45b7d1"
 ]
 
-const SIZES = [2,5,10,20,40]
+const SIZES = [2, 5, 10, 20, 40]
 
 function Whiteboard() {
 
+    const { token } = useAuthStore()
     const { roomId } = useParams()
     const navigate = useNavigate()
     const location = useLocation()
@@ -31,17 +34,17 @@ function Whiteboard() {
     const canvasRef = useRef(null)
     const socketRef = useRef(null)
     const drawingRef = useRef(false)
-    const startPosRef = useRef({ x:0 , y:0 })
-    const lastPosRef = useRef({ x: 0, y:0 })
+    const startPosRef = useRef({ x: 0, y: 0 })
+    const lastPosRef = useRef({ x: 0, y: 0 })
     const chatEndRef = useRef(null)
 
-    const [tool,setTool]                =   useState("pen")
-    const [color,setColor]              =   useState("#1a1a2e")
-    const [size,setSize]                =   useState(5)
-    const [connected,setConnected]      =   useState(false)
-    const [users, setUsers]             =   useState([])
-    const [messages, setMessages]       =   useState([])
-    const [chatInput, setChatInput]     =   useState("")
+    const [tool, setTool] = useState("pen")
+    const [color, setColor] = useState("#1a1a2e")
+    const [size, setSize] = useState(5)
+    const [connected, setConnected] = useState(false)
+    const [users, setUsers] = useState([])
+    const [messages, setMessages] = useState([])
+    const [chatInput, setChatInput] = useState("")
 
     const myUserID = localStorage.getItem("userid") || "anonymous"
 
@@ -58,7 +61,7 @@ function Whiteboard() {
         ctx.lineTo(event.x, event.y)
         ctx.stroke()
         ctx.restore()
-    },[])
+    }, [])
 
     const drawShape = useCallback((ctx, shape) => {
 
@@ -79,24 +82,24 @@ function Whiteboard() {
                 height,
             )
         } else if (shape.tool === "circle") {
-            const radius = Math.sqrt(width*width + height*height)
+            const radius = Math.sqrt(width * width + height * height)
             ctx.beginPath()
             ctx.arc(
                 shape.startX,
                 shape.startY,
                 radius,
                 0,
-                Math.PI*2
+                Math.PI * 2
             )
             ctx.stroke()
         } else if (shape.tool === "line") {
             ctx.beginPath()
-            ctx.moveTo(shape.startX,shape.startY)
+            ctx.moveTo(shape.startX, shape.startY)
             ctx.lineTo(shape.x, shape.y)
             ctx.stroke()
         }
         ctx.restore()
-    },[])
+    }, [])
 
     const replayHistory = useCallback((events) => {
         const canvas = canvasRef.current
@@ -104,8 +107,9 @@ function Whiteboard() {
         const ctx = canvas.getContext("2d")
         events.forEach(ev => {
             if (ev.type === "draw") drawSegment(ctx, ev)
+            else if (ev.type === "shape") drawShape(ctx, ev)
         })
-    },[drawSegment])
+    }, [drawSegment])
 
     useEffect(() => {
 
@@ -128,8 +132,8 @@ function Whiteboard() {
         //         else if (msg.type)
         //     }
         // }
-        
-    },[messages])
+
+    }, [messages])
 
     // useEffect(() => {
 
@@ -150,7 +154,13 @@ function Whiteboard() {
     // },[roomId])
 
     useEffect(() => {
-        const ws = joinRoomSocket(roomId,roomPassword)
+
+        if (!token) {
+            navigate("/login")
+            return
+        }
+
+        const ws = joinRoomSocket(roomId,token, roomPassword)
         socketRef.current = ws
 
         ws.onopen = () => setConnected(true)
@@ -167,16 +177,17 @@ function Whiteboard() {
                 else if (msg.type === "draw") drawSegment(ctx, msg)
                 else if (msg.type === "clear") ctx.clearRect(0, 0, canvas.width, canvas.height)
                 else if (msg.type === "presence") setUsers(msg.users)
-                else if (msg.type === "chat")   setMessages(prev => [...prev, msg])
-                else if (msg.type === "shape")  drawShape(ctx, msg)
-            } catch {} 
+                else if (msg.type === "chat") setMessages(prev => [...prev, msg])
+                else if (msg.type === "shape") drawShape(ctx, msg)
+            } catch { }
         }
         return () => ws.close()
-    },[roomId,drawSegment,replayHistory])
+    }, [roomId, token, drawSegment, replayHistory,])
+
 
     useEffect(() => {
         const canvas = canvasRef.current
-        if (!canvas) return 
+        if (!canvas) return
         const resize = () => {
             const imageData = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height)
             canvas.width = canvas.offsetWidth
@@ -189,18 +200,18 @@ function Whiteboard() {
         const ro = new ResizeObserver(resize)
         ro.observe(canvas)
         return () => ro.disconnect()
-    },[])
+    }, [])
 
     function getPos(e, canvas) {
         const rect = canvas.getBoundingClientRect()
-        if (e.touched && e.touches.length > 0) return {
+        if (e.touches && e.touches.length > 0) return {
             x: e.touches[0].clientX - rect.left,
             y: e.touches[0].clientY - rect.top,
         }
         return { x: e.clientX - rect.left, y: e.clientY - rect.top }
     }
 
-    const sendEvent = (type, payload = {} ) => {
+    const sendEvent = (type, payload = {}) => {
         if (socketRef.current?.readyState === WebSocket.OPEN) {
             socketRef.current.send(JSON.stringify({ type, ...payload }))
         }
@@ -212,7 +223,7 @@ function Whiteboard() {
         const pos = getPos(e, canvasRef.current)
         startPosRef.current = pos
         lastPosRef.current = pos
-        sendEvent("begin",{ x:pos.x, y:pos.y, color: tool === "eraser" ? "#eraser" : color, size })
+        sendEvent("begin", { x: pos.x, y: pos.y, color: tool === "eraser" ? "#eraser" : color, size })
     }
 
     const onPointerMove = (e) => {
@@ -233,7 +244,7 @@ function Whiteboard() {
                 size,
             }
             drawSegment(ctx, { ...payload, type: "draw" })
-            sendEvent("draw",payload)
+            sendEvent("draw", payload)
             lastPosRef.current = pos
         }
         // const prev = lastPosRef.current
@@ -248,7 +259,7 @@ function Whiteboard() {
         // lastPosRef.current = pos
     }
 
-    const onPointerUp = (e) => { 
+    const onPointerUp = (e) => {
         if (!drawingRef.current) return
         drawingRef.current = false
         if (
@@ -271,7 +282,7 @@ function Whiteboard() {
                 size,
             }
             drawShape(ctx, payload)
-            sendEvent("shape",payload)
+            sendEvent("shape", payload)
         }
     }
 
@@ -285,14 +296,14 @@ function Whiteboard() {
 
         const text = chatInput.trim()
         if (!text) return
-        sendEvent("chat", {text})
+        sendEvent("chat", { text })
         setChatInput("")
 
     }
 
     const formatTime = (ts) => {
         if (!ts) return ""
-        return new Date(ts).toLocaleTimeString([], {hour: "2-digit",minute: "2-digit"})
+        return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     }
 
     return (
@@ -312,7 +323,7 @@ function Whiteboard() {
                     </span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full inline-block ${connected ? "bg-[#4ecdc4]" : "bg-[#e94560]"}`}/>
+                    <span className={`w-2 h-2 rounded-full inline-block ${connected ? "bg-[#4ecdc4]" : "bg-[#e94560] animate-pulse"}`} />
                     <span className="text-xs text-[#888] tracking-widest">
                         {connected ? "Live" : "Offline"}
                     </span>
@@ -322,17 +333,18 @@ function Whiteboard() {
                 <aside className="w-[68px] bg-[#13133f] border-r border-[#1f1f33] flex flex-col py-3 gap-1 shrink-0 overflow-y-auto">
                     <section className="flex flex-col gap-1.5 px-2.5 pb-3 border-b border-[#1f1f33]">
                         <p className="text-[8px] tracking-[1.5px] text-[#444] text-center mb-1">Tool</p>
-                        {Object.entries(TOOLS).map(([key,t]) => (
+                        {Object.entries(TOOLS).map(([key, t]) => (
                             <button
                                 key={key}
                                 title={t.label}
                                 onClick={() => setTool(key)}
-                                className={`text-lg p-2 rounded-lg cursor-pointer border ${tool === key 
-                                    ? "bg-[#1e1e30] border-[#4ecdc4]"
-                                    : "bg-transparent border-transparent hover:bg-[#1a1a28]"
-                                }`}
+                                className={`text-lg p-2 rounded-lg cursor-pointer border transition-all duration-150 ${tool === key
+                                    ? "bg-[#1e1e30] border-[#4ecdc4] shadow-[0_0_8px_rgba(78,205,196,0.4)] scale-105"
+                                    : "bg-transparent border-transparent hover:bg-[#1a1a28] hover:scale-105"
+                                    }`}
                             >
-                                {t.icon}
+                                <span>{t.icon}</span>
+                                <span className="text-[7px] text-[#666] tracking-wide" >{t.label}</span>
                             </button>
                         ))}
                     </section>
@@ -351,8 +363,9 @@ function Whiteboard() {
                                     className="w-[22px] h-[22px] rounded-[5px] cursor-pointer transition-transform hover:scale-110"
                                     style={{
                                         background: c,
-                                        border: color === c ? "3px solid #fff" : "2px solid transparent",
-                                        boxShadow: color === c ? "0 0 0 2px #4ecdc4" : "none"
+                                        border: color === c ? "2px solid #4ecdc4" : "2px solid transparent",
+                                        boxShadow: color === c ? "0 0 0 2px rgba(78,205,196,0.3)" : "none",
+                                        transform: color === c ? "scale(1.1)" : "scale(1)"
                                     }}
                                 />
                             ))}
@@ -366,9 +379,9 @@ function Whiteboard() {
                                 onClick={() => setSize(s)}
                                 className={`py-1.5 rounded-md cursor-pointer border transition-all
                                         ${size === s
-                                            ? "bg-[#1e1e30] border-[#4ecdc4]"
-                                            : "bg-transparent border-transparent hover:bg-[#1a1a28]"
-                                        }
+                                        ? "bg-[#1e1e30] border-[#4ecdc4]"
+                                        : "bg-transparent border-transparent hover:bg-[#1a1a28]"
+                                    }
                                     `}
                             >
                                 <div
@@ -410,13 +423,17 @@ function Whiteboard() {
                         <p className="text-[8px] tracking-[1.5px] text-[#444] mb-2">ONLINE - {users.length}</p>
                         <div className="flex flex-col gap-1 max-h-[100px] overflow-y-auto">
                             {users.length === 0 && (
-                                <span className="text-[10px] text-[#444]">No users Yet</span>
+                                <div className="flex flex-col items-center gap-1 text-[#444] py-4" >
+                                    <span className="text-lg opacity-40" >👥</span>
+                                    <span className="text-[10px] text-[#444]">No users Yet</span>
+                                </div>
+                                
                             )}
                             {users.map(u => (
                                 <div key={u} className="flex items-center gap-1.5">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-[#4ecdc4] shrink-0"/>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#4ecdc4] shrink-0" />
                                     <span className={`text-[11px] truncate ${u === myUserID ? "text-[#4ecdc4]" : "text-[#aaa]"}`}>
-                                        {u === myUserID ? `${u} (you)` : u }
+                                        {u === myUserID ? `${u} (you)` : u}
                                     </span>
                                 </div>
                             ))}
@@ -426,14 +443,13 @@ function Whiteboard() {
                         {messages.length === 0 && (
                             <span className="text-[10px] text-[#333] mt-2 text-center">No Messages Yet</span>
                         )}
-                        {messages.map((m,i) => {
+                        {messages.map((m, i) => {
                             const isMe = m.userId === myUserID
                             return (
                                 <div key={i} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
                                     <span className="text-[9px] text-[#555] mb-0.5">{m.userId} · {formatTime(m.timestamp)}</span>
-                                    <div className={`px-2 py-1.5 rounded-lg text-[11px] max-w-full break-words leading-relaxed ${
-                                        isMe ? "bg-[#0f3460] text-[#a0d0f0]" : "bg-[#1e1e30] text-[#ccc]"
-                                    }`}>
+                                    <div className={`px-2 py-1.5 rounded-lg text-[11px] max-w-full break-words leading-relaxed ${isMe ? "bg-[#0f3460] text-[#a0d0f0]" : "bg-[#1e1e30] text-[#ccc]"
+                                        }`}>
                                         {m.text}
                                     </div>
                                 </div>
@@ -448,7 +464,7 @@ function Whiteboard() {
                             onChange={e => setChatInput(e.target.value)}
                             onKeyDown={e => e.key === "Enter" && sendChat()}
                             placeholder="Message..."
-                            className="flex-1 bg-[#4ecdc4] border border-[#2a2a40] text-[#e0e0e0] text-[11px] px-2 py-1.5 rounded-md outline-none focus:border-[#4ecdc4] placeholder:text-[#444] font-mono"
+                            className="flex-1 bg-[#1a1a2e] border border-[#2a2a40] text-[#e0e0e0] text-[11px] px-2 py-1.5 rounded-md outline-none focus:border-[#4ecdc4] placeholder:text-[#444] font-mono"
                         />
                         <button
                             onClick={sendChat}

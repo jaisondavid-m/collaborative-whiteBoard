@@ -1,3 +1,6 @@
+
+//Not in use . it is converted to zustand store
+
 import React, { createContext, useContext, useState, useEffect } from "react"
 
 const AuthContext = createContext(null)
