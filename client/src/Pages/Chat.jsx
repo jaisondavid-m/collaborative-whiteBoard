@@ -7,6 +7,8 @@ import ShowNewChat from "../Components/ui/ShowNewChat.jsx"
 import ConversationItem from "../Components/ui/ConversationItem.jsx"
 import AvatarCircle from "../utils/AvatarCircle.jsx"
 
+import { useAuthStore } from "../store/authStore.js"
+
 import { Image as ImageIcon, Loader2 } from "lucide-react"
  
 export const formatTime = (dateStr) => {
@@ -31,7 +33,8 @@ export const formatTime = (dateStr) => {
 
 function Chat() {
 
-    const myId = localStorage.getItem("userid") || ""
+    const { userid: myId } = useAuthStore()
+    // const myId = localStorage.getItem("userid") || ""
     const location = useLocation()
     const navigate = useNavigate()
 
