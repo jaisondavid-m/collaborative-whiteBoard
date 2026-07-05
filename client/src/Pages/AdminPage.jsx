@@ -9,6 +9,8 @@ import { RiBellLine } from "react-icons/ri"
 
 import StatsOverview from "../Components/ui/admin/stats/StatsOverview.jsx"
 
+import { useAuthStore } from "../store/authStore.js"
+
 function AdminPage() {
 
     const navigate = useNavigate()
@@ -27,7 +29,8 @@ function AdminPage() {
     // const [error, setError] = useState("")
     const { toasts, toast } = useToast()
 
-    const role = localStorage.getItem("role")
+    const { role } = useAuthStore()
+    // const role = localStorage.getItem("role")
     const isSuperAdmin = role === "superadmin"
     const canViewAdminPanel = role === "admin" || role === "superadmin"
 
@@ -208,6 +211,7 @@ function AdminPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6">
             <div className="max-w-7xl mx-auto">
+
                 <div className="flex items-center justify-between mb-6 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900">Admin Panel</h1>
@@ -215,18 +219,21 @@ function AdminPage() {
                             Logged in as <span className="font-medium">{role}</span>
                         </p>
                     </div>
-                    <button
-                        onClick={() => navigate("/home")}
-                        className="text-sm text-gray-600 hover:text-black underline"
-                    >
-                        ← Back to Home
-                    </button>
-                    <button
-                        onClick={() => setShowNotifModal(true)}
-                        className="flex items-center gap-1.5 text-sm bg-[#4ecdc4] text-white px-4 py-2 rounded-xl hover:bg-[#3db8b0] transition-all active:scale-95"
-                    >
-                        <RiBellLine size={14} /> Send Notification
-                    </button>
+                    <div className="flex items-center gap-3" >
+                        <button
+                            onClick={() => navigate("/home")}
+                            className="text-sm text-gray-600 hover:text-black underline"
+                        >
+                            ← Back to Home
+                        </button>
+                        <button
+                            onClick={() => setShowNotifModal(true)}
+                            className="flex items-center gap-1.5 text-sm bg-[#4ecdc4] text-white px-4 py-2 rounded-xl hover:bg-[#3db8b0] transition-all active:scale-95"
+                        >
+                            <RiBellLine size={14} /> Send Notification
+                        </button>
+                    </div>
+
                 </div>
             </div>
 
@@ -246,43 +253,55 @@ function AdminPage() {
                 <div className="flex flex-wrap gap-2 mt-4" >
                     <button
                         onClick={() => setFilter("all")}
-                        className={`px-4 py-2 rounded-xl text-sm ${filter === "all"
-                                ? "bg-[#4ecdc4] text-white"
-                                : "bg-gray-100"
+                        className={`text-left p-4 bg-white rounded-2xl shadow-sm border transition-colors ${filter === "all"
+                            ? "border-[#4ecdc4] ring-1 ring-[#4ecdc4]/30"
+                            : "border-gray-200 hover:border-gray-300"
                             }`}
                     >
-                        All
+                        <p className="text-sm text-gray-500" >All</p>
+                        <h2 className="text-2xl font-bold mt-1" >
+                            {users.length}
+                        </h2>
                     </button>
                     <button
                         onClick={() => setFilter("admin")}
-                        className={`px-4 py-2 rounded-xl text-sm ${filter === "admin"
-                                ? "bg-[#4ecdc4] text-white"
-                                : "bg-gray-100"
+                        className={`p-4 text-left bg-white rounded-2xl shadow-sm border transition-colors ${filter === "admin"
+                            ? "border-[#4ecdc4] ring-1 ring-[#4ecdc4]/30"
+                            : "border-gray-200 hover:border-gray-300"
                             }`}
                     >
-                        Admins
+                        <p className="text-sm text-gray-500" >Admins</p>
+                        <h2 className="text-2xl font-bold mt-1" >
+                            {users.filter(u => u.role === "admin").length}
+                        </h2>
                     </button>
                     <button
                         onClick={() => setFilter("blocked")}
-                        className={`px-4 py-2 rounded-xl text-sm ${filter === "blocked"
-                                ? "bg-[#4ecdc4] text-white"
-                                : "bg-gray-100"
+                        className={`text-left bg-white p-4 rounded-2xl shadow-sm border transition-colors ${filter === "blocked"
+                            ? "border-[#4ecdc4] ring-1 ring-[#4ecdc4]/30"
+                            : "border-gray-200 hover:border-gray-200 hover:border-gray-300"
                             }`}
                     >
-                        Blocked
+                        <p className="text-sm text-gray-500" >Blocked</p>
+                        <h2 className="text-2xl font-bold mt-1" >
+                            {users.filter(u => u.is_blocked).length}
+                        </h2>
                     </button>
                     <button
                         onClick={() => setFilter("deleted")}
-                        className={`px-4 py-2 rounded-xl text-sm ${filter === "deleted"
-                                ? "bg-[#4ecdc4] text-white"
-                                : "bg-gray-100"
+                        className={`text-left bg-white p-4 rounded-2xl shadow-sm border transition-colors ${filter === "deleted"
+                            ? "border-[#4ecdc4] ring-1 ring-[#4ecdc4]/30"
+                            : "border-gray-200 hover:border-gray-200 hover:border-gray-300"
                             }`}
                     >
-                        Deleted
+                        <p className="text-sm text-gray-500" >Deleted</p>
+                        <h2 className="text-2xl font-bold mt-1" >
+                            {users.filter(u => u.is_deleted).length}
+                        </h2>
                     </button>
                 </div>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6 max-w-7xl mx-auto">
+            {/* <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6 max-w-7xl mx-auto">
                 <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
                     <p className="text-sm text-gray-500">Total Users</p>
                     <h2 className="text-2xl font-bold mt-1">{users.length}</h2>
@@ -303,13 +322,13 @@ function AdminPage() {
                         {users.filter(u => u.is_blocked).length}
                     </h2>
                 </div>
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm" >
+                <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm" >
                     <p className="text-sm text-gray-500" >Delete Users</p>
                     <h2 className="text-2xl font-bold mt-1" >
                         {users.filter(u => u.is_deleted).length}
                     </h2>
                 </div>
-            </div>
+            </div> */}
             <div className="max-w-7xl mx-auto">
                 <div className="px-6 py-4 border-b bg-gray-50 text-center" >
                     <h2 className="font-semibold text-gray-800" >User Management</h2>
@@ -322,10 +341,10 @@ function AdminPage() {
                         Loading users...
                     </div>
                 ) : (
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto flex justify-center items-center">
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
 
                         <table className="w-full text-sm">
-                            <thead className="bg-gray-100/80 backdrop-blur border-b border-gray-200">
+                            <thead className="bg-gray-100/80 backdrop-blur border-b border-gray-200 sticky top-0 z-10">
                                 <tr>
                                     <th className="text-left px-6 py-3 font-medium text-gray-600">User</th>
                                     <th className="text-left px-6 py-3 font-medium text-gray-600">Role</th>
@@ -451,8 +470,13 @@ function AdminPage() {
                                 ))}
                             </tbody>
                         </table>
-                        {users.length === 0 && (
-                            <div className="text-center py-12 text-gray-400">No users found</div>
+                        {filteredUsers.length === 0 && (
+                            <div className="text-center py-16 text-gray-400">
+                                <div className="text-3xl mb-2" >🔍</div>
+                                <p className="text-sm" >
+                                    No users match your search or filter
+                                </p>
+                            </div>
                         )}
                     </div>
                 )}
