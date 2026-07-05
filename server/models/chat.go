@@ -14,6 +14,7 @@ type Message struct {
 
 	IsRead 			bool			`json:"isRead" gorm:"default:false"`
 	IsDeleted 		bool			`json:"isDeleted" gorm:"default:false"`
+	IsEdited 		bool			`json:"isEdited" gorm:"default:false"`
 
 }
 

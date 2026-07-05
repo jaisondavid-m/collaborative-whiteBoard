@@ -107,8 +107,8 @@ func GetConversation(c *gin.Context) {
 	beforeIDStr := c.Query("beforeId")
 
 	query := config.DB.Where(
-		"((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) AND is_deleted = ?",
-		me, other, other, me, false,
+		"(sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)",
+		me, other, other, me,
 	)
 
 	if beforeIDStr != "" {
@@ -353,12 +353,22 @@ func EditMessage(c *gin.Context) {
 		return
 	}
 
-	if err := config.DB.Model(&msg).Update("content", input.Content).Error; err != nil {
+	if err := config.DB.Model(&msg).Updates(map[string]interface{}{
+		"content": input.Content,
+		"is_edited": true,
+	}).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to edit message",
 		})
-		return
+		return 
 	}
+
+	// if err := config.DB.Model(&msg).Update("content", input.Content).Error; err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"error": "Failed to edit message",
+	// 	})
+	// 	return
+	// }
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Message updated",

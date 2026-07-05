@@ -353,7 +353,7 @@ function Chat() {
         }
     }
 
-    const grouped = messages.filter(m => !m.isDeleted).reduce((acc, msg, i, arr) => {
+    const grouped = messages.reduce((acc, msg, i, arr) => {
 
         const prev = arr[i - 1]
         const next = arr[i + 1]

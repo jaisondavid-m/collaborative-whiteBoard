@@ -35,7 +35,7 @@ function MessageBubble({ msg, isMe, position = "only", onDelete, onEdit }) {
         }[position];
 
     const handlePressStart = () => {
-        if (!isMe) return
+        if (!isMe || msg.isDeleted) return
         pressTimer.current = setTimeout(() => {
             setShowModal(true)
         }, 600)
@@ -119,6 +119,15 @@ function MessageBubble({ msg, isMe, position = "only", onDelete, onEdit }) {
                                     </button>
                                 </div>
                             </div>
+                        ) : msg.isDeleted ? (
+                            <div
+                                className="px-3 py-2 text-[12.5px] font-mono italic text-gray-400 bg-black/[0.03] border border-black/[0.06]"
+                                style={{
+                                    borderRadius: radius
+                                }}
+                            >
+                                This message was deleted
+                            </div>
                         ) : msg.messageType === "image" ? (
                             <a 
                                 href={resolveImageUrl(msg.content)}
@@ -167,6 +176,13 @@ function MessageBubble({ msg, isMe, position = "only", onDelete, onEdit }) {
                     {
                         !isEditing && (position === "last" || position === "only") && (
                             <span className="text-[10px] text-gray-400 mt-1 px-0.5 flex items-center gap-0.5" >
+                                {
+                                    msg.isEdited && !msg.isDeleted && (
+                                        <span className="italic" >
+                                            edited{" "}
+                                        </span>
+                                    )
+                                }
                                 {formatTime(msg.CreatedAt)}
                                 {isMe && (
                                     <span>
