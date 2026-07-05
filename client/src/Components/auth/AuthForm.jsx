@@ -14,6 +14,7 @@ function AuthForm({
     buttonText,
     onSubmit,
     toast,
+    loading,
     setLoading,
     isRegister = false,
 }) {
@@ -81,6 +82,7 @@ function AuthForm({
                         value={formData.userid}
                         onChange={handleChange}
                         name="userid"
+                        disabled={loading}
                     />
                     <div className="flex flex-col gap-1" >
                         <label className="text-sm font-medium text-gray-700" >Password</label>
@@ -91,8 +93,9 @@ function AuthForm({
                                 placeholder="Enter your Password"
                                 value={formData.password}
                                 onChange={handleChange}
+                                disabled={loading}
                                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm
-                                outline-none focus:border-[#4ecdc4] transition-colors pr-10 bg-white"
+                                outline-none focus:border-[#4ecdc4] transition-colors pr-10 bg-white disabled:cursor-not-allowed"
                             />
                             <button
                                 type="button"
@@ -127,19 +130,23 @@ function AuthForm({
                     <button
                         type="submit"
                         disabled={
-                            isRegister && !isPasswordValid()
+                           loading || (isRegister && !isPasswordValid())
                         }
-                        className="w-full mt-1 py-2.5 px-4 rounded-lg text-white text-sm font-semibold transition-all duration-200"
+                        className="w-full mt-1 py-2.5 px-4 rounded-lg text-white text-sm font-semibold transition-all duration-200
+                        flex items-center justify-center gap-2"
                         style={{
-                            background: (isRegister && !isPasswordValid())
+                            background: (loading || (isRegister && !isPasswordValid()))
                                 ? "#a0d8d5"
                                 : "linear-gradient(135deg, #4ecdc4, #45b7aa)",
-                            cursor: (isRegister && !isPasswordValid()) ? "not-allowed" : "pointer",
-                            boxShadow: (isRegister && !isPasswordValid())
+                            cursor: (loading || (isRegister && !isPasswordValid())) ? "not-allowed" : "pointer",
+                            boxShadow: ( loading || (isRegister && !isPasswordValid()))
                                 ? "none"
                                 : "0px 2px 12px rgba(78,205,196,0.35)"
                         }}
                     >
+                        {loading && (
+                            <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                        )}
                         {buttonText}
                     </button>
                 </form>

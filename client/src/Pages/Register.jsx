@@ -6,7 +6,7 @@ import AuthForm from "../Components/auth/AuthForm"
 
 import ToastContainer from "../Components/ui/Toast.jsx"
 import { useToast } from "../hooks/useToast.js"
-import { useAuth } from "../context/AuthContext.jsx"
+import { useAuthStore } from "../store/authStore.js"
 
 function Register() {
 
@@ -14,7 +14,7 @@ function Register() {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const { toasts, toast } = useToast()
-    const { login } = useAuth()
+    const { login } = useAuthStore()
 
     const handleRegisterV2 = async (data) => {
         try {
@@ -74,6 +74,7 @@ function Register() {
                     buttonText={loading ? "Registering..." : "Register"}
                     onSubmit={handleRegisterV2}
                     toast={toast}
+                    loading={loading}
                     setLoading={setLoading}
                     isRegister={true}
                 />

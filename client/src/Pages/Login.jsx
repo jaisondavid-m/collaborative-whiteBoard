@@ -18,6 +18,7 @@ function Login() {
 
     const handleLoginV2 = async (data) => {
         try {
+            setLoading(true)
             const response = await API.post("/auth/login", data)
             login(
                 response.data.token,
@@ -28,6 +29,8 @@ function Login() {
             navigate("/home")
         } catch (error) {
             toast(error.response?.data?.error || "Login failed", "error")
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -67,6 +70,7 @@ function Login() {
                     buttonText={loading ? "Logging in..." : "Login"}
                     onSubmit={handleLoginV2}
                     toast={toast}
+                    loading={loading}
                     setLoading={setLoading}
                 />
                 <p className="text-sm text-center mt-5 text-gray-500">
