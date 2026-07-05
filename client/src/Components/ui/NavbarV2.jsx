@@ -25,13 +25,18 @@ import { TbHexagon } from "react-icons/tb"
 import NotificationModal from "./notification/NotificationModal"
 import API from "../../api/axios.js"
 
+import { useAuthStore } from "../../store/authStore.js"
+
 function NavbarV2() {
 
     const navigate = useNavigate()
     const location = useLocation()
 
-    const role = localStorage.getItem("role") || ""
-    const userId = localStorage.getItem("userid") || ""
+    // const role = localStorage.getItem("role") || ""
+    // const userId = localStorage.getItem("userid") || ""
+
+    const { role: rawRole, userid: userId, logout: storeLogout } = useAuthStore()
+    const role = rawRole || ""
 
     const isPrivileged =
         role === "admin" || role === "superadmin"
@@ -143,9 +148,10 @@ function NavbarV2() {
         } catch {
             // no need
         } finally {
-            localStorage.removeItem("token")
-            localStorage.removeItem("userid")
-            localStorage.removeItem("role")
+            storeLogout()
+            // localStorage.removeItem("token")
+            // localStorage.removeItem("userid")
+            // localStorage.removeItem("role")
             navigate("/login", { replace: true })
         }
 
