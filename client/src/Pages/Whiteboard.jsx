@@ -6,6 +6,9 @@ import { joinRoomSocket } from "../api/room.api.js"
 
 import { useAuthStore } from "../store/authStore.js"
 
+import { useToast } from "../hooks/useToast.js"
+import ToastContainer from "../Components/ui/Toast.jsx"
+
 const TOOLS = {
     pen: { label: "Pen", icon: "✏️", cursor: "crosshair" },
     eraser: { label: "Eraser", icon: "⬜", cursor: "cell" },
@@ -45,6 +48,8 @@ function Whiteboard() {
     const [users, setUsers] = useState([])
     const [messages, setMessages] = useState([])
     const [chatInput, setChatInput] = useState("")
+
+    const { toasts, toast } = useToast()
 
     const myUserID = localStorage.getItem("userid") || "anonymous"
 
@@ -165,6 +170,7 @@ function Whiteboard() {
 
         ws.onopen = () => setConnected(true)
         ws.onclose = () => setConnected(false)
+        ws.onerror = () => toast("Connection error - retrying")
 
         ws.onmessage = (event) => {
             try {
@@ -201,6 +207,12 @@ function Whiteboard() {
         ro.observe(canvas)
         return () => ro.disconnect()
     }, [])
+
+    useEffect(() => {
+        if (location.state?.flash) {
+            toast(location.state.flash)
+        }
+    },[])
 
     function getPos(e, canvas) {
         const rect = canvas.getBoundingClientRect()

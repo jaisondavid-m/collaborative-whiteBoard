@@ -1,4 +1,4 @@
-import React , { useState } from "react"
+import React , { useState, useRef, useEffect } from "react"
 
 import Card from "../ui/Card.jsx"
 import Input from "../ui/Input.jsx"
@@ -23,20 +23,41 @@ function JoinRoomForm() {
 
     const [loading, setLoading] = useState(false)
 
+    const passwordRef = useRef(null)
+
     const { toasts, toast } = useToast()
 
     const handleJoin = async (e) => {
+
         e.preventDefault()
-        if (!roomId.trim()) return
+
+        const trimmedId = roomId.trim()
+
+        if (!trimmedId) {
+            toast("Enter a Room ID first")
+            return
+        }
+
+        // if (!roomId.trim()) return
         setLoading(true)
+
         try {
-            await checkRoomPassword(roomId,password)
-            navigate(`/whiteboard/${roomId}`)
+
+            await checkRoomPassword(trimmedId,password)
+
+            navigate(`/whiteboard/${trimmedId}`, {
+                state: { password, flash: "Joined room" }
+            })
+
         } catch (err) {
+
             const msg = err.response?.data?.error || "Error"
+
             if (err.response?.status === 401) {
                 setNeedsPassword(true)
-                toast("Wrong Password")
+                toast(needsPassword ? "Wrong Password" : "This room needs a password")
+            } else if (err.response?.status === 401) {
+                toast("Room not found")
             } else {
                 toast(msg)
             }
@@ -44,6 +65,11 @@ function JoinRoomForm() {
             setLoading(false)
         }
     }
+
+    useEffect(() => {
+        if (needsPassword)
+            passwordRef.current?.focus()
+    }, [needsPassword])
 
     return (
         <Card> 
@@ -69,6 +95,7 @@ function JoinRoomForm() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Enter room password"
+                            ref={passwordRef}
                         />
                     )}
                     <Button type="submit" disabled={loading}>
