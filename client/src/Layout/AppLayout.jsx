@@ -9,13 +9,24 @@ function AppLayout() {
     const location = useLocation()
 
     const hideFooter =
-        location.pathname.startsWith("/setting") || location.pathname.startsWith("/chat")
+        location.pathname.startsWith("/setting") ||
+        location.pathname.startsWith("/chat") ||
+        location.pathname.startsWith("/whiteboard")
+    
+    const hideNavbar =
+        location.pathname.startsWith("/whiteboard")
 
     return (
         <div className="min-h-screen flex flex-col bg-[#f5f5f2]">
             {/* <Navbar/> */}
-            <NavbarV2/>
-            <main className="flex-1 pt-16">
+            { !hideNavbar && <NavbarV2/> }
+            <main className={`flex-1 
+                    ${
+                        hideFooter
+                            ? "pt-0"
+                            : "pt-16"
+                    }
+                `}>
                 <Outlet/>
             </main>
             { !hideFooter && <Footer/>}
