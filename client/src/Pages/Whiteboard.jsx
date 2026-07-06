@@ -171,13 +171,23 @@ function Whiteboard() {
             return
         }
 
+        let cancelled = false
         const ws = joinRoomSocket(roomId,token, roomPassword)
         socketRef.current = ws
 
-        ws.onopen = () => setConnected(true)
-        ws.onclose = () => setConnected(false)
-        ws.onerror = () => toast("Connection error - retrying")
+        ws.onopen = () => {
+            if (!cancelled)
+                setConnected(true)
+        } 
+        ws.onclose = () => {
+            if (!cancelled)
+                setConnected(false)
+        }
+        ws.onerror = () => {
+            if (!cancelled)
+                toast("Connection error - retrying")
 
+        } 
         ws.onmessage = (event) => {
             try {
                 const msg = JSON.parse(event.data)
@@ -193,7 +203,10 @@ function Whiteboard() {
                 else if (msg.type === "shape") drawShape(ctx, msg)
             } catch { }
         }
-        return () => ws.close()
+        return () => {
+            cancelled = true
+            ws.close()
+        } 
     }, [roomId, token, drawSegment, replayHistory,])
 
 
@@ -201,10 +214,12 @@ function Whiteboard() {
         const canvas = canvasRef.current
         if (!canvas) return
         const resize = () => {
-            const imageData = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height)
+            const ctx = canvas.getContext("2d", { willReadFrequently: true })
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
             canvas.width = canvas.offsetWidth
             canvas.height = canvas.offsetHeight
-            canvas.getContext("2d").putImageData(imageData, 0, 0)
+            // ctx.getContext("2d", { willReadFrequently: true }).putImageData(imageData, 0, 0)
+            ctx.putImageData(imageData, 0, 0)
         }
         canvas.width = canvas.offsetWidth
         canvas.height = canvas.offsetHeight

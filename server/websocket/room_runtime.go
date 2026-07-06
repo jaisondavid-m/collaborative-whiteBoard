@@ -14,11 +14,16 @@ type RuntimeRoom struct {
 	mu			sync.Mutex
 	History		[]DrawEvent
 	ChatHistory []ChatMessage
+	cleanupTimer *time.Timer
 }
 
 func (r *RuntimeRoom) AddClient(c *Client) {
 	r.mu.Lock()
 	r.Clients[c] = true
+	if r.cleanupTimer != nil {
+		r.cleanupTimer.Stop()
+		r.cleanupTimer = nil
+	}
 	r.mu.Unlock()
 	r.broadcastPresence()
 }
@@ -128,15 +133,39 @@ func (r *RuntimeRoom) HandleChat(msg ChatMessage) {
 
 func (r *RuntimeRoom) CleanupIfEmpty() {
 	r.mu.Lock()
-	empty := len(r.Clients) == 0
-	r.mu.Unlock()
+	
+	defer r.mu.Unlock()
 
-	if empty {
-		DeleteRoom(r.RoomID)
-		// delete(ActiveRooms,r.RoomID)
-		close(r.Broadcast)
-		log.Printf("Room %s deleted (no user)", r.RoomID)
+	empty := len(r.Clients) == 0
+
+	if !empty {
+		return 
 	}
+
+	if r.cleanupTimer != nil {
+		return
+	}
+
+	// if empty {
+	// 	DeleteRoom(r.RoomID)
+	// 	// delete(ActiveRooms,r.RoomID)
+	// 	close(r.Broadcast)
+	// 	log.Printf("Room %s deleted (no user)", r.RoomID)
+	// }
+
+	r.cleanupTimer = time.AfterFunc(30*time.Second, func() {
+
+		r.mu.Lock()
+		stillEmpty := len(r.Clients) == 0
+		r.mu.Unlock()
+
+		if stillEmpty {
+			DeleteRoom(r.RoomID)
+			close(r.Broadcast)
+			log.Printf("Room %s deleted (no user)", r.RoomID)
+		}
+
+	})
 }
 
 func (r *RuntimeRoom) SendHistory(c *Client) {
