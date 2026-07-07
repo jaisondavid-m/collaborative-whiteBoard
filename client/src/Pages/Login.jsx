@@ -34,6 +34,26 @@ function Login() {
         }
     }
 
+    const handleGuestLogin = async () => {
+
+        try {
+            setLoading(true)
+            const response = await API.post("/auth/guest")
+            login(
+                response.data.token,
+                response.data.userid,
+                response.data.role
+            )
+            toast("Continuing as guest")
+            navigate("/home")
+        } catch (err) {
+            toast(err.response?.data?.error || "Guest login failed", "error")
+        } finally {
+            setLoading(false)
+        }
+
+    }
+
     // const handleLogin = async (data) => {
     //     try {
     //         setLoading(true)
@@ -72,6 +92,7 @@ function Login() {
                     toast={toast}
                     loading={loading}
                     setLoading={setLoading}
+                    onGuestLogin={handleGuestLogin}
                 />
                 <p className="text-sm text-center mt-5 text-gray-500">
                     Don't have an account?{" "}

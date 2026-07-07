@@ -11,5 +11,6 @@ type User struct {
 	CurrentToken 		string 		`json:"-" gorm:"type:text"`
 	IsDeleted			bool		`json:"is_deleted" gorm:"default:false"`
 	IsBlocked 			bool		`json:"is_blocked" gorm:"default:false"`
+	IsGuest				bool 		`json:"is_guest" gorm:"default:false"`
 	
 }

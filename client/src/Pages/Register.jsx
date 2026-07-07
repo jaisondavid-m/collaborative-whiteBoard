@@ -34,6 +34,26 @@ function Register() {
         }
     }
 
+    const handleGuestLogin = async () => {
+
+        try {
+            setLoading(true)
+            const response = await API.post("/auth/guest")
+            login(
+                response.data.token,
+                response.data.userid,
+                response.data.role
+            )
+            toast("Continuing as guest")
+            navigate("/home")
+        } catch (err) {
+            toast(err.response?.data?.error || "Guest login failed", "error")
+        } finally {
+            setLoading(false)
+        }
+
+    }
+
     // const handleRegister = async (data) => {
     //     try {
     //         setLoading(true)
@@ -77,6 +97,7 @@ function Register() {
                     loading={loading}
                     setLoading={setLoading}
                     isRegister={true}
+                    onGuestLogin={handleGuestLogin}
                 />
                 <p className="text-sm mt-5 text-center text-gray-500">
                     Already have an account?{" "}

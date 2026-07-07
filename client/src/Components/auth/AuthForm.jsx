@@ -7,7 +7,7 @@ import GoogleLoginButton from "../ui/GoogleLoginButton.jsx"
 import PasswordRequirements from "./PasswordRequirements.jsx"
 import PasswordStrength from "./PasswordStrength.jsx"
 
-import { RiEyeLine, RiEyeOffLine } from "react-icons/ri"
+import { RiEyeLine, RiEyeOffLine, RiUserSmileLine } from "react-icons/ri"
 
 function AuthForm({
     title,
@@ -17,6 +17,7 @@ function AuthForm({
     loading,
     setLoading,
     isRegister = false,
+    onGuestLogin,
 }) {
 
     const [formData, setFormData] = useState({
@@ -156,6 +157,22 @@ function AuthForm({
                     <div className="flex-1 h-px bg-gray-200" />
                 </div>
                 <GoogleLoginButton toast={toast} setLoading={setLoading} />
+
+                {
+                    onGuestLogin && (
+                        <button
+                            type="button"
+                            onClick={onGuestLogin}
+                            disabled={loading}
+                            className="w-full py-2.5 px-4 rounded-lg text-sm font-medium text-gray-600
+                            border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-40
+                            disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                            <RiUserSmileLine size={16} className="text-gray-400" />
+                            Continue as Guest 
+                        </button>
+                    )
+                }
             </div>
         </Card>
     )
