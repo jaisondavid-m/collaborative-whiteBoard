@@ -171,6 +171,25 @@ function About() {
                     ))}
                 </div>
             </section>
+            <section className="bg-[#0f6e56] py-12">
+                <div className="max-w-3xl mx-auto px-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center" >
+                    {[
+                        { value: "0ms", label: "Polling delay" },
+                        { value: "100%", label: "Open source" },
+                        { value: "30s", label: "Room grace period" },
+                        { value: "∞", label: "Rooms you can create" },
+                    ].map(s => (
+                        <div key={s.label} >
+                            <p className="text-2xl sm:text-3xl font-bold text-white" >
+                                {s.value}
+                            </p>
+                            <p className="text-[11px] text-white/70 uppercase tracking-wider mt-1" >
+                                {s.label}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </section>
             <section className="border-t border-black/[0.07] bg-white">
                 <div className="max-w-3xl mx-auto px-6 py-16">
                     <FadeSection className="text-center mb-10">
@@ -209,6 +228,56 @@ function About() {
             </section>
             <ChatFeatureSection/>
             <FriendsFeatureSection/>
+            <section className="border-t border-black/[0.07] bg-[#f5f5f2]" >
+                <div className="max-w-2xl mx-auto px-6 py-16" >
+                    <FadeSection className="text-center mb-10" >
+                        <p className="text-[10px] tracking-[3px] uppercase text-[#4ecdc4] font-semibold mb-2" >
+                            FAQ
+                        </p>
+                        <h2 className="text-2xl font-bold text-gray-900" >
+                            Common questions
+                        </h2>
+                    </FadeSection>
+                    <div className="flex flex-col gap-0" >
+                        {[
+                            { q: "Do I need an account to join a room?", a: "You need to sign up to create or join rooms, but it only takes a username and password." },
+                            { q: "Is my drawing saved?", a: "Yes - the draw history syncs to anyone who joins, and rooms persist as long as someone is active in them. " },
+                            { q: "What happens to empty rooms?", a: "Rooms with no active users are automatically cleaned up after a short grace period." },
+                            { q: "Can I password-protect a room?", a: "Yes, set a password when creating a room and share it separately from the room link." },
+                        ].map((item, i) => (
+                            <FadeSection
+                                key={item.q}
+                                delay={i * 80}
+                            >
+                                <div className="py-5 border-b border-black/[0.06] last:border-0" >
+                                    <h3 className="text-sm font-semibold text-gray-800 mb-1.5" >
+                                        {item.q}
+                                    </h3>
+                                    <p className="text-xs text-gray-500 leading-relaxed" >
+                                        {item.a}
+                                    </p>
+                                </div>
+                            </FadeSection>
+                        ))}
+                    </div>
+                </div>
+            </section>
+            <section className="max-w-2xl mx-auto px-6 py-16 text-center" >
+                <FadeSection>
+                    <p className="text-[10px] tracking-[3px] uppercase text-[#4ecdc4] font-semibold mb-2" >
+                        The Story
+                    </p>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4" >
+                        Why SketchBoard exists
+                    </h2>
+                    <p className="text-sm text-gray-500 leading-relaxed" >
+                        Most whiteboard tools are either bloated with features nobody uses, or locked
+                        behind a paywall for basic collaboration. I wanted something lightweight - Open
+                        a room, share a link, start drawing. No signup friction for guests, no upsells,
+                        just a canvas and the people you invite to it.
+                    </p>
+                </FadeSection>
+            </section>
             <section className="border-t border-black/[0.07] bg-white">
                 <div className="max-w-3xl mx-auto px-6 py-16">
                     <FadeSection className="flex flex-col sm:flex-row items-center justify-between gap-8">
