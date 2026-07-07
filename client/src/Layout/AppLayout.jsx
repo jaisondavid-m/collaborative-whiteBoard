@@ -22,7 +22,7 @@ function AppLayout() {
             { !hideNavbar && <NavbarV2/> }
             <main className={`flex-1 
                     ${
-                        hideFooter
+                        hideNavbar
                             ? "pt-0"
                             : "pt-16"
                     }

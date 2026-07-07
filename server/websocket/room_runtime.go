@@ -132,13 +132,14 @@ func (r *RuntimeRoom) HandleChat(msg ChatMessage) {
 }
 
 func (r *RuntimeRoom) CleanupIfEmpty() {
+
 	r.mu.Lock()
 	
 	defer r.mu.Unlock()
 
-	empty := len(r.Clients) == 0
+	empty := len(r.Clients)
 
-	if !empty {
+	if empty != 0 {
 		return 
 	}
 
@@ -155,11 +156,14 @@ func (r *RuntimeRoom) CleanupIfEmpty() {
 
 	r.cleanupTimer = time.AfterFunc(30*time.Second, func() {
 
+		activeRoomsMu.Lock()
+		defer activeRoomsMu.Unlock()
+
 		r.mu.Lock()
 		stillEmpty := len(r.Clients) == 0
 		r.mu.Unlock()
 
-		if stillEmpty {
+		if stillEmpty && ActiveRooms[r.RoomID] == r {
 			DeleteRoom(r.RoomID)
 			close(r.Broadcast)
 			log.Printf("Room %s deleted (no user)", r.RoomID)
