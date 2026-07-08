@@ -5,6 +5,7 @@ import ToastContainer from "../Components/ui/Toast.jsx"
 import { useToast } from "../hooks/useToast.js"
 
 import { useAuthStore } from "../store/authStore.js"
+import API from "../api/axios.js"
 
 const PERM_LIST = [
     { key: "view_rooms", label: "View Rooms", icon: "🏠", roles: ["user", "admin", "superadmin"] },
@@ -127,10 +128,7 @@ function Profile() {
     const handleLogout = async () => {
 
         try {
-            await fetch("/api/logout", {
-                method: "POST",
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            await API.post("/api/logout")
         } catch {
             // not needed
         } finally {
@@ -148,17 +146,18 @@ function Profile() {
         setIsDeleting(true)
 
         try {
-            const res = await fetch("/api/user", {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
-            })
-            if (!res.ok) {
-                const data = await res.json()
-                // alert(data.error || "Failed to delete account")
-                toast(data.error || "Failed to delete account")
-                setIsDeleting(false)
-                return
-            }
+            await API.delete("/api/user")
+            // const res = await fetch("/api/user", {
+            //     method: "DELETE",
+            //     headers: { Authorization: `Bearer ${token}` },
+            // })
+            // if (!res.ok) {
+            //     const data = await res.json()
+            //     // alert(data.error || "Failed to delete account")
+            //     toast(data.error || "Failed to delete account")
+            //     setIsDeleting(false)
+            //     return
+            // }
             // localStorage.removeItem("token")
             // localStorage.removeItem("userid")
             // localStorage.removeItem("role")
