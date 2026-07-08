@@ -11,6 +11,12 @@ CREATE TABLE users (
 
     INDEX idx_users_deleted_at (deleted_at)
 );
+ALTER TABLE users ADD COLUMN current_token TEXT NULL;
+ALTER TABLE users ADD COLUMN is_guest BOOLEAN DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN last_active_at DATETIME(3) NULL;
+
+CREATE INDEX idx_users_last_active_at ON users (last_active_at);
+CREATE INDEX idx_users_is_guest ON users (is_guest);
 
 CREATE TABLE rooms (
     id              BIGINT          UNSIGNED        AUTO_INCREMENT      PRIMARY KEY,
@@ -92,8 +98,10 @@ CREATE TABLE messages (
     INDEX idx_messages_receiver_id (receiver_id)
 
 );
+ALTER TABLE messages CHANGE COLUMN context content TEXT NOT NULL;
+ALTER TABLE messages ADD COLUMN is_edited BOOLEAN DEFAULT FALSE;
 
-CREATE TABLE converstations (
+CREATE TABLE conversations (
 
     id              BIGINT          UNSIGNED        AUTO_INCREMENT      PRIMARY KEY,
 
@@ -159,5 +167,21 @@ CREATE TABLE blocks (
     INDEX idx_blocks_deleted_at (deleted_at),
     INDEX idx_blocks_blocker_id (blocker_id),
     INDEX idx_blocks_blocked_id (blocked_id)
+
+);
+
+CREATE TABLE user_visits (
+
+    id              BIGINT          UNSIGNED        AUTO_INCREMENT      PRIMARY KEY,
+    created_at      DATETIME(3)     NULL,
+    updated_at      DATETIME(3)     NULL,
+    deleted_at      DATETIME(3)     NULL,
+
+    user_id         VARCHAR(255)    NOT NULL,
+    visit_date      VARCHAR(255)    NOT NULL,
+
+    INDEX idx_user_visits_deleted_at (deleted_at),
+    INDEX idx_user_visits_user_id (user_id),
+    INDEX idx_user_visits_date (visit_date)
 
 );
