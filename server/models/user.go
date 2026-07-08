@@ -1,6 +1,11 @@
 package models
 
-import "gorm.io/gorm"
+import (
+
+	"time"
+	"gorm.io/gorm"
+
+)
 
 type User struct {
 	gorm.Model
@@ -12,5 +17,6 @@ type User struct {
 	IsDeleted			bool		`json:"is_deleted" gorm:"default:false"`
 	IsBlocked 			bool		`json:"is_blocked" gorm:"default:false"`
 	IsGuest				bool 		`json:"is_guest" gorm:"default:false"`
-	
+	LastActiveAt 		time.Time 	`json:"last_active_at"`
+
 }

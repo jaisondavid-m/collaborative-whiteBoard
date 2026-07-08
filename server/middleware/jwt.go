@@ -99,6 +99,8 @@ func AuthMiddleware() gin.HandlerFunc {
 			}
 		}
 
+		config.DB.Model(&user).Update("last_active_at", time.Now())
+
 		c.Next()
 
 	}

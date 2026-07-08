@@ -1,7 +1,11 @@
 package main
 
 import (
+
+	"time"
+	
 	"server/config"
+	"server/jobs"
 	"server/routes"
 
 	"github.com/gin-gonic/gin"
@@ -22,6 +26,19 @@ func main() {
 	r.Use(config.SetupCORS())
 
 	routes.SetupRoutes(r)
+
+	go func() {
+		
+		ticker := time.NewTicker(24 * time.Hour)
+		defer ticker.Stop()
+
+		jobs.CleanupInactiveGuests()
+
+		for range ticker.C {
+			jobs.CleanupInactiveGuests()
+		}
+
+	}()
 
 	r.Run(":8000")
 
