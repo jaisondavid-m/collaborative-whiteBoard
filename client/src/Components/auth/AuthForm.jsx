@@ -40,7 +40,7 @@ function AuthForm({
 
         if (isRegister && !isPasswordValid()) {
             toast(
-                "Password doest not meet all requirements",
+                "Password does not meet all requirements",
                 "error"
             )
             return
@@ -71,7 +71,7 @@ function AuthForm({
                     <p className="text-gray-400 mt-1 text-sm">
                         {isRegister
                             ? "Create your SketchBoard account"
-                            : "Welcom back to SketchBoard !"
+                            : "Welcom back to SketchBoard!"
                         }
                     </p>
                 </div>
@@ -91,6 +91,7 @@ function AuthForm({
                             <input
                                 name="password"
                                 type={showPassword ? "text" : "password"}
+                                autoComplete={isRegister ? "new-password" : "current-password"}
                                 placeholder="Enter your Password"
                                 value={formData.password}
                                 onChange={handleChange}
@@ -101,6 +102,7 @@ function AuthForm({
                             <button
                                 type="button"
                                 onClick={() => setShowPassword( v => !v)}
+                                aria-label={ showPassword ? "Hide password" : "Show password" }
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400
                                 hover:text-gray-600 transition-colors"
                             >
@@ -114,7 +116,7 @@ function AuthForm({
                     </div>
 
                     {isRegister && (
-                        <div className="grid grid-cols-2 gap-2 items-stretch" >
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 items-stretch" >
                             <div className="flex-1" >
                                 <PasswordStrength
                                     password={formData.password}

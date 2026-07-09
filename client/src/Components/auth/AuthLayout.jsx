@@ -3,8 +3,10 @@ import React from "react"
 function AuthLayout({ children }) {
     return (
         <div
-            className="min-h-screen flex items-center justify-center flex-col bg-gray-50 px-4 py-6"
-            style={{ backgroundImage: "radial-gradient(circle at 20% 20%, #e0faf8 0%, transparent 50%), radial-gradient(circle at 80% 80%, #f0f9ff 0%, transparent 50%)" }}
+            className="min-h-screen flex items-center justify-center flex-col px-4 py-6"
+            style={{
+                backgroundImage: "linear-gradient(135deg, #f0fdfb 0%, #eef7ff 45%, #f5f3ff 100%),radial-gradient(circle at 10% 10%, rgba(78,205,196,0.16) 0%, transparent 65%),radial-gradient(circle at 90% 0%, rgba(69,183,170,0.12) 0%, transparent 50%), radial-gradient(circle at 50% 90%, rgba(147,139,236,0.10) 0%, transparent 50%)" 
+            }}
         >
             <div className="mb-5 mt-2 text-center">
                 <div className="inline-block" >

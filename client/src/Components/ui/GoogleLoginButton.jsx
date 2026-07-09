@@ -31,10 +31,13 @@ function GoogleLoginButton({ toast, setLoading }) {
     }
 
     return (
-        <GoogleLogin
-            onSuccess={handleSuccess}
-            onError={() => toast("Google Login Failed", "error")}
-        />
+        <div className="w-full flex justify-center [&>div]:w-full" >
+            <GoogleLogin
+                onSuccess={handleSuccess}
+                onError={() => toast("Google Login Failed", "error")}
+                width="100%"
+            />
+        </div>
     )
 }
 

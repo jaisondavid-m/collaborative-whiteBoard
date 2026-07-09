@@ -19,7 +19,7 @@ function Input({
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}
-                className="border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-black"
+                className="border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#4ecdc4] focus:border-[#4ecdc4] transition-colors"
             />
         </div>
     )
