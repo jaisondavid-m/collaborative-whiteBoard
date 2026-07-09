@@ -1,7 +1,17 @@
 #=========================
 # Environment Variables
 #=========================
-.env
+.env.local
+.env.*.local
+
+#========================
+# Complied binary
+#========================
+/server
+main
+
+__debug_bin*
+uploads/
 
 #=========================
 # Go Build Files
@@ -13,6 +23,12 @@
 *.dylib
 *.test
 *.out
+
+#=========================
+# GO workspace files
+#=========================
+go.work
+go.work.sum
 
 #=========================
 # Go Coverage
@@ -66,3 +82,10 @@ docker-compose.override.yml
 #=========================
 *.pem
 *.key
+
+
+#==========================
+# Backup files
+#==========================
+*.bak
+*~
