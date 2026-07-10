@@ -1,16 +1,17 @@
 package handlers
 
 import (
-
 	"errors"
 	"net/http"
+	"time"
 
+	"server/cache"
 	"server/config"
 	"server/models"
+	"server/utils"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-
 )
 
 func SendFriendRequest(c *gin.Context) {
@@ -33,22 +34,35 @@ func SendFriendRequest(c *gin.Context) {
 		return
 	}
 
-	var receiver models.User
-
-	if err := config.DB.Where("user_id = ? AND is_deleted = ? AND is_blocked = ?", input.ReceiverID, false, false).First(&receiver).Error; err != nil {
-
+	if _, err := utils.GetActiveUser(input.ReceiverID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{
 				"error": "User not found",
 			})
-			return
+			return 
 		}
-		
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":"Database error",
+			"error": "Database error",
 		})
-		return
+		return 
 	}
+
+	// var receiver models.User
+
+	// if err := config.DB.Where("user_id = ? AND is_deleted = ? AND is_blocked = ?", input.ReceiverID, false, false).First(&receiver).Error; err != nil {
+
+	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 		c.JSON(http.StatusNotFound, gin.H{
+	// 			"error": "User not found",
+	// 		})
+	// 		return
+	// 	}
+		
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"error":"Database error",
+	// 	})
+	// 	return
+	// }
 	
 	var blockCheck models.Block
 
@@ -223,6 +237,9 @@ func RespondFriendRequest(c *gin.Context) {
 
 		request.Status = "accepted"
 
+		cache.InvalidateFriends(request.SenderID)
+		cache.InvalidateFriends(request.ReceiverID)
+
 	} else {
 		request.Status = "rejected"
 	}
@@ -245,6 +262,13 @@ func RespondFriendRequest(c *gin.Context) {
 func GetFriendsList(c *gin.Context) {
 
 	me := c.GetString("userid")
+
+	if v, found := cache.C.Get(cache.FriendKey(me)); found {
+		c.JSON(http.StatusOK, gin.H{
+			"data": v,
+		})
+		return 
+	}
 
 	var friendships []models.Friendship
 
@@ -303,6 +327,8 @@ func GetFriendsList(c *gin.Context) {
 		})
 	}
 
+	cache.C.Set(cache.FriendKey(me), result, 60*time.Second)
+
 	c.JSON(http.StatusOK, gin.H{
 		"data": result,
 	})
@@ -342,6 +368,9 @@ func RemoveFriend(c *gin.Context) {
 		})
 		return
 	}
+
+	cache.InvalidateFriends(friendship.User1ID)
+	cache.InvalidateFriends(friendship.User2ID)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Friend removed",

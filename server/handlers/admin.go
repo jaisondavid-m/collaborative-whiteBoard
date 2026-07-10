@@ -1,14 +1,13 @@
 package handlers
 
 import (
-
 	"net/http"
 
+	"server/cache"
 	"server/config"
 	"server/models"
 
 	"github.com/gin-gonic/gin"
-
 )
 
 func ListUsers(c *gin.Context) {
@@ -54,6 +53,8 @@ func UpdateRole(c *gin.Context) {
 	}
 
 	config.DB.Model(&user).Update("role",input.Role)
+
+
 	c.JSON(http.StatusOK,gin.H{
 		"message":"Role Updated Successfully",
 	})
@@ -83,6 +84,7 @@ func DeleteUserByAdmin(c *gin.Context) {
 
 	user.IsDeleted = true
 	config.DB.Save(&user)
+	cache.Invalidateuser(userID)
 
 	c.JSON(http.StatusOK,gin.H{
 		"message":"User deleted successfully",
@@ -115,6 +117,8 @@ func BlockUserByAdmin(c *gin.Context) {
 	user.IsBlocked = true
 
 	config.DB.Save(&user)
+
+	cache.Invalidateuser(userID)
 
 	c.JSON(http.StatusOK,gin.H{
 		"message":"User Blocked Successfully",
@@ -165,6 +169,8 @@ func RecoverUserByAdmin(c *gin.Context) {
 	user.IsDeleted = false
 
 	config.DB.Save(&user)
+
+	cache.Invalidateuser(userID)
 	
 	c.JSON(http.StatusOK,gin.H{
 		"message":"User recovered Successfully",

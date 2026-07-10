@@ -4,7 +4,9 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
+	"server/cache"
 	"server/config"
 	"server/models"
 	"server/privatechat"
@@ -31,22 +33,42 @@ func SendMessage(c *gin.Context) {
 		input.MessageType = "text"
 	}
 
-	var receiver models.User
-
-	if err := config.DB.Where("user_id = ? AND is_deleted = ? AND is_blocked= ?", input.ReceiverID, false, false).First(&receiver).Error; err != nil {
-
+	if _, err := utils.GetActiveUser(input.ReceiverID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{
 				"error": "Receiver not found",
 			})
-			return
+			return 
 		}
-
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Database error",
+			"error": "Receiver not found",
 		})
 		return
 	}
+
+	msg := models.Message{
+		SenderID:    senderID,
+		ReceiverID:  input.ReceiverID,
+		Content:     input.Content,
+		MessageType: input.MessageType,
+	}
+
+	// var receiver models.User
+
+	// if err := config.DB.Where("user_id = ? AND is_deleted = ? AND is_blocked= ?", input.ReceiverID, false, false).First(&receiver).Error; err != nil {
+
+	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 		c.JSON(http.StatusNotFound, gin.H{
+	// 			"error": "Receiver not found",
+	// 		})
+	// 		return
+	// 	}
+
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"error": "Database error",
+	// 	})
+	// 	return
+	// }
 
 	// err != nil {
 	// 	c.JSON(http.StatusInternalServerError, gin.H{
@@ -62,12 +84,7 @@ func SendMessage(c *gin.Context) {
 	// 	return
 	// }
 
-	msg := models.Message{
-		SenderID:    senderID,
-		ReceiverID:  input.ReceiverID,
-		Content:     input.Content,
-		MessageType: input.MessageType,
-	}
+	
 
 	if err := config.DB.Create(&msg).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -82,6 +99,8 @@ func SendMessage(c *gin.Context) {
 		})
 		return
 	}
+
+	cache.InvalidateFriends(input.ReceiverID)
 
 	privatechat.Hub.DeliverMessage(input.ReceiverID, msg)
 
@@ -151,6 +170,7 @@ func GetConversation(c *gin.Context) {
 			})
 			return
 		}
+		cache.InvalidateUnread(me)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -237,6 +257,8 @@ func MarkMessageRead(c *gin.Context) {
 		return
 	}
 
+	cache.InvalidateUnread(me)
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Marked as read",
 	})
@@ -246,6 +268,13 @@ func MarkMessageRead(c *gin.Context) {
 func UnreadMessageCount(c *gin.Context) {
 
 	me := c.GetString("userid")
+
+	if v, found := cache.C.Get(cache.UnreadKey(me)); found {
+		c.JSON(http.StatusOK, gin.H{
+			"unreadCount": v,
+		})
+		return 
+	}
 
 	var count int64
 
@@ -257,6 +286,8 @@ func UnreadMessageCount(c *gin.Context) {
 		})
 		return
 	}
+
+	cache.C.Set(cache.UnreadKey(me), count, 10*time.Second)
 
 	c.JSON(http.StatusOK, gin.H{
 		"unreadCount": count,
@@ -399,20 +430,36 @@ func SendImageMessage(c *gin.Context) {
 		return
 	}
 
-	var receiver models.User
+	if _, err := utils.GetActiveUser(receiverID); err != nil {
 
-	if err := config.DB.Where("user_id = ? AND is_deleted = ? AND is_blocked = ?", receiverID, false, false).First(&receiver).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{
 				"error": "Receiver not found",
 			})
-			return
+			return 
 		}
+
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Database error",
 		})
 		return
+
 	}
+
+	// var receiver models.User
+
+	// if err := config.DB.Where("user_id = ? AND is_deleted = ? AND is_blocked = ?", receiverID, false, false).First(&receiver).Error; err != nil {
+	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 		c.JSON(http.StatusNotFound, gin.H{
+	// 			"error": "Receiver not found",
+	// 		})
+	// 		return
+	// 	}
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"error": "Database error",
+	// 	})
+	// 	return
+	// }
 
 	imagePath, err := utils.SaveImageFile(fileHeader)
 
@@ -436,6 +483,8 @@ func SendImageMessage(c *gin.Context) {
 		})
 		return
 	}
+
+	cache.InvalidateUnread(receiverID)
 
 	privatechat.Hub.DeliverMessage(receiverID, msg)
 
