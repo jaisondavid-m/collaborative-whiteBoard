@@ -1,19 +1,19 @@
 package config
 
 import (
-
-	"os"
-	"log"
-	"fmt"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
+	"log"
+	"os"
+	"time"
 
 	"server/models"
 
 	"github.com/go-sql-driver/mysql"
 	gormMysql "gorm.io/driver/mysql"
 	"gorm.io/gorm"
-
+	"gorm.io/gorm/logger"
 )
 
 var TiDB *gorm.DB
@@ -42,16 +42,34 @@ func ConnectTiDB() {
 
 	database, err := gorm.Open(
 		gormMysql.Open(dsn), 
-		&gorm.Config{},
+		&gorm.Config{
+			Logger: logger.Default.LogMode(logger.Warn),
+		},
 	)
 
-	DB = database
-
 	if err != nil {
-		log.Fatalf("TiDB connection Failed: %v", err)
+		log.Fatalf("TiDB connection Failed: %v",err)
 	}
 
+	sqlDB, err := database.DB()
+
+	if err != nil {
+		log.Fatalf("Failed to get generic DB object: %v", err)
+	}
+
+	sqlDB.SetMaxOpenConns(25)
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetConnMaxLifetime(30*time.Minute)
+	sqlDB.SetConnMaxIdleTime(5 * time.Minute)
+
+	DB = database
 	TiDB = database
+
+	// if err != nil {
+	// 	log.Fatalf("TiDB connection Failed: %v", err)
+	// }
+
+	// TiDB = database
 
 	err = TiDB.AutoMigrate(
 		&models.User{},
