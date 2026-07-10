@@ -20,7 +20,8 @@ func main() {
 		panic("Failed to load .env")
 	}
 
-	config.ConnectDB()
+	// config.ConnectDB()
+	config.ConnectTiDB()
 
 	r := gin.Default()
 	r.Use(config.SetupCORS())

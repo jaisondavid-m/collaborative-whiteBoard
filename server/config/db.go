@@ -54,3 +54,4 @@ func ConnectDB() {
 	fmt.Println("Database connected")
 
 }
+
