@@ -31,7 +31,7 @@ services:
       mysql:
         condition: service_healthy
     volumes:
-      - upload_data:/app/uploads
+      - uploads_data:/app/uploads
     networks:
       - backend
       - frontend
@@ -45,7 +45,7 @@ services:
       args:
         VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
         VITE_API_URL: ${VITE_API_URL}
-    restarts: unless-stopped
+    restart: unless-stopped
     depends_on:
       - server
     networks:
