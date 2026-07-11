@@ -51,12 +51,13 @@ function JoinRoomForm() {
 
         } catch (err) {
 
+            const status = err.response?.status
             const msg = err.response?.data?.error || "Error"
 
-            if (err.response?.status === 403) {
+            if (status === 403) {
                 setNeedsPassword(true)
                 toast(needsPassword ? "Wrong Password" : "This room needs a password")
-            } else if (err.response?.status === 401) {
+            } else if (err.response?.status === 404) {
                 toast("Room not found")
             } else {
                 toast(msg)
