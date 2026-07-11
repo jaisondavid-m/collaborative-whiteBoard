@@ -88,3 +88,63 @@ On top of that sits a lightweight **admin/superadmin system** for moderating use
 - Whiteboard state (drawing history, connected clients, chat history) lives **in memory per room** on the server; it is not persisted to the database, so it resets when a room's last client disconnects and the cleanup timer fires.
 - Private messages, conversations, friendships, blocks, notifications and users are all persisted in TiDB via GORM.
 - Two independent WebSocket hubs run inside the same process: one keyed by room ID (whiteboard), one keyed by User ID (private chat/presence).
+
+## API Overview
+
+All protected routes require `Authorization: Bearer <token>` (or a `token` query parameter for WebSocket upgrades).
+
+| Group | Base path | Examples |
+|---|---|---|
+| Public auth | `/auth` | `POST /register`, `POST /login`, `POST /google`, `POST /guest` (rate-limited) |
+| Protected (user) | `/api` | `GET /profile`, `DELETE /user`, `/POST /logout` |
+| Messages | `/api/messages` | `POST /send` , `POST /send-image`, `GET /conversations`, `GET /unread-count` |
+| Friends | `/api/friends` | `POST /request` , `PUT /request/:requestId`, `GET /requests` , `GET /list`, `DELETE /:friendshipId`, `POST /block/:userId`, `DELETE /block/:userId`, `GET /blocked` , `GET /blocked-by/:userId` |
+| Notifications | `/api` | `GET /notifications`, `GET /notifications/unread-count`, `PUT /notifications/:id/read`, `PUT /notifications/read-all` |
+| Rooms | `/api/room` | `POST /create` , `GET /join/:roomId` (WebSocket), `GET /list`, `POST /check/:roomId` | 
+| WebSocket | `/ws` | `GET /private` - private chat socket |
+| Admin | `/admin` | `GET /users`, `DELETE /users/:userId`, `PUT /users/:userId`, `PUT /users/:userId/block`, `PUT /users/:userId/unblock`, `GET /audit-logs`, `GET /audit-logs/stats`, `POST /notifications/send`, `Get /stats/online`, `GET /stats/today`, `GET /stats/month` |
+| superadmin | `/superadmin` | `POST /promote` |
+
+## Data Models
+
+- **User** - `userid`, hashed password, `role` (`user`/`admin`/`superadmin`/`guest`),`is_deleted`,`is_blocked`, `is_guest`, current session token, last active timestamp.
+- **Room** - `roomId`, name, owner, active flag, optional hashed password
+- **Message** - sender/receiver, content, message type (`text`/`image`), erad/edited/deleted flags.
+- **Conversation** - a denormalized pointer per user-pair with the last message and last sender, used to drive the conversations list
+- **FriendRequest** - sender, receiver, status (`pending`/`accepted`/`rejected`).
+- **Friendship** - a normalized user-pair record created on acceptance.
+- **Block** - blocker/blocked user-pair
+- **Notification** - title, message, sender, recipient (empty = broadcast), type, read flag,
+- **UserVisit** - per-user, per-day visit record used for the admin stats graphs.
+
+## Environment Variables
+
+Set these in a `.env` file at the project root (loaded via `godotenv`)
+
+```
+TIDB_USERNAME=
+TIDB_PASSWORD=
+TIDB_HOST=
+TIDB_PORT=
+TIDB_DATABASE=
+TIDB_CA_PATH=        # path to the TiDB CA certificate for TLS
+GOOGLE_CLIENT_ID=    # for Google Sign-In token verification
+```
+
+## Roles & Permissions
+
+| Role | Can do |
+|---|---|
+| **guest** | Use core features with a temporary, auto-generated account; cleaned up a automatically after inactivity |
+| **user** | Register/Login, create & join rooms, chat, manage friends and notifications |
+| **admin** | Everything a user can do, plus: manage users (block/unblock/delete/recover), send notifications, view audit logs and usage stats |
+| **superadmin** | Everything an admin can do, plus promte/demote users between `user` and `admin`; superadmin accounts themselves cannot be blocked, deleted or demoted |
+
+## Security Notes
+
+- Passwords are hashed with bcrypt (cost factor 14) before storage.
+- Sessions use short-lived (3-hour) JWTs; logging out clears the stored cuurent token server-side.
+- Room passwords, when set, are hashed the same way as account passwords.
+- Auth and general API routes are rate-limited seperately to reduce brute-force and abuse risl.
+- All privileged admin/superadmin routes are gated by dedicated middleware in addition to standart auth.
+- Blocked/deleted users are excluded from active-user lookup (login, messaging, friend actions) at the query level.
