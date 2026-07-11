@@ -172,41 +172,52 @@ function Whiteboard() {
         }
 
         let cancelled = false
-        const ws = joinRoomSocket(roomId,token, roomPassword)
-        socketRef.current = ws
+        let reconnectAttempt = 0
+        let reconnectTimer = null
 
-        ws.onopen = () => {
-            if (!cancelled)
+        const connect = () => {
+            const ws = joinRoomSocket(roomId, token, roomPassword)
+            socketRef.current = ws
+            ws.onopen = () => {
+                if (cancelled) return
                 setConnected(true)
-        } 
-        ws.onclose = () => {
-            if (!cancelled)
+                reconnectAttempt = 0
+            }
+            ws.onclose = () => {
+                if (cancelled) return
                 setConnected(false)
-        }
-        ws.onerror = () => {
-            if (!cancelled)
-                toast("Connection error - retrying")
+                const delay = Math.min(1000 * 2 ** reconnectAttempt, 15000)
+                reconnectAttempt++
+                reconnectTimer = setTimeout(connect, delay)
+            }
+            ws.onerror = () => {
+                if (!cancelled) toast("Connection error - retrying")
+            }
+            ws.onmessage = (event) => {
+                try {
+                    const msg = JSON.parse(event.data)
+                    const canvas = canvasRef.current
+                    if (!canvas) return
+                    const ctx = canvas.getContext("2d")
 
-        } 
-        ws.onmessage = (event) => {
-            try {
-                const msg = JSON.parse(event.data)
-                const canvas = canvasRef.current
-                if (!canvas) return
-                const ctx = canvas.getContext("2d")
-
-                if (msg.type === "sync") replayHistory(msg.events)
-                else if (msg.type === "draw") drawSegment(ctx, msg)
-                else if (msg.type === "clear") ctx.clearRect(0, 0, canvas.width, canvas.height)
-                else if (msg.type === "presence") setUsers(msg.users)
-                else if (msg.type === "chat") setMessages(prev => [...prev, msg])
-                else if (msg.type === "shape") drawShape(ctx, msg)
-            } catch { }
+                    if (msg.type === "sync") replayHistory(msg.events)
+                    else if (msg.type === "draw") drawSegment(ctx, msg)
+                    else if (msg.type === "clear") ctx.clearRect(0, 0, canvas.width, canvas.height)
+                    else if (msg.type === "presence") setUsers(msg.users)
+                    else if (msg.type === "chat") setMessages(prev => [...prev, msg])
+                    else if (msg.type === "shape") drawShape(ctx, msg)
+                } catch { }
+            }
         }
+
+        connect()
+
+
         return () => {
             cancelled = true
-            ws.close()
-        } 
+            clearTimeout(reconnectTimer)
+            socketRef.current?.close()
+        }
     }, [roomId, token, drawSegment, replayHistory,])
 
 
@@ -233,7 +244,7 @@ function Whiteboard() {
         if (location.state?.flash) {
             toast(location.state.flash)
         }
-    },[])
+    }, [])
 
     function getPos(e, canvas) {
         const rect = canvas.getBoundingClientRect()
@@ -460,7 +471,7 @@ function Whiteboard() {
                                     <span className="text-lg opacity-40" >👥</span>
                                     <span className="text-[10px] text-[#444]">No users Yet</span>
                                 </div>
-                                
+
                             )}
                             {users.map(u => (
                                 <div key={u} className="flex items-center gap-1.5">
