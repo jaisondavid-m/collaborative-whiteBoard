@@ -21,7 +21,7 @@ RUN go build -trimpath -ldflags="-s -w" -o /app/server .
 
 # Runtime stage 
 
-FROM apline:3.20 AS runner
+FROM alpine:3.20 AS runner
 
 RUN apk add --no-cache ca-certificates tzdata \
     && addgroup -S app && adduser -S app -G app
