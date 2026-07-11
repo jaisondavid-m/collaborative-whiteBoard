@@ -3,9 +3,16 @@ package websocket
 import (
 	"encoding/json"
 	"log"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
+
+const (
+	pongWait = 60 * time.Second
+	pingPeriod = (pongWait * 9) / 10
+)
+
 
 type Client struct {
 	Conn 	*websocket.Conn
@@ -13,7 +20,23 @@ type Client struct {
 	UserID 	string
 }
 
+func (c *Client) WritePump() {
+	ticker := time.NewTicker(pingPeriod)
+	defer ticker.Stop()
+	for range ticker.C {
+		if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+			return
+		}
+	}
+}
+
 func (c *Client) ReadMessages() {
+
+	c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+	c.Conn.SetPongHandler(func(string) error {
+		c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+		return nil
+	})
 
 	defer func ()  {
 		c.Room.mu.Lock()

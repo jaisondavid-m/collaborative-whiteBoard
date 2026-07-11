@@ -138,6 +138,7 @@ func JoinRoom(c *gin.Context) {
 	runtimeRoom.SendHistory(client)
 	runtimeRoom.SendChatHistory(client)
 
+	go client.WritePump()
 	go client.ReadMessages()
 
 }
