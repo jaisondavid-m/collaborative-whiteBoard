@@ -2,8 +2,7 @@ import axios from "axios"
 import { useAuthStore } from "../store/authStore.js"
 
 const API = axios.create({
-    baseURL: "https://collaborative-whiteboard-1-3p0d.onrender.com
-", //backend url
+    baseURL: "https://collaborative-whiteboard-1-3p0d.onrender.com", //backend url
     headers: {
         "Content-Type":"application/json"
     }
