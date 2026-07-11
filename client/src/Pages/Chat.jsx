@@ -192,7 +192,7 @@ function Chat() {
 
     useEffect(() => {
         const token = localStorage.getItem("token") || ""
-        const ws = new WebSocket(`ws://localhost:8000/ws/private?token=${token}`)
+        const ws = new WebSocket(`wss://collaborative-whiteboard-1-3p0d.onrender.com/ws/private?token=${token}`)
         wsRef.current = ws
         ws.onmessage = (e) => {
 

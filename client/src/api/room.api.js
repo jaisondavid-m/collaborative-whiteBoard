@@ -6,7 +6,7 @@ export const createRoom = (data) =>
 
 export const joinRoomSocket = (roomId,token,password="") =>
     new WebSocket(
-        `ws://localhost:8000/api/room/join/${roomId}?token=${encodeURIComponent(token) || ""}&password=${encodeURIComponent(password)}`
+        `wss://collaborative-whiteboard-1-3p0d.onrender.com/api/room/join/${roomId}?token=${encodeURIComponent(token) || ""}&password=${encodeURIComponent(password)}`
     )
 
 export const checkRoomPassword = (roomId, password) => 
