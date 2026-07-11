@@ -3,6 +3,10 @@
         {
             "source": "/api/:path*",
             "destination": "https://collaborative-whiteboard-1-3p0d.onrender.com/api/:path*"
+        },
+        {
+            "source": "/(.*)",
+            "destination":"/"
         }
     ]
 }
