@@ -53,7 +53,7 @@ function JoinRoomForm() {
 
             const msg = err.response?.data?.error || "Error"
 
-            if (err.response?.status === 401) {
+            if (err.response?.status === 403) {
                 setNeedsPassword(true)
                 toast(needsPassword ? "Wrong Password" : "This room needs a password")
             } else if (err.response?.status === 401) {

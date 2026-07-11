@@ -216,7 +216,7 @@ func CheckRoomPassword(c *gin.Context) {
 	}
 
 	if !utils.CheckPasswordHash(body.Password, room.Password) {
-		c.JSON(http.StatusUnauthorized,gin.H{
+		c.JSON(http.StatusForbidden,gin.H{
 			"error":"Wrong Password",
 		})
 		return 
