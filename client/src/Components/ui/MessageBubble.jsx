@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react"
 import { formatTime } from "../../Pages/Chat.jsx"
 
-const API_ORIGIN = import.meta.env.API_URL || "http://localhost:8000"
+const API_ORIGIN = import.meta.env.VITE_API_URL || "http://localhost:8000"
 
 const resolveImageUrl = (path) => {
 
