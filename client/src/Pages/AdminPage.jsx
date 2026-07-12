@@ -184,7 +184,7 @@ function AdminPage() {
 
         const matchesFilter =
             filter === "all" ||
-            (filter === "admin" && user.role === "admin" || user.role === "superadmin") ||
+            (filter === "admin" && ( user.role === "admin"  || user.role === "superadmin" ) ) ||
             (filter === "blocked" && user.is_blocked) ||
             (filter === "deleted" && user.is_deleted)
 
@@ -253,9 +253,9 @@ function AdminPage() {
                 <div className="flex flex-wrap gap-2 mt-4" >
                     <button
                         onClick={() => setFilter("all")}
-                        className={`text-left p-4 bg-white rounded-2xl shadow-sm border transition-colors ${filter === "all"
-                            ? "border-[#4ecdc4] ring-1 ring-[#4ecdc4]/30"
-                            : "border-gray-200 hover:border-gray-300"
+                        className={`text-left p-4 rounded-2xl shadow-sm border transition-colors ${filter === "all"
+                            ? "bg-[#e6faf8] border-[#4ecdc4] ring-1 ring-[#4ecdc4]/30"
+                            : "bg-white border-gray-200 hover:border-gray-300"
                             }`}
                     >
                         <p className="text-sm text-gray-500" >All</p>
@@ -272,14 +272,14 @@ function AdminPage() {
                     >
                         <p className="text-sm text-gray-500" >Admins</p>
                         <h2 className="text-2xl font-bold mt-1" >
-                            {users.filter(u => u.role === "admin").length}
+                            {users.filter(u => u.role === "admin" || u.role === "superadmin").length}
                         </h2>
                     </button>
                     <button
                         onClick={() => setFilter("blocked")}
                         className={`text-left bg-white p-4 rounded-2xl shadow-sm border transition-colors ${filter === "blocked"
                             ? "border-[#4ecdc4] ring-1 ring-[#4ecdc4]/30"
-                            : "border-gray-200 hover:border-gray-200 hover:border-gray-300"
+                            : "border-gray-200 hover:border-gray-200"
                             }`}
                     >
                         <p className="text-sm text-gray-500" >Blocked</p>
@@ -344,7 +344,7 @@ function AdminPage() {
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
 
                         <table className="w-full text-sm">
-                            <thead className="bg-gray-100/80 backdrop-blur border-b border-gray-200 sticky top-0 z-10">
+                            <thead className="bg-gray-100/80 backdrop-blur border-b border-gray-200 sticky top-0 z-10 shadow-sm">
                                 <tr>
                                     <th className="text-left px-6 py-3 font-medium text-gray-600">User</th>
                                     <th className="text-left px-6 py-3 font-medium text-gray-600">Role</th>
@@ -402,7 +402,8 @@ function AdminPage() {
                                                     Blocked
                                                 </span>
                                             ) : (
-                                                <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700" >
+                                                <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700 inline-flex items-center gap-1.5" >
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" ></span>
                                                     Active
                                                 </span>
                                             )}
@@ -476,6 +477,15 @@ function AdminPage() {
                                 <p className="text-sm" >
                                     No users match your search or filter
                                 </p>
+                                <button
+                                    onClick={() => {
+                                        setSearch("")
+                                        setFilter("all")
+                                    }}
+                                    className="mt-3 text-xs text-[#4ecdc4] hover:underline"
+                                >
+                                    Clear filters
+                                </button>
                             </div>
                         )}
                     </div>
