@@ -15,7 +15,7 @@ export const useAuthStore = create(
             logout: () =>
                 set({ token: null, userid: null, role: null }),
 
-            setHasHydrated: (state) => set({ hasHydrated })
+            setHasHydrated: (state) => set({ hasHydrated: state })
         }),
         {
             name: "auth",

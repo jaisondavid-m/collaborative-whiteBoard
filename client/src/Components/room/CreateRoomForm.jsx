@@ -91,9 +91,9 @@ function CreateRoomForm() {
         <Card>
             <div className="flex flex-col gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold">Create Room</h1>
-                    <p className="text-gray-500 mt-1">
-                        Start Collaborative Session
+                    <h1 className="text-3xl font-bold text-gray-900">Create Room</h1>
+                    <p className="text-gray-500">
+                        Start a Collaborative Session
                     </p>
                 </div>
                 <form
