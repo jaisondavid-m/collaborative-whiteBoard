@@ -57,9 +57,28 @@ func CreateRoom(c *gin.Context) {
 		hashedPassword = h
 	}
 
+	userID, exists := c.Get("userID")
+
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Unauthorized",
+		})
+		return
+	}
+
+	ownerID, ok := userID.(uint)
+
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Invalid user context",
+		})
+		return
+	}
+
 	room := models.Room{
 		RoomID:   body.RoomID,
 		Name:     body.Name,
+		OwnerID: ownerID,
 		IsActive: true,
 		Password: hashedPassword,
 	}
@@ -145,27 +164,51 @@ func JoinRoom(c *gin.Context) {
 
 func ListRooms(c *gin.Context) {
 
-	userID := ""
-	tokenStr := c.Query("token")
+	userIDVal, exists := c.Get("userID")
 
-	if tokenStr == "" {
-		auth := c.GetHeader("Authorization")
-		parts := strings.Split(auth, " ")
-		if len(parts) == 2 {
-			tokenStr = parts[1]
-		}
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Unauthorized",
+		})
+		return
 	}
 
-	if tokenStr != "" {
-		if token, err := utils.VerifyJWT(tokenStr); err == nil && token.Valid {
-			if claims, ok := utils.ExtractClaims(token); ok {
-				userID = claims
-			}
-		}
+	ownerID, ok := userIDVal.(uint)
+
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Invalid user context",
+		})
+		return
 	}
+
+	// tokenStr := c.Query("token")
+
+	// if tokenStr == "" {
+	// 	auth := c.GetHeader("Authorization")
+	// 	parts := strings.Split(auth, " ")
+	// 	if len(parts) == 2 {
+	// 		tokenStr = parts[1]
+	// 	}
+	// }
+
+	// if tokenStr != "" {
+	// 	if token, err := utils.VerifyJWT(tokenStr); err == nil && token.Valid {
+	// 		if claims, ok := utils.ExtractClaims(token); ok {
+	// 			userID = claims
+	// 		}
+	// 	}
+	// }
 
 	var rooms []models.Room
-	config.DB.Where("owner_id = ?",userID).Order("updated_at desc").Limit(10).Find(&rooms)
+
+	result := config.DB.Where("owner_id = ?",ownerID).Order("updated_at desc").Limit(10).Find(&rooms)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to fetch rooms",
+		})
+		return
+	}
 
 	type RoomResponse struct {
 		models.Room
@@ -173,16 +216,17 @@ func ListRooms(c *gin.Context) {
 		Users 	int 	`json:"users"`
 	}
 
-	result := make([]RoomResponse, len(rooms))
-	for i, r := range rooms {
-		rr := RoomResponse{Room: r}
-		if active, ok := websocket.GetRoom(r.RoomID); ok {
-			rr.Live = true
-			rr.Users = len(active.Clients)
-		}
-		result[i] = rr
-	}
-	c.JSON(http.StatusOK,gin.H{"rooms":result})
+	// result := make([]RoomResponse, len(rooms))
+	// for i, r := range rooms {
+	// 	rr := RoomResponse{Room: r}
+	// 	if active, ok := websocket.GetRoom(r.RoomID); ok {
+	// 		rr.Live = true
+	// 		rr.Users = len(active.Clients)
+	// 	}
+	// 	result[i] = rr
+	// }
+
+	c.JSON(http.StatusOK,gin.H{"rooms":rooms})
 }
 
 func CheckRoomPassword(c *gin.Context) {

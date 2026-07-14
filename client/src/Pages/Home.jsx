@@ -26,15 +26,38 @@ function Home() {
         return `${Math.floor(h/24)}d ago`
     }
 
+    const DUMMY_ROOMS = [
+        { id: "room-md", roomId: "room-md", name: "GD room", users: 2, live: false, UpdatedAt: new Date().toLocaleDateString()  },
+        { id: "jb-guys", roomId: "jb-rooms", name: "jb-guys", users: 4, live: false, UpdatedAt: new Date().toLocaleDateString() }
+    ]
+
     useEffect(() => {
+
+        let timedOut = false
+
+        const timer = setTimeout(() => {
+                timedOut = true
+                setRecentRooms(DUMMY_ROOMS)
+                setError("Server is slow to respond")
+                setLoading(false)
+            
+        },5000)
+
         API.get("/api/room/list")
             .then(res => {
+                clearTimeout(timer)
                 setRecentRooms(res.data.rooms ?? [])
+                setError(null)
+                setLoading(false)
             })
             .catch(() => {
-                setError("Failed to load rooms")
+                clearTimeout(timer)
+                if (timedOut) return 
+                setRecentRooms(DUMMY_ROOMS)
+                setError("Server is slow to respond")
+                setLoading(false)
             })
-            .finally(() => setLoading(false))
+            // .finally(() => setLoading(false))
     }, [])
 
     if(loading) return  <Loading message="Fetching your rooms" />
@@ -128,7 +151,7 @@ function Home() {
                     {recentRooms.map(room => (
                         <button
                             key={room.id}
-                            onClick={() => navigate(`/whiteboard/${room.roomId}`)}
+                            // onClick={() => navigate(`/whiteboard/${room.roomId}`)}
                             className="bg-white border border-black/10 rounded-xl px-4 py-3 flex items-center justify-between hover:border-[#4ecdc4] transition-colors text-left w-full"
                         >
                             <div className="flex items-center gap-3">
