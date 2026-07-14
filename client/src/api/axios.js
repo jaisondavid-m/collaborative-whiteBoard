@@ -25,7 +25,8 @@ API.interceptors.request.use(
 API.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        const requestHadToken = !!error.config?.headers?.Authorization
+        if (error.response?.status === 401 && requestHadToken) {
             // localStorage.removeItem("token")
             // window.dispatchEvent(new Event("auth:logout"))
             useAuthStore.getState().logout()

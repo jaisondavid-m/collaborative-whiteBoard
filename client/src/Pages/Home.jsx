@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom"
 
 import API from "../api/axios.js"
 import Loading from "../Components/ui/Loading.jsx"
+import { useAuthStore } from "../store/authStore.js"
 
 function Home() {
 
     const navigate = useNavigate()
+    const hasHydrated = useAuthStore(state => state.hasHydrated)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [recentRooms, setRecentRooms] = useState([])
@@ -33,6 +35,8 @@ function Home() {
 
     useEffect(() => {
 
+        if (!hasHydrated) return 
+
         let timedOut = false
 
         const timer = setTimeout(() => {
@@ -58,7 +62,7 @@ function Home() {
                 setLoading(false)
             })
             // .finally(() => setLoading(false))
-    }, [])
+    }, [hasHydrated])
 
     if(loading) return  <Loading message="Fetching your rooms" />
 

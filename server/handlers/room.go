@@ -57,23 +57,30 @@ func CreateRoom(c *gin.Context) {
 		hashedPassword = h
 	}
 
-	userID, exists := c.Get("userID")
+	// userID, exists := c.Get("userID")
 
-	if !exists {
+	// if !exists {
+	// 	c.JSON(http.StatusUnauthorized, gin.H{
+	// 		"error": "Unauthorized",
+	// 	})
+	// 	return
+	// }
+
+	ownerID := c.GetString("userid")
+
+	if ownerID == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"error": "Unauthorized",
 		})
 		return
 	}
 
-	ownerID, ok := userID.(uint)
-
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Invalid user context",
-		})
-		return
-	}
+	// if !ok {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"error": "Invalid user context",
+	// 	})
+	// 	return
+	// }
 
 	room := models.Room{
 		RoomID:   body.RoomID,
@@ -164,20 +171,20 @@ func JoinRoom(c *gin.Context) {
 
 func ListRooms(c *gin.Context) {
 
-	userIDVal, exists := c.Get("userID")
+	// userIDVal, exists := c.Get("userID")
 
-	if !exists {
+	// if !exists {
+	// 	c.JSON(http.StatusUnauthorized, gin.H{
+	// 		"error": "Unauthorized",
+	// 	})
+	// 	return
+	// }
+
+	ownerID := c.GetString("userid")
+
+	if ownerID == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"error": "Unauthorized",
-		})
-		return
-	}
-
-	ownerID, ok := userIDVal.(uint)
-
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Invalid user context",
 		})
 		return
 	}
