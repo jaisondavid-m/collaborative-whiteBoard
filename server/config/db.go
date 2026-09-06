@@ -28,9 +28,21 @@ func ConnectDB() {
 		dbname,
 	)
 
+	fmt.Printf("Connecting to MySQL: %s@tcp(%s:%s)/%s\n",
+	username, host, port, dbname)	
+
 	database, err := gorm.Open(mysql.Open(dsn),&gorm.Config{})
 	if err != nil {
 		log.Fatal("Database Connection Failed")
+	}
+
+	sqlDB, err := database.DB()
+	if err != nil {
+		log.Fatalf("Getting SQL DB failed: %v",err)
+	}
+
+	if err := sqlDB.Ping(); err != nil {
+		log.Fatalf("MySQL Ping Failed: %v",err)
 	}
 
 	DB = database
