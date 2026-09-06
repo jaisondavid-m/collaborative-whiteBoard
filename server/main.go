@@ -9,16 +9,16 @@ import (
 	"server/routes"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 )
 
 func main() {
 
-	err := godotenv.Load()
+	// err := godotenv.Load()
 
-	if err != nil {
-		panic("Failed to load .env")
-	}
+	// if err != nil {
+	// 	panic("Failed to load .env")
+	// }
 
 	config.ConnectDB()
 	// config.ConnectTiDB()
