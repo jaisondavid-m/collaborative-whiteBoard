@@ -29,6 +29,7 @@ RUN apk add --no-cache ca-certificates tzdata \
 WORKDIR /app
 
 COPY --from=builder /app/server /app/server
+COPY --from=builder /app/cert /app/cert
 
 RUN mkdir -p /app/uploads && chown -R app:app /app
 
