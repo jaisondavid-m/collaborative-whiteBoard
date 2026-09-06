@@ -50,8 +50,11 @@ services:
       - server
     networks:
       - frontend
+    volumes:
+      - /etc/letsencrypt:/etc/lensencrypt:ro
     ports:
       - "80:80"
+      - "443:443"
 
 networks:
   frontend:
