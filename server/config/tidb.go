@@ -57,6 +57,10 @@ func ConnectTiDB() {
 		log.Fatalf("Failed to get generic DB object: %v", err)
 	}
 
+	if err := sqlDB.Ping(); err != nil {
+		log.Fatalf("TiDB ping failed: %v",err)
+	}
+
 	sqlDB.SetMaxOpenConns(25)
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetConnMaxLifetime(30*time.Minute)
