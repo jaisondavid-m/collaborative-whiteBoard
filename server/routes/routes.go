@@ -64,6 +64,7 @@ func SetupRoutes(r *gin.Engine) {
 		room.GET("/join/:roomId", handlers.JoinRoom)
 		room.GET("/list", handlers.ListRooms)
 		room.POST("/check/:roomId", handlers.CheckRoomPassword)
+		room.GET("/ws/:roomId",handlers.RoomWS)
 	}
 
 	admin := r.Group("/admin")

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-
 	"log"
 	"net/http"
 	"server/privatechat"
@@ -34,5 +33,40 @@ func PrivateChatWS(c *gin.Context) {
 
 	go client.WritePump()
 	client.ReadPump() //blocks until disconnect
+
+}
+
+func RoomWS(c *gin.Context) {
+
+	userID := c.GetString("userid")
+	roomID := c.Param("roomId")
+
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		log.Printf(
+			"Room WS upgrade error user=%s room=%s: %v",
+			userID,
+			roomID,
+			err,
+		)
+		return 
+	}
+
+	room := GetOrCreateRoom(roomID)
+
+	client := &Client{
+		Conn: conn,
+		Room: room,
+		UserID: userID,
+		Send: make(chan []byte, 256),
+	}
+
+	room.AddClient(client)
+
+	go client.WritePump()
+
+	room.SendHistory(client)
+
+	client.ReadMessages()
 
 }

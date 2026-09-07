@@ -160,3 +160,4 @@ func (r *RuntimeRoom) AddClient(c *Client) {
 	r.broadcastPresence()
 
 }
+
