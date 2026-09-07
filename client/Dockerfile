@@ -31,8 +31,6 @@ RUN chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/log/nginx /
     && touch /var/run/nginx.pid \
     && chown nginx:nginx /var/run/nginx.pid
 
-USER nginx
-
 EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
