@@ -4,12 +4,13 @@ import (
 	"log"
 	"net/http"
 	"server/privatechat"
+	"server/websocket"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
+	gws "github.com/gorilla/websocket"
 )
 
-var privateUpgrader = websocket.Upgrader{
+var privateUpgrader = gws.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true } , 
 }
 
@@ -52,9 +53,9 @@ func RoomWS(c *gin.Context) {
 		return 
 	}
 
-	room := GetOrCreateRoom(roomID)
+	room := websocket.GetOrCreateRoom(roomID)
 
-	client := &Client{
+	client := &websocket.Client{
 		Conn: conn,
 		Room: room,
 		UserID: userID,
