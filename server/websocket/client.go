@@ -18,34 +18,63 @@ type Client struct {
 	Conn 	*websocket.Conn
 	Room 	*RuntimeRoom
 	UserID 	string
+	Send chan []byte
 }
 
 func (c *Client) WritePump() {
+
 	ticker := time.NewTicker(pingPeriod)
-	defer ticker.Stop()
-	for range ticker.C {
-		if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-			return
+
+	defer func() {
+		ticker.Stop()
+		c.Conn.Close()
+	}()
+
+	for {
+		select {
+		case message, ok := <-c.Send:
+			if !ok {
+				// c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
+				return 
+			}
+			if err := c.Conn.WriteMessage(websocket.TextMessage, message); err != nil {
+				return 
+			}
+		case <-ticker.C:
+			if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				return
+			}
 		}
 	}
+
+	// for range ticker.C {
+	// 	if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+	// 		return
+	// 	}
+	// }
 }
 
 func (c *Client) ReadMessages() {
 
 	c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+
 	c.Conn.SetPongHandler(func(string) error {
 		c.Conn.SetReadDeadline(time.Now().Add(pongWait))
 		return nil
 	})
 
-	defer func ()  {
-		c.Room.mu.Lock()
-		delete(c.Room.Clients,c)
-		c.Room.mu.Unlock()
-		c.Conn.Close()
-		c.Room.broadcastPresence()
-		c.Room.CleanupIfEmpty()
+	defer func() {
+		c.Room.RemoveClient(c)
 	}()
+
+	// defer func ()  {
+	// 	c.Room.mu.Lock()
+	// 	delete(c.Room.Clients,c)
+	// 	c.Room.mu.Unlock()
+	// 	c.Conn.Close()
+	// 	c.Room.broadcastPresence()
+	// 	c.Room.CleanupIfEmpty()
+	// }()
 
 	for {
 		_, raw, err := c.Conn.ReadMessage()
@@ -77,8 +106,12 @@ func (c *Client) ReadMessages() {
 			}
 			c.Room.mu.Unlock()
 
-			stamped, _ := json.Marshal(event)
+			stamped, err := json.Marshal(event)
+			if err != nil {
+				continue
+			}
 			c.Room.Broadcast <- stamped
+
 		case EventChat:
 			var msg ChatMessage
 			if err := json.Unmarshal(raw, &msg); err != nil {
@@ -108,5 +141,22 @@ func (c *Client) ReadMessages() {
 
 		// c.Room.Broadcast <- message
 	}
+
+}
+
+func (r *RuntimeRoom) AddClient(c *Client) {
+
+	r.mu.Lock()
+
+	r.Clients[c] = true
+
+	if r.cleanupTimer != nil {
+		r.cleanupTimer.Stop()
+		r.cleanupTimer = nil
+	}
+
+	r.mu.Unlock()
+	
+	r.broadcastPresence()
 
 }
