@@ -39,7 +39,7 @@ function App() {
         {cursorStyle === "cursor1" && <Cursor1 />}
         {cursorStyle === "cursor2" && <Cursor2 />}
         <Routes>
-          <Route path='/login' element={<GuestRoute><Login /></GuestRoute>} />
+          <Route path='/' element={<GuestRoute><Login /></GuestRoute>} />
           <Route path='/register' element={<GuestRoute><Register /></GuestRoute>} />
           <Route
             element={
