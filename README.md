@@ -25,16 +25,34 @@ clone the SketchBoard Repo in your computer.
 Create the required configurations file like setting .env 
 in .env enter all required data like db credential and google client id , etc,,...
 
-### 3. Start the Application
+### 3. Install dependencies
+
+Backend
+
+Make sure Go is installed on your computer
+
+on your terminal, open backend folder and run:
+go mod download
+
+Frontend
+
+Make sure Node.js and npm are installed on your computer
+
+on your terminal, open frontend folder and run:
+npm install
+
+### 4. Start the Application
+
 Start the backend first using the command `go run main.go`
+
 Start the frontend using the command `npm run dev`
 
 Open the frontend url in the browser
 
-### 4. Create an account
+### 5. Create an account
 Register an account with a desired username/password or if configured, Google Sign-in.
 
-### 5. Start using SketchBoard
+### 6. Start using SketchBoard
 
 1. Create a room
 2. Share the room id and password to your friends
