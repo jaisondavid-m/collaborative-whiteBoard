@@ -1,5 +1,68 @@
 # SketchBoard
 
+SketchBoard is a real time collaborative whiteboard and messaging platform. You can create rooms,draw with friends from anywhere, chat and collaborate all in one place.
+
+## Features
+
+Collaborative Whiteboard - Collaborate in real-time with your friends by drawing with Pen,Eraser,Line, Rectangle and Circle tools
+
+Rooms - Create or join any room (can also be protected by password)
+Room Chat - Chat in rooms, with everyone who joins seeing your message
+Private Messaging - Send text and images to users, edit or delete your sent messages,viewing typing and online status
+Friends - Send,accept,reject,remove,block,unblock friend requests
+Notifications - See notifications and mark messages as unread
+Authentication - Register an account,log in or Google Sign and can also guest login
+Admin Panel - Manage users, block/unblock accounts,manage roles,send notifications,view activity
+Custom Cursor - Choose optional custom cursors in Settings
+Security - Secure account and notification features, rate limiting and audit features
+
+## Setup
+
+### 1. Clone the project
+clone the SketchBoard Repo in your computer.
+
+### 2. Configure the application
+Create the required configurations file like setting .env 
+in .env enter all required data like db credential and google client id , etc,,...
+
+### 3. Start the Application
+Start the backend first using the command `go run main.go`
+Start the frontend using the command `npm run dev`
+
+Open the frontend url in the browser
+
+### 4. Create an account
+Register an account with a desired username/password or if configured, Google Sign-in.
+
+### 5. Start using SketchBoard
+
+1. Create a room
+2. Share the room id and password to your friends
+3. Start drawing together
+4. Use the room chat while collaborating
+5. In friends page, add friends and do private chating in the chat page
+6. View notifications and settings
+
+## Admin
+
+Admin can only view the admin panel which contains below things:
+1. Manage users
+2. Block/Unblock users
+3. Delete/Recover accounts
+4. Manage user roles
+5. Send notifications to users
+6. View audit logs and usage statics
+7. Superadmins will also have controle over admin roles
+
+## Important
+
+Whiteboard content is transient and may be lost when everyone leaves the room
+Private messages and user information are preserver for future use
+
+Made for hackclub project submission with 💖
+
+<!-- # SketchBoard
+
 SketchBoard is a real-time collaborative whiteboard and messaging platform. People can spin up a drawing room and sketch together live, chat privately with friends and admins get a dedicated panel to manage users, review activity and broadcast notifications.
 
 ---
@@ -147,4 +210,4 @@ GOOGLE_CLIENT_ID=    # for Google Sign-In token verification
 - Room passwords, when set, are hashed the same way as account passwords.
 - Auth and general API routes are rate-limited seperately to reduce brute-force and abuse risl.
 - All privileged admin/superadmin routes are gated by dedicated middleware in addition to standart auth.
-- Blocked/deleted users are excluded from active-user lookup (login, messaging, friend actions) at the query level.
+- Blocked/deleted users are excluded from active-user lookup (login, messaging, friend actions) at the query level. -->
